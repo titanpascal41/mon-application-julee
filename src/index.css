@@ -5,11 +5,19 @@
 
 }
 
+/* Règle globale pour toutes les images - responsive par défaut */
+img {
+  max-width: 100%;
+  display: block;
+}
+
 body{
   padding: 0;
   margin: 0;
- min-height: 100vh;
- overflow-x: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 
@@ -27,11 +35,15 @@ body{
 .image {
   position: relative;
   flex-shrink: 0;
+  width: auto;
+  max-width: 550px;
 }
 
 .image img{
-  width: 550px;
-  height: 911px;
+  width: 100%;
+  max-width: 550px;
+  height: 100vh;
+  min-height: 100vh;
   display: block;
   object-fit: cover;
 }
@@ -66,8 +78,9 @@ body{
   position: absolute;
   top: 270px;
   left: 55px;
-  max-width: 500px;
-  
+  max-width: 440px;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 
@@ -97,7 +110,9 @@ body{
 
 .logoimage img{
   width: 60px;
-  height: 110px;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 60/110;
   display: block;
   margin: 0 auto;
 }
@@ -130,7 +145,10 @@ body{
   border: 2px solid  #dccfb8af; 
   padding: 0 10px;
   box-sizing: border-box;
-
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: 16px; /* Évite le zoom automatique sur iOS */
 }
 
 input:focus::placeholder {
@@ -147,6 +165,26 @@ input:focus::placeholder {
 .required{
   color: red;
   margin-left: 2px;
+}
+
+.message{
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.message-succes{
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message-erreur{
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
 
@@ -176,9 +214,16 @@ display: block;
 
   
 }
+.administrateur{
+  text-align: center;
+  width: 100%;
+}
+
 .administrateur a{
  text-decoration: none;
-
+ text-align: center;
+ display: block;
+ white-space: nowrap;
 }
 
 .administrateur a:hover{
@@ -196,23 +241,34 @@ display: block;
 
 /* Écrans moyens (max-width: 1200px) */
 @media screen and (max-width: 1200px) {
+  .image {
+    max-width: 500px;
+  }
+  
   .image img {
     width: 100%;
-    max-width: 500px;
+    max-width: 100%;
     height: 100vh;
+    min-height: 100vh;
   }
 
   .nomlogosoustitre {
-    max-width: 450px;
+    right: 50px;
+    max-width: calc(100% - 100px);
   }
 }
 
 /* Tablettes (max-width: 1024px) */
 @media screen and (max-width: 1024px) {
+  .image {
+    max-width: 400px;
+  }
+  
   .image img {
     width: 100%;
-    max-width: 400px;
+    max-width: 100%;
     height: 100vh;
+    min-height: 100vh;
   }
 
   .nomlogotitre {
@@ -225,7 +281,8 @@ display: block;
     font-size: 18px;
     top: 220px;
     left: 40px;
-    max-width: 350px;
+    right: 40px;
+    max-width: calc(100% - 80px);
   }
 
   .sectionAuth {
@@ -239,47 +296,59 @@ display: block;
   .Authentification {
     flex-direction: column;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .image {
     width: 100%;
+    max-width: 100%;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
   }
-
+  
   .image img {
     width: 100%;
-    height: 300px;
+    max-width: 100%;
+    height: 350px;
+    min-height: 350px;
     object-fit: cover;
+    object-position: center;
   }
 
   .nomlogo {
     top: 20px;
     left: 20px;
+    right: 20px;
   }
 
   .nomlogotitre {
-    font-size: 45px;
-    top: 50px;
+    font-size: 50px;
+    top: 60px;
     left: 20px;
+    right: 20px;
     max-width: calc(100% - 40px);
+    word-wrap: break-word;
   }
 
   .nomlogosoustitre {
-    font-size: 16px;
-    top: 110px;
+    font-size: 17px;
+    top: 130px;
     left: 20px;
+    right: 20px;
     max-width: calc(100% - 40px);
     width: auto;
+    word-wrap: break-word;
+    white-space: normal;
   }
 
   .backsectionauth {
     width: 100%;
     padding: 20px;
     min-height: auto;
+    box-sizing: border-box;
   }
 
   .sectionAuth {
@@ -288,63 +357,111 @@ display: block;
     padding: 30px 20px;
     border-radius: 20px;
     margin-top: 20px;
+    box-sizing: border-box;
   }
 
   .contener {
     max-width: 100%;
+    width: 100%;
   }
 
   .contener input {
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .lebouton {
     max-width: 100%;
+    width: 100%;
   }
 }
 
-/* Mobiles (max-width: 480px) */
+/* iPhone XR et écrans similaires (max-width: 480px) */
 @media screen and (max-width: 480px) {
   body {
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .Authentification {
     min-height: 100vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .image {
+    width: 100%;
+    max-width: 100%;
+    position: relative;
   }
 
   .image img {
-    height: 200px;
+    width: 100%;
+    max-width: 100%;
+    height: 250px;
+    min-height: 250px;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .nomlogo {
+    top: 20px;
+    left: 20px;
+    right: 20px;
   }
 
   .nomlogotitre {
-    font-size: 35px;
-    top: 30px;
-    left: 15px;
+    font-size: 40px;
+    top: 40px;
+    left: 20px;
+    right: 20px;
+    max-width: calc(100% - 40px);
+    word-wrap: break-word;
   }
 
   .nomlogosoustitre {
-    font-size: 14px;
-    top: 75px;
-    left: 15px;
-    line-height: 1.3;
+    font-size: 15px;
+    top: 95px;
+    left: 20px;
+    right: 20px;
+    max-width: calc(100% - 40px);
+    line-height: 1.4;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+
+  .backsectionauth {
+    width: 100%;
+    padding: 15px;
+    min-height: auto;
+    box-sizing: border-box;
   }
 
   .sectionAuth {
-    padding: 25px 15px;
-    border-radius: 15px;
-    margin-top: 10px;
+    width: 100%;
+    max-width: 100%;
+    padding: 25px 20px;
+    border-radius: 20px;
+    margin-top: 15px;
+    box-sizing: border-box;
   }
 
   .logoimage img {
-    width: 50px;
-    height: 90px;
+    width: 55px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 60/110;
   }
 
   .connecterzvous {
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .contener {
+    width: 100%;
+    max-width: 100%;
   }
 
   .contener label {
@@ -352,37 +469,99 @@ display: block;
   }
 
   .contener input {
-    height: 38px;
-    font-size: 14px;
+    height: 44px;
+    font-size: 16px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .lebouton {
-    height: 38px;
-    font-size: 14px;
+    height: 44px;
+    font-size: 16px;
+    max-width: 100%;
+    width: 100%;
   }
 
   .creationcompte a,
   .administrateur a {
-    font-size: 13px;
+    font-size: 14px;
   }
 }
 
-/* Très petits écrans (max-width: 320px) */
-@media screen and (max-width: 320px) {
+/* iPhone XR spécifique et écrans 414px-430px */
+@media screen and (max-width: 430px) and (min-width: 375px) {
+  .image img {
+    height: 280px;
+    min-height: 280px;
+  }
+
   .nomlogotitre {
-    font-size: 28px;
+    font-size: 42px;
+    top: 35px;
   }
 
   .nomlogosoustitre {
-    font-size: 12px;
+    font-size: 16px;
+    top: 90px;
+    white-space: normal;
   }
 
   .sectionAuth {
-    padding: 20px 12px;
+    padding: 30px 18px;
+  }
+
+  .contener input {
+    height: 46px;
+    font-size: 16px;
+  }
+
+  .lebouton {
+    height: 46px;
+    font-size: 16px;
+  }
+}
+
+/* Très petits écrans (max-width: 374px) */
+@media screen and (max-width: 374px) {
+  .image img {
+    height: 220px;
+    min-height: 220px;
+  }
+
+  .nomlogotitre {
+    font-size: 32px;
+    top: 25px;
+    left: 15px;
+    right: 15px;
+  }
+
+  .nomlogosoustitre {
+    font-size: 13px;
+    top: 70px;
+    left: 15px;
+    right: 15px;
+    white-space: normal;
+  }
+
+  .sectionAuth {
+    padding: 20px 15px;
   }
 
   .logoimage img {
-    width: 40px;
-    height: 70px;
+    width: 45px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 60/110;
+  }
+
+  .contener input {
+    height: 42px;
+    font-size: 15px;
+  }
+
+  .lebouton {
+    height: 42px;
+    font-size: 15px;
   }
 }

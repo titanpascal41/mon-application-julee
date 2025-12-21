@@ -1,0 +1,19 @@
+{
+  "utilisateurs": [
+    {
+      "id": 1,
+      "prenom": "Jean",
+      "nom": "Dupont",
+      "email": "jean.dupont@mail.fr",
+      "motDePasse": "password123"
+    },
+    {
+      "id": 2,
+      "prenom": "Marie",
+      "nom": "Martin",
+      "email": "marie.martin@mail.fr",
+      "motDePasse": "password123"
+    }
+  ]
+}
+

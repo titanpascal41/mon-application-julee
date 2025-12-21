@@ -1,0 +1,130 @@
+═══════════════════════════════════════════════════════════════
+EXPLICATION : COMMENT AFFICHER LE FORMULAIRE DE CRÉATION
+═══════════════════════════════════════════════════════════════
+
+Ce document explique comment fonctionne le système pour afficher
+le formulaire de création de compte quand on clique sur "créer un compte".
+
+
+═══════════════════════════════════════════════════════════════
+1. LE STATE (ÉTAT) - Ligne 6
+═══════════════════════════════════════════════════════════════
+
+const [afficherCreation, changerAfficher] = useState(false);
+
+• useState : Hook React pour gérer un état
+• afficherCreation : variable qui indique si on affiche le formulaire 
+  de création (true/false)
+• changerAfficher : fonction pour modifier cette variable
+• false : valeur initiale (on commence avec le formulaire de connexion)
+
+ANALOGIE : C'est comme un interrupteur ON/OFF qui mémorise si on 
+           affiche le formulaire de création.
+
+
+═══════════════════════════════════════════════════════════════
+2. LA FONCTION DE CLIC - Lignes 8-11
+═══════════════════════════════════════════════════════════════
+
+const clicCreer = (e) => {
+  e.preventDefault();        // Empêche le rechargement de la page
+  changerAfficher(true);     // Change l'état à "true" = affiche la création
+};
+
+• e.preventDefault() : empêche le rechargement de la page
+• changerAfficher(true) : met afficherCreation à "true" pour afficher 
+  le formulaire de création
+
+QUAND ÇA SE DÉCLENCHE : Au clic sur "créer un compte" (ligne 73)
+
+
+═══════════════════════════════════════════════════════════════
+3. LE RENDU CONDITIONNEL - Ligne 39
+═══════════════════════════════════════════════════════════════
+
+{!afficherCreation ? (
+  // Si afficherCreation est FALSE → Affiche le formulaire de connexion
+  <>...</>
+) : (
+  // Si afficherCreation est TRUE → Affiche le formulaire de création
+  <>...</>
+)}
+
+• !afficherCreation : si afficherCreation est "false", affiche le 
+  formulaire de connexion
+• : : sinon, affiche le formulaire de création
+
+C'EST COMME UN "SI...SINON" :
+• Si afficherCreation = false → affiche connexion
+• Si afficherCreation = true → affiche création de compte
+
+
+═══════════════════════════════════════════════════════════════
+4. LE RETOUR EN ARRIÈRE - Lignes 13-16
+═══════════════════════════════════════════════════════════════
+
+const clicRetour = (e) => {
+  e.preventDefault();
+  changerAfficher(false);  // Remet l'état à "false" = affiche la connexion
+};
+
+• Remet afficherCreation à "false" pour revenir au formulaire de connexion
+
+
+═══════════════════════════════════════════════════════════════
+RÉSUMÉ DU FLUX COMPLET
+═══════════════════════════════════════════════════════════════
+
+1. Page charge 
+   → afficherCreation = false 
+   → Affiche formulaire de connexion
+                    ↓
+2. Clic sur "créer un compte" 
+   → clicCreer() 
+   → afficherCreation = true
+                    ↓
+3. React détecte le changement 
+   → Re-rend le composant
+                    ↓
+4. {!afficherCreation ? ... : ...} 
+   → Maintenant afficherCreation = true 
+   → Affiche formulaire création
+                    ↓
+5. Clic sur "Déjà un compte ?" 
+   → clicRetour() 
+   → afficherCreation = false
+                    ↓
+6. React re-rend 
+   → Affiche à nouveau le formulaire de connexion
+
+
+═══════════════════════════════════════════════════════════════
+POURQUOI ÇA FONCTIONNE ?
+═══════════════════════════════════════════════════════════════
+
+React surveille les changements d'état. Quand changerAfficher() est appelé :
+
+1. React met à jour la variable afficherCreation
+2. React re-rend le composant
+3. Le rendu conditionnel {!afficherCreation ? ... : ...} évalue la 
+   nouvelle valeur
+4. Le bon formulaire s'affiche
+
+C'est le principe de base de React : l'interface se met à jour 
+automatiquement quand l'état change.
+
+
+═══════════════════════════════════════════════════════════════
+TRADUCTION SIMPLE DES NOMS
+═══════════════════════════════════════════════════════════════
+
+• afficherCreation = "est-ce qu'on affiche le formulaire de création ?"
+• changerAfficher = "fonction pour changer ce qu'on affiche"
+• clicCreer = "quand on clique pour créer un compte"
+• clicRetour = "quand on clique pour retourner à la connexion"
+
+
+═══════════════════════════════════════════════════════════════
+FIN DU DOCUMENT
+═══════════════════════════════════════════════════════════════
+
