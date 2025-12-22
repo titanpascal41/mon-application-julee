@@ -1,25 +1,25 @@
 ═══════════════════════════════════════════════════════════════
-EXPLICATION : SYSTÈME DE CONNEXION ET PAGE D'ACCUEIL
+EXPLICATION : SYSTÈME DE CONNEXION ET PAGE D'ACCUEIL   ← Titre général : explique la logique après la connexion
 ═══════════════════════════════════════════════════════════════
 
 Ce document explique comment fonctionne le système qui affiche la 
-page d'accueil (écran vert) après une connexion réussie.
+page d'accueil (écran vert) après une connexion réussie.   ← On parle de ce qu’il se passe une fois connecté
 
 
 ═══════════════════════════════════════════════════════════════
-1. LES FICHIERS CRÉÉS
+1. LES FICHIERS CRÉÉS   ← Liste des fichiers importants et de leur rôle
 ═══════════════════════════════════════════════════════════════
 
-1.1 Fichier : src/PageAccueil.js
+1.1 Fichier : src/PageAccueil.js   ← Fichier du composant React de la page d’accueil
 ───────────────────────────────────────────────────────────────
-Ce fichier contient le composant de la page d'accueil.
+Ce fichier contient le composant de la page d'accueil.   ← C’est lui qui affiche l’écran vert après connexion
 
-Ce qui est affiché :
+Ce qui est affiché :   ← Résumé visuel de ce que voit l’utilisateur
 • Un écran vert (fond vert)
 • Un message de bienvenue avec le nom et prénom de l'utilisateur
 • Un bouton "Se déconnecter"
 
-Structure :
+Structure :   ← Exemple simplifié du code du composant
 const PageAccueil = ({ utilisateur, deconnecter }) => {
   return (
     <div style={{...}}>
@@ -30,36 +30,36 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
   );
 };
 
-Paramètres reçus :
+Paramètres reçus :   ← Ce que la page reçoit comme informations
 • utilisateur : Objet contenant les informations de l'utilisateur 
   connecté (prenom, nom, email, etc.)
 • deconnecter : Fonction à appeler quand on clique sur "Se déconnecter"
 
 
 ═══════════════════════════════════════════════════════════════
-2. MODIFICATIONS DANS Authentification.js
+2. MODIFICATIONS DANS Authentification.js   ← Tout ce qui a été changé dans la page de connexion
 ═══════════════════════════════════════════════════════════════
 
-2.1 Import de PageAccueil et useEffect
+2.1 Import de PageAccueil et useEffect   ← On prépare l’utilisation de la page d’accueil et du hook useEffect
 ───────────────────────────────────────────────────────────────
 import { useState, useEffect } from "react";
 import PageAccueil from "./PageAccueil";
 
 • useEffect : Hook React qui permet d'exécuter du code au chargement 
-  du composant ou quand certaines valeurs changent
+  du composant ou quand certaines valeurs changent   ← Utile pour vérifier si quelqu’un est déjà connecté
 
 
-2.2 Nouvel état : utilisateurConnecte
+2.2 Nouvel état : utilisateurConnecte   ← Nouvelle variable qui dit si quelqu’un est connecté ou non
 ───────────────────────────────────────────────────────────────
 const [utilisateurConnecte, changerUtilisateurConnecte] = useState(null);
 
-• utilisateurConnecte : Variable qui stocke l'utilisateur connecté
-• null : Valeur initiale (personne n'est connecté au départ)
-• Si null → Affiche le formulaire de connexion
-• Si contient un utilisateur → Affiche la page d'accueil
+• utilisateurConnecte : Variable qui stocke l'utilisateur connecté   ← On y met l’objet complet de l’utilisateur
+• null : Valeur initiale (personne n'est connecté au départ)   ← Au début, il n’y a personne
+• Si null → Affiche le formulaire de connexion   ← Cas “pas connecté”
+• Si contient un utilisateur → Affiche la page d'accueil   ← Cas “connecté”
 
 
-2.3 useEffect : Vérifier si déjà connecté
+2.3 useEffect : Vérifier si déjà connecté   ← Vérifie au chargement si quelqu’un était déjà connecté avant
 ───────────────────────────────────────────────────────────────
 useEffect(() => {
   const utilisateurStocke = localStorage.getItem("utilisateurConnecte");
@@ -70,34 +70,34 @@ useEffect(() => {
 
 Explication :
 • useEffect(() => {...}, []) : S'exécute UNE SEULE FOIS au chargement 
-  de la page
+  de la page   ← Le tableau vide [] signifie “une seule fois”
 • localStorage.getItem("utilisateurConnecte") : Récupère l'utilisateur 
-  sauvegardé dans le navigateur
-• Si un utilisateur est trouvé → On le charge dans l'état
-• Cela permet de rester connecté même après fermeture du navigateur
+  sauvegardé dans le navigateur   ← On lit ce qui a été gardé entre deux visites
+• Si un utilisateur est trouvé → On le charge dans l'état   ← On met l’utilisateur dans utilisateurConnecte
+• Cela permet de rester connecté même après fermeture du navigateur   ← C’est pour la “persistance” de la connexion
 
 
-2.4 Modification de gererConnexion()
+2.4 Modification de gererConnexion()   ← Fonction appelée quand on clique sur “Se connecter”
 ───────────────────────────────────────────────────────────────
-AVANT :
+AVANT :   ← Ancien comportement (avant la modification)
 if (resultat.succes) {
   changerMessageConnexion("Connexion réussie ! ...");
   localStorage.setItem("utilisateurConnecte", ...);
 }
 
-APRÈS :
+APRÈS :   ← Nouveau comportement (après la modification)
 if (resultat.succes) {
   localStorage.setItem("utilisateurConnecte", JSON.stringify(resultat.utilisateur));
   changerUtilisateurConnecte(resultat.utilisateur);
 }
 
-Changements :
-• On sauvegarde toujours dans localStorage
-• On met à jour l'état utilisateurConnecte avec l'utilisateur
-• Cela déclenche automatiquement l'affichage de la page d'accueil
+Changements :   ← Résumé de ce qui a été modifié
+• On sauvegarde toujours dans localStorage   ← On garde l’utilisateur en mémoire dans le navigateur
+• On met à jour l'état utilisateurConnecte avec l'utilisateur   ← On dit à React “quelqu’un est connecté”
+• Cela déclenche automatiquement l'affichage de la page d'accueil   ← Plus besoin de rediriger manuellement
 
 
-2.5 Nouvelle fonction : deconnecter()
+2.5 Nouvelle fonction : deconnecter()   ← Fonction appelée quand on clique sur “Se déconnecter”
 ───────────────────────────────────────────────────────────────
 const deconnecter = () => {
   localStorage.removeItem("utilisateurConnecte");
@@ -107,14 +107,14 @@ const deconnecter = () => {
   changerMessageConnexion("");
 };
 
-Cette fonction :
-1. Supprime l'utilisateur de localStorage
-2. Remet utilisateurConnecte à null
-3. Réinitialise les champs du formulaire
-4. Cela fait revenir au formulaire de connexion
+Cette fonction :   ← Étapes de la déconnexion
+1. Supprime l'utilisateur de localStorage   ← On efface la trace de la connexion
+2. Remet utilisateurConnecte à null   ← On indique à React qu’il n’y a plus d’utilisateur
+3. Réinitialise les champs du formulaire   ← On vide les champs pour repartir proprement
+4. Cela fait revenir au formulaire de connexion   ← L’écran revient à l’état “non connecté”
 
 
-2.6 Rendu conditionnel : Afficher page d'accueil ou formulaire
+2.6 Rendu conditionnel : Afficher page d'accueil ou formulaire   ← Choisit quoi afficher selon l’état
 ───────────────────────────────────────────────────────────────
 // Si l'utilisateur est connecté, afficher la page d'accueil
 if (utilisateurConnecte) {
@@ -128,18 +128,18 @@ return (
   </div>
 );
 
-Explication :
-• Si utilisateurConnecte contient un utilisateur → Affiche PageAccueil
-• Sinon → Affiche le formulaire de connexion
+Explication :   ← Comment lire ce bloc de code
+• Si utilisateurConnecte contient un utilisateur → Affiche PageAccueil   ← Cas “connecté”
+• Sinon → Affiche le formulaire de connexion   ← Cas “non connecté”
 • C'est un "rendu conditionnel" : on affiche une chose ou l'autre selon 
-  l'état
+  l'état   ← Principe très utilisé en React
 
 
 ═══════════════════════════════════════════════════════════════
-3. FLUX COMPLET D'UTILISATION
+3. FLUX COMPLET D'UTILISATION   ← Les étapes de ce que fait l’utilisateur et ce que fait le code
 ═══════════════════════════════════════════════════════════════
 
-3.1 Premier chargement de la page
+3.1 Premier chargement de la page   ← Ce qui se passe la toute première fois qu’on ouvre le site
 ───────────────────────────────────────────────────────────────
 1. La page se charge
 2. useEffect s'exécute
@@ -150,7 +150,7 @@ Explication :
    l'état
 
 
-3.2 Processus de connexion
+3.2 Processus de connexion   ← Détail de ce qui se passe quand on se connecte
 ───────────────────────────────────────────────────────────────
 1. Utilisateur entre email et mot de passe
 2. Clic sur "Se connecter"
@@ -168,7 +168,7 @@ Explication :
    b. Reste sur le formulaire de connexion
 
 
-3.3 Processus de déconnexion
+3.3 Processus de déconnexion   ← Détail de ce qui se passe quand on se déconnecte
 ───────────────────────────────────────────────────────────────
 1. Utilisateur clique sur "Se déconnecter"
 2. deconnecter() est appelée
@@ -181,7 +181,7 @@ Explication :
 9. Affiche le formulaire de connexion au lieu de la page d'accueil
 
 
-3.4 Rechargement de la page (après connexion)
+3.4 Rechargement de la page (après connexion)   ← Cas où on était déjà connecté puis on revient plus tard
 ───────────────────────────────────────────────────────────────
 1. L'utilisateur ferme le navigateur
 2. Plus tard, il rouvre la page
@@ -192,10 +192,10 @@ Explication :
 
 
 ═══════════════════════════════════════════════════════════════
-4. COMMENT ÇA FONCTIONNE TECHNIQUEMENT
+4. COMMENT ÇA FONCTIONNE TECHNIQUEMENT   ← Explications plus “informatique” pour comprendre la logique interne
 ═══════════════════════════════════════════════════════════════
 
-4.1 Le cycle de vie React
+4.1 Le cycle de vie React   ← Les grandes étapes de vie d’un composant (apparition, mise à jour, etc.)
 ───────────────────────────────────────────────────────────────
 1. Composant se monte (apparaît à l'écran)
 2. useEffect s'exécute (une seule fois grâce à [])
@@ -207,7 +207,7 @@ Explication :
 8. Nouveau rendu : Affiche PageAccueil
 
 
-4.2 localStorage
+4.2 localStorage   ← Partie dédiée au stockage dans le navigateur
 ───────────────────────────────────────────────────────────────
 localStorage est un espace de stockage dans le navigateur qui :
 • Persiste même après fermeture du navigateur
@@ -220,7 +220,7 @@ Utilisations dans notre code :
 • localStorage.removeItem("utilisateurConnecte") : Supprime
 
 
-4.3 Rendu conditionnel
+4.3 Rendu conditionnel   ← Comment on choisit quoi afficher selon une condition
 ───────────────────────────────────────────────────────────────
 Le rendu conditionnel permet d'afficher différents éléments selon 
 l'état.
@@ -241,7 +241,7 @@ Cela signifie : "Si connecté, affiche la page d'accueil, sinon
 affiche le formulaire"
 
 
-4.4 Passage de props (paramètres)
+4.4 Passage de props (paramètres)   ← Comment on envoie des informations à un composant enfant
 ───────────────────────────────────────────────────────────────
 Quand on affiche PageAccueil, on lui passe deux choses :
 
@@ -261,7 +261,7 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
 
 
 ═══════════════════════════════════════════════════════════════
-5. AVANTAGES DE CETTE APPROCHE
+5. AVANTAGES DE CETTE APPROCHE   ← Pourquoi cette manière de faire est pratique
 ═══════════════════════════════════════════════════════════════
 
 ✓ L'utilisateur reste connecté même après fermeture du navigateur
@@ -273,10 +273,10 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
 
 
 ═══════════════════════════════════════════════════════════════
-6. COMMENT TESTER
+6. COMMENT TESTER   ← Liste de scénarios pour vérifier que tout fonctionne
 ═══════════════════════════════════════════════════════════════
 
-6.1 Test de connexion
+6.1 Test de connexion   ← Vérifier que la connexion affiche bien la page d’accueil
 ───────────────────────────────────────────────────────────────
 1. Ouvrez la page
 2. Entrez email : jean.dupont@mail.fr
@@ -285,14 +285,14 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
 5. Vous devriez voir l'écran vert avec "Bienvenue Jean Dupont !"
 
 
-6.2 Test de déconnexion
+6.2 Test de déconnexion   ← Vérifier que le bouton “Se déconnecter” ramène bien au formulaire
 ───────────────────────────────────────────────────────────────
 1. Sur la page d'accueil (écran vert)
 2. Cliquez sur "Se déconnecter"
 3. Vous devriez revenir au formulaire de connexion
 
 
-6.3 Test de persistance
+6.3 Test de persistance   ← Vérifier qu’on reste connecté après avoir fermé le navigateur
 ───────────────────────────────────────────────────────────────
 1. Connectez-vous
 2. Fermez complètement le navigateur
@@ -301,7 +301,7 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
 5. Pas besoin de vous reconnecter
 
 
-6.4 Vérifier dans localStorage
+6.4 Vérifier dans localStorage   ← Voir les données techniques dans les outils du navigateur
 ───────────────────────────────────────────────────────────────
 1. Ouvrez les outils de développement (F12)
 2. Allez dans "Application" (Chrome) ou "Stockage" (Firefox)
@@ -311,7 +311,7 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
 
 
 ═══════════════════════════════════════════════════════════════
-7. VOCABULAIRE TECHNIQUE
+7. VOCABULAIRE TECHNIQUE   ← Petit dictionnaire des mots importants
 ═══════════════════════════════════════════════════════════════
 
 • useEffect : Hook React qui exécute du code à certains moments
@@ -325,7 +325,7 @@ const PageAccueil = ({ utilisateur, deconnecter }) => {
 
 
 ═══════════════════════════════════════════════════════════════
-8. RÉSUMÉ SIMPLE
+8. RÉSUMÉ SIMPLE   ← Rappel global en quelques phrases
 ═══════════════════════════════════════════════════════════════
 
 1. Au chargement → Vérifie si quelqu'un est déjà connecté

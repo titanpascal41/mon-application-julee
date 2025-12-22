@@ -8,7 +8,7 @@ const Authentification = () => {
   // État pour vérifier si l'utilisateur est connecté
   const [utilisateurConnecte, changerUtilisateurConnecte] = useState(null);
   const [afficherCreation, changerAfficher] = useState(false);
-  
+
   // Vérifier si l'utilisateur est déjà connecté au chargement
   useEffect(() => {
     const utilisateurStocke = localStorage.getItem("utilisateurConnecte");
@@ -16,12 +16,12 @@ const Authentification = () => {
       changerUtilisateurConnecte(JSON.parse(utilisateurStocke));
     }
   }, []);
-  
+
   // États pour le formulaire de connexion
   const [emailConnexion, changerEmailConnexion] = useState("");
   const [motDePasseConnexion, changerMotDePasseConnexion] = useState("");
   const [messageConnexion, changerMessageConnexion] = useState("");
-  
+
   // États pour le formulaire de création
   const [prenom, changerPrenom] = useState("");
   const [nom, changerNom] = useState("");
@@ -41,28 +41,31 @@ const Authentification = () => {
     changerAfficher(false);
     changerMessageCreation("");
   };
-  
+
   // Fonction pour gérer la connexion
   const gererConnexion = (e) => {
     e.preventDefault();
-    
+
     if (!emailConnexion || !motDePasseConnexion) {
       changerMessageConnexion("Veuillez remplir tous les champs");
       return;
     }
-    
+
     const resultat = verifierConnexion(emailConnexion, motDePasseConnexion);
-    
+
     if (resultat.succes) {
       // Sauvegarder l'utilisateur connecté
-      localStorage.setItem("utilisateurConnecte", JSON.stringify(resultat.utilisateur));
+      localStorage.setItem(
+        "utilisateurConnecte",
+        JSON.stringify(resultat.utilisateur)
+      );
       // Changer l'état pour afficher la page d'accueil
       changerUtilisateurConnecte(resultat.utilisateur);
     } else {
       changerMessageConnexion(resultat.message);
     }
   };
-  
+
   // Fonction pour se déconnecter
   const deconnecter = () => {
     localStorage.removeItem("utilisateurConnecte");
@@ -71,28 +74,41 @@ const Authentification = () => {
     changerMotDePasseConnexion("");
     changerMessageConnexion("");
   };
-  
+
   // Fonction pour gérer la création de compte
   const gererCreation = (e) => {
     e.preventDefault();
-    
+
     // Vérifier que tous les champs sont remplis
-    if (!prenom || !nom || !emailCreation || !motDePasseCreation || !confirmerMotDePasse) {
+    if (
+      !prenom ||
+      !nom ||
+      !emailCreation ||
+      !motDePasseCreation ||
+      !confirmerMotDePasse
+    ) {
       changerMessageCreation("Veuillez remplir tous les champs");
       return;
     }
-    
+
     // Vérifier que les mots de passe correspondent
     if (motDePasseCreation !== confirmerMotDePasse) {
       changerMessageCreation("Les mots de passe ne correspondent pas");
       return;
     }
-    
+
     // Créer l'utilisateur
-    const resultat = creerUtilisateur(prenom, nom, emailCreation, motDePasseCreation);
-    
+    const resultat = creerUtilisateur(
+      prenom,
+      nom,
+      emailCreation,
+      motDePasseCreation
+    );
+
     if (resultat.succes) {
-      changerMessageCreation("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
+      changerMessageCreation(
+        "Compte créé avec succès ! Vous pouvez maintenant vous connecter."
+      );
       // Réinitialiser les champs
       changerPrenom("");
       changerNom("");
@@ -111,7 +127,12 @@ const Authentification = () => {
 
   // Si l'utilisateur est connecté, afficher la page d'accueil
   if (utilisateurConnecte) {
-    return <PageAccueil utilisateur={utilisateurConnecte} deconnecter={deconnecter} />;
+    return (
+      <PageAccueil
+        utilisateur={utilisateurConnecte}
+        deconnecter={deconnecter}
+      />
+    );
   }
 
   // Sinon, afficher le formulaire de connexion/création
@@ -146,7 +167,13 @@ const Authentification = () => {
                 </div>
                 <br />
                 {messageConnexion && (
-                  <div className={`message ${messageConnexion.includes("réussie") ? "message-succes" : "message-erreur"}`}>
+                  <div
+                    className={`message ${
+                      messageConnexion.includes("réussie")
+                        ? "message-succes"
+                        : "message-erreur"
+                    }`}
+                  >
                     {messageConnexion}
                   </div>
                 )}
@@ -176,7 +203,9 @@ const Authentification = () => {
                   placeholder="****************"
                 />
                 <br />
-                <div className="lebouton" onClick={gererConnexion}>Se connecter</div>
+                <div className="lebouton" onClick={gererConnexion}>
+                  Se connecter
+                </div>
                 <br />
                 <div className="creationcompte">
                   <a href="" onClick={clicCreer}>
@@ -197,7 +226,13 @@ const Authentification = () => {
                 </div>
                 <br />
                 {messageCreation && (
-                  <div className={`message ${messageCreation.includes("succès") ? "message-succes" : "message-erreur"}`}>
+                  <div
+                    className={`message ${
+                      messageCreation.includes("succès")
+                        ? "message-succes"
+                        : "message-erreur"
+                    }`}
+                  >
                     {messageCreation}
                   </div>
                 )}
@@ -261,7 +296,9 @@ const Authentification = () => {
                   placeholder="****************"
                 />
                 <br />
-                <div className="lebouton" onClick={gererCreation}>Créer mon compte</div>
+                <div className="lebouton" onClick={gererCreation}>
+                  Créer mon compte
+                </div>
                 <br />
                 <div className="creationcompte">
                   <a href="" onClick={clicRetour}>

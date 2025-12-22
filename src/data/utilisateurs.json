@@ -5,14 +5,18 @@
       "prenom": "Jean",
       "nom": "Dupont",
       "email": "jean.dupont@mail.fr",
-      "motDePasse": "password123"
+      "motDePasse": "password123",
+      "profilId": null,
+      "description": ""
     },
     {
       "id": 2,
       "prenom": "Marie",
       "nom": "Martin",
       "email": "marie.martin@mail.fr",
-      "motDePasse": "password123"
+      "motDePasse": "password123",
+      "profilId": null,
+      "description": ""
     }
   ]
 }
