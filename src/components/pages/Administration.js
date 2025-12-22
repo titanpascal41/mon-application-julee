@@ -343,7 +343,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                   <div className="form-group">
                     <label htmlFor="nom">
                       Nom <span className="required">*</span>
-                      <span className="hint">(sera converti en majuscules)</span>
                     </label>
                     <input
                       type="text"
@@ -357,7 +356,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                   <div className="form-group">
                     <label htmlFor="prenom">
                       Prénom <span className="required">*</span>
-                      <span className="hint">(sera converti en minuscules)</span>
                     </label>
                     <input
                       type="text"
@@ -407,7 +405,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                         <button
                           className="btn-link"
                           onClick={() => handleEdit(profil)}
-                          style={{ color: "#667eea" }}
+                          style={{ color: "#4A90E2" }}
                         >
                           Modifier
                         </button>
@@ -484,7 +482,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleUserInputChange}
                       required
                     >
-                      <option value="">Sélectionner un profil</option>
                       {profils.map((profil) => (
                         <option key={profil.id} value={profil.id}>
                           {profil.nom} {profil.prenom}
@@ -612,7 +609,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                         <button
                           className="btn-link"
                           onClick={() => handleEditUser(user)}
-                          style={{ color: "#667eea" }}
+                          style={{ color: "#4A90E2" }}
                         >
                           Modifier
                         </button>

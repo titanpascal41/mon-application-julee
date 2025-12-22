@@ -65,10 +65,8 @@ const creerUtilisateur = (prenom, nom, email, motDePasse, profilId = null, descr
     return { succes: false, message: "Cet email est déjà utilisé" };
   }
   
-  // Vérifier que le profil est fourni
-  if (!profilId) {
-    return { succes: false, message: "Un profil doit être sélectionné" };
-  }
+  // Le profil est optionnel lors de la création d'un compte public
+  // Il pourra être assigné plus tard par un administrateur
   
   // Valider le mot de passe
   const validationMotDePasse = validerMotDePasse(motDePasse);

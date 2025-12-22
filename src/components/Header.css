@@ -32,7 +32,7 @@
   width: 40px;
   height: 40px;
   border: none;
-  background: #f5f7fa;
+  background: rgba(74, 144, 226, 0.15);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -43,7 +43,7 @@
 }
 
 .header-icon-btn:hover {
-  background: #e5e7eb;
+  background: rgba(74, 144, 226, 0.25);
 }
 
 .user-menu-wrapper {
@@ -61,14 +61,14 @@
 }
 
 .user-profile:hover {
-  background: #f5f7fa;
+  background: rgba(74, 144, 226, 0.15);
 }
 
 .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,7 +143,7 @@
 }
 
 .dropdown-item:hover {
-  background: #f5f7fa;
+  background: rgba(74, 144, 226, 0.1);
 }
 
 .dropdown-item.logout {

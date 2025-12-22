@@ -2,14 +2,14 @@
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background-color: #F0F4F8;
 }
 
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 280px;
+  margin-left: 300px;
   transition: margin-left 0.3s ease;
 }
 
@@ -50,22 +50,22 @@
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
   border-radius: 12px;
   padding: 24px;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:nth-child(2) {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);
+  background: linear-gradient(135deg, #5BA3F5 0%, #4A90E2 100%);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
 .stat-card:nth-child(3) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+  background: linear-gradient(135deg, #E8F0F7 0%, #5BA3F5 100%);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
 .stat-card:hover {

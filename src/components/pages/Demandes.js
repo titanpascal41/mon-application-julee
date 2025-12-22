@@ -21,6 +21,22 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
     societesDemandeurs: [],
     interlocuteur: "",
   });
+  
+  // États pour la soumission et validation
+  const [soumissionFormData, setSoumissionFormData] = useState({
+    demandeId: "",
+    dateSoumissionBacklog: "",
+    lienCompteRendu: "",
+    redacteurBacklog: "",
+    dateElaborationDATFL: "",
+    dateValidationDATFL: "",
+    dateElaborationPlanningDEV: "",
+    dateValidationPlanningDEV: "",
+    statutSoumission: "attente reception mail de validation",
+  });
+  const [showSoumissionForm, setShowSoumissionForm] = useState(false);
+  const [editingSoumission, setEditingSoumission] = useState(null);
+  const [soumissionMessage, setSoumissionMessage] = useState({ type: "", text: "" });
   const [demandeMessage, setDemandeMessage] = useState({ type: "", text: "" });
   const [showDemandeDeleteConfirm, setShowDemandeDeleteConfirm] = useState(false);
   const [demandeToDelete, setDemandeToDelete] = useState(null);
@@ -30,6 +46,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       if (activeSubPageProp.includes("liste")) setActiveSubPage("liste");
       else if (activeSubPageProp.includes("nouvelle")) setActiveSubPage("nouvelle");
       else if (activeSubPageProp.includes("validation")) setActiveSubPage("validation");
+      else if (activeSubPageProp.includes("soumission-validation")) setActiveSubPage("soumission-validation");
     }
   }, [activeSubPageProp]);
 
@@ -45,7 +62,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
 
   // Charger les données au montage et quand on change de sous-page
   useEffect(() => {
-    if (activeSubPage === "liste") {
+    if (activeSubPage === "liste" || activeSubPage === "soumission-validation") {
       chargerLesDemandes();
       chargerLesSocietes();
     }
@@ -158,6 +175,116 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
     setDemandeMessage({ type: "", text: "" });
   };
 
+  // Fonctions pour la soumission et validation
+  const handleSoumissionInputChange = (e) => {
+    const { name, value } = e.target;
+    setSoumissionFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (soumissionMessage.text) {
+      setSoumissionMessage({ type: "", text: "" });
+    }
+  };
+
+  const handleCreateSoumission = () => {
+    setEditingSoumission(null);
+    setSoumissionFormData({
+      demandeId: "",
+      dateSoumissionBacklog: "",
+      lienCompteRendu: "",
+      redacteurBacklog: "",
+      dateElaborationDATFL: "",
+      dateValidationDATFL: "",
+      dateElaborationPlanningDEV: "",
+      dateValidationPlanningDEV: "",
+      statutSoumission: "attente reception mail de validation",
+    });
+    setShowSoumissionForm(true);
+    setSoumissionMessage({ type: "", text: "" });
+  };
+
+  const handleEditSoumission = (demande) => {
+    setEditingSoumission(demande);
+    setSoumissionFormData({
+      demandeId: demande.id.toString(),
+      dateSoumissionBacklog: demande.dateSoumissionBacklog || "",
+      lienCompteRendu: demande.lienCompteRendu || "",
+      redacteurBacklog: demande.redacteurBacklog || "",
+      dateElaborationDATFL: demande.dateElaborationDATFL || "",
+      dateValidationDATFL: demande.dateValidationDATFL || "",
+      dateElaborationPlanningDEV: demande.dateElaborationPlanningDEV || "",
+      dateValidationPlanningDEV: demande.dateValidationPlanningDEV || "",
+      statutSoumission: demande.statutSoumission || "attente reception mail de validation",
+    });
+    setShowSoumissionForm(true);
+    setSoumissionMessage({ type: "", text: "" });
+  };
+
+  const handleSoumissionSubmit = (e) => {
+    e.preventDefault();
+    setSoumissionMessage({ type: "", text: "" });
+
+    // Mettre à jour la demande avec les informations de soumission
+    const demande = demandes.find(d => d.id === parseInt(soumissionFormData.demandeId));
+    if (!demande) {
+      setSoumissionMessage({ type: "error", text: "Demande introuvable" });
+      return;
+    }
+
+    const resultat = mettreAJourDemande(demande.id, {
+      dateReception: demande.dateReception,
+      societesDemandeurs: demande.societesDemandeurs,
+      interlocuteur: demande.interlocuteur,
+      dateSoumissionBacklog: soumissionFormData.dateSoumissionBacklog,
+      lienCompteRendu: soumissionFormData.lienCompteRendu,
+      redacteurBacklog: soumissionFormData.redacteurBacklog,
+      dateElaborationDATFL: soumissionFormData.dateElaborationDATFL,
+      dateValidationDATFL: soumissionFormData.dateValidationDATFL,
+      dateElaborationPlanningDEV: soumissionFormData.dateElaborationPlanningDEV,
+      dateValidationPlanningDEV: soumissionFormData.dateValidationPlanningDEV,
+      statutSoumission: soumissionFormData.statutSoumission,
+    });
+
+    if (resultat.succes) {
+      setSoumissionMessage({ type: "success", text: "Informations de soumission et validation enregistrées avec succès" });
+      chargerLesDemandes();
+      setShowSoumissionForm(false);
+      setSoumissionFormData({
+        demandeId: "",
+        dateSoumissionBacklog: "",
+        lienCompteRendu: "",
+        redacteurBacklog: "",
+        dateElaborationDATFL: "",
+        dateValidationDATFL: "",
+        dateElaborationPlanningDEV: "",
+        dateValidationPlanningDEV: "",
+        statutSoumission: "attente reception mail de validation",
+      });
+      setEditingSoumission(null);
+      setTimeout(() => setSoumissionMessage({ type: "", text: "" }), 3000);
+    } else {
+      setSoumissionMessage({ type: "error", text: resultat.message });
+    }
+  };
+
+  const handleCancelSoumission = () => {
+    setShowSoumissionForm(false);
+    setSoumissionFormData({
+      demandeId: "",
+      dateSoumissionBacklog: "",
+      lienCompteRendu: "",
+      redacteurBacklog: "",
+      dateElaborationDATFL: "",
+      dateValidationDATFL: "",
+      dateElaborationPlanningDEV: "",
+      dateValidationPlanningDEV: "",
+      statutSoumission: "attente reception mail de validation",
+    });
+    setEditingSoumission(null);
+    setSoumissionMessage({ type: "", text: "" });
+  };
+
   // Fonction pour obtenir les noms des sociétés
   const getSocietesNames = (societesIds) => {
     return societesIds.map((id) => {
@@ -239,7 +366,6 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                   <div className="form-group">
                     <label htmlFor="demandeSocietesDemandeurs">
                       Sociétés demandeurs <span className="required">*</span>
-                      <span className="hint">(Maintenir Ctrl/Cmd pour sélectionner plusieurs)</span>
                     </label>
                     <select
                       id="demandeSocietesDemandeurs"
@@ -314,7 +440,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                         <button
                           className="btn-link"
                           onClick={() => handleEditDemande(demande)}
-                          style={{ color: "#667eea" }}
+                          style={{ color: "#4A90E2" }}
                         >
                           Modifier
                         </button>
@@ -375,6 +501,242 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      ),
+    },
+    "soumission-validation": {
+      title: "Soumission et Validation",
+      content: (
+        <div>
+          <div className="action-buttons">
+            <button className="btn-primary" onClick={handleCreateSoumission}>
+              Ajouter / Modifier Soumission
+            </button>
+          </div>
+
+          {soumissionMessage.text && (
+            <div
+              className={`info-box ${
+                soumissionMessage.type === "error" ? "error-box" : "success-box"
+              }`}
+              style={{
+                marginTop: "16px",
+                backgroundColor: soumissionMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                borderColor: soumissionMessage.type === "error" ? "#fecaca" : "#a7f3d0",
+                color: soumissionMessage.type === "error" ? "#991b1b" : "#065f46",
+              }}
+            >
+              <p>{soumissionMessage.text}</p>
+            </div>
+          )}
+
+          {showSoumissionForm && (
+            <div className="modal-overlay" onClick={handleCancelSoumission}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "700px" }}>
+                <div className="modal-header">
+                  <h3>{editingSoumission ? "Modifier la soumission" : "Ajouter une soumission"}</h3>
+                  <button className="modal-close" onClick={handleCancelSoumission}>&times;</button>
+                </div>
+                <form onSubmit={handleSoumissionSubmit}>
+                  <div className="form-group">
+                    <label htmlFor="soumissionDemandeId">
+                      ID Demande <span className="required">*</span>
+                    </label>
+                    <select
+                      id="soumissionDemandeId"
+                      name="demandeId"
+                      value={soumissionFormData.demandeId}
+                      onChange={handleSoumissionInputChange}
+                      required
+                    >
+                      {demandes.map((demande) => (
+                        <option key={demande.id} value={demande.id}>
+                          #{demande.id} - {demande.interlocuteur}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="dateSoumissionBacklog">
+                      Date soumission du backlog pour validation
+                    </label>
+                    <input
+                      type="date"
+                      id="dateSoumissionBacklog"
+                      name="dateSoumissionBacklog"
+                      value={soumissionFormData.dateSoumissionBacklog}
+                      onChange={handleSoumissionInputChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="lienCompteRendu">
+                      Lien du compte rendu de comité
+                    </label>
+                    <input
+                      type="url"
+                      id="lienCompteRendu"
+                      name="lienCompteRendu"
+                      value={soumissionFormData.lienCompteRendu}
+                      onChange={handleSoumissionInputChange}
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="redacteurBacklog">
+                      Nom du rédacteur du backlog produit
+                    </label>
+                    <input
+                      type="text"
+                      id="redacteurBacklog"
+                      name="redacteurBacklog"
+                      value={soumissionFormData.redacteurBacklog}
+                      onChange={handleSoumissionInputChange}
+                      placeholder="Nom du rédacteur"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="dateElaborationDATFL">
+                      Date d'élaboration du DATFL
+                    </label>
+                    <input
+                      type="date"
+                      id="dateElaborationDATFL"
+                      name="dateElaborationDATFL"
+                      value={soumissionFormData.dateElaborationDATFL}
+                      onChange={handleSoumissionInputChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="dateValidationDATFL">
+                      Date de validation du DATFL
+                    </label>
+                    <input
+                      type="date"
+                      id="dateValidationDATFL"
+                      name="dateValidationDATFL"
+                      value={soumissionFormData.dateValidationDATFL}
+                      onChange={handleSoumissionInputChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="dateElaborationPlanningDEV">
+                      Date d'élaboration du planning DEV
+                    </label>
+                    <input
+                      type="date"
+                      id="dateElaborationPlanningDEV"
+                      name="dateElaborationPlanningDEV"
+                      value={soumissionFormData.dateElaborationPlanningDEV}
+                      onChange={handleSoumissionInputChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="dateValidationPlanningDEV">
+                      Date de validation de planning DEV
+                    </label>
+                    <input
+                      type="date"
+                      id="dateValidationPlanningDEV"
+                      name="dateValidationPlanningDEV"
+                      value={soumissionFormData.dateValidationPlanningDEV}
+                      onChange={handleSoumissionInputChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="statutSoumission">
+                      Statut de soumission
+                    </label>
+                    <select
+                      id="statutSoumission"
+                      name="statutSoumission"
+                      value={soumissionFormData.statutSoumission}
+                      onChange={handleSoumissionInputChange}
+                    >
+                      <option value="attente reception mail de validation">Attente réception mail de validation</option>
+                      <option value="validé">Validé</option>
+                      <option value="en attente">En attente</option>
+                    </select>
+                  </div>
+
+                  <div className="modal-actions">
+                    <button type="submit" className="btn-primary">
+                      {editingSoumission ? "Mettre à jour" : "Enregistrer"}
+                    </button>
+                    <button type="button" className="btn-secondary" onClick={handleCancelSoumission}>
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          <div className="table-container" style={{ marginTop: "24px" }}>
+            <h3>Liste des soumissions et validations</h3>
+            {demandes.length === 0 ? (
+              <p>Aucune demande enregistrée pour le moment.</p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID Demande</th>
+                    <th>Date soumission backlog</th>
+                    <th>Rédacteur backlog</th>
+                    <th>Date élaboration DATFL</th>
+                    <th>Date validation DATFL</th>
+                    <th>Date élaboration Planning DEV</th>
+                    <th>Date validation Planning DEV</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demandes
+                    .filter(d => d.dateSoumissionBacklog || d.redacteurBacklog || d.dateElaborationDATFL)
+                    .map((demande) => (
+                    <tr key={demande.id}>
+                      <td>#{demande.id}</td>
+                      <td>{demande.dateSoumissionBacklog || "-"}</td>
+                      <td>{demande.redacteurBacklog || "-"}</td>
+                      <td>{demande.dateElaborationDATFL || "-"}</td>
+                      <td>{demande.dateValidationDATFL || "-"}</td>
+                      <td>{demande.dateElaborationPlanningDEV || "-"}</td>
+                      <td>{demande.dateValidationPlanningDEV || "-"}</td>
+                      <td>
+                        <span className={`badge ${demande.statutSoumission === "validé" ? "badge-success" : "badge-pending"}`}>
+                          {demande.statutSoumission || "Non défini"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn-link"
+                          onClick={() => handleEditSoumission(demande)}
+                          style={{ color: "#4A90E2" }}
+                        >
+                          Modifier
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {demandes.filter(d => d.dateSoumissionBacklog || d.redacteurBacklog || d.dateElaborationDATFL).length === 0 && (
+                    <tr>
+                      <td colSpan="9" style={{ textAlign: "center", padding: "24px" }}>
+                        Aucune soumission enregistrée pour le moment.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       ),

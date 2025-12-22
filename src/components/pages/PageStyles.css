@@ -48,8 +48,8 @@
 }
 
 .tab-button.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
+  color: #4A90E2;
+  border-bottom-color: #4A90E2;
 }
 
 .page-content {
@@ -78,7 +78,7 @@
 
 .btn-primary {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -90,14 +90,15 @@
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+  background: linear-gradient(135deg, #5BA3F5 0%, #4A90E2 100%);
 }
 
 .btn-secondary {
   padding: 10px 20px;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #4A90E2;
+  border: 2px solid #4A90E2;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
@@ -106,13 +107,13 @@
 }
 
 .btn-secondary:hover {
-  background: #f5f7fa;
+  background: rgba(74, 144, 226, 0.1);
 }
 
 .btn-link {
   background: none;
   border: none;
-  color: #667eea;
+  color: #4A90E2;
   cursor: pointer;
   font-size: 14px;
   padding: 4px 8px;
@@ -121,7 +122,7 @@
 }
 
 .btn-link:hover {
-  color: #764ba2;
+  color: #357ABD;
   text-decoration: underline;
 }
 
@@ -230,11 +231,11 @@
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
   border-radius: 12px;
   padding: 24px;
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
 .stat-card h3 {
@@ -310,7 +311,7 @@
 .status-value {
   font-size: 36px;
   font-weight: 700;
-  color: #667eea;
+  color: #4A90E2;
   margin: 0;
 }
 
@@ -340,7 +341,7 @@
 .kpi-value {
   font-size: 48px;
   font-weight: 700;
-  color: #667eea;
+  color: #4A90E2;
   margin: 0 0 8px 0;
 }
 
@@ -361,7 +362,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #4A90E2 0%, #357ABD 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -604,8 +605,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
 .form-group input:disabled {
@@ -628,8 +629,8 @@
 
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
 .form-group textarea {
@@ -646,8 +647,8 @@
 
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
 }
 
 .modal-actions {
@@ -738,5 +739,58 @@
 
 .btn-danger:active {
   transform: translateY(0);
+}
+
+/* Toggle Switch pour les checkboxes "Actif" */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-switch input[type="checkbox"] {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 13px;
+  outline: none;
+  transition: background 0.3s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input[type="checkbox"]:checked {
+  background: #4A90E2;
+}
+
+.toggle-switch input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  top: 3px;
+  left: 4px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input[type="checkbox"]:checked::before {
+  transform: translateX(24px);
+}
+
+.toggle-switch span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2C3E50;
+}
+
+.toggle-switch input[type="checkbox"]:checked + span {
+  color: #4A90E2;
 }
 

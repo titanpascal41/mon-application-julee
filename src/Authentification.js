@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import imageBeige from "./image/art.jpg";
+import imageBeige from "./image/mur-de-la-ville-avec-le-ciel.jpg";
 import logoj from "./image/LOGO J.webp";
 import { creerUtilisateur, verifierConnexion } from "./data/baseDeDonnees";
 import PageAccueil from "./PageAccueil";
@@ -140,7 +140,7 @@ const Authentification = () => {
     <div className="Authentification">
       {/* section de la gauche  */}
       <div className="image">
-        <img src={imageBeige} alt="Image beige" loading="lazy" />
+        <img src={imageBeige} alt="Mur de la ville avec le ciel" loading="lazy" />
         <div className="nomlogo">
           <div className="nomlogotitre">JULEE</div>
           <div className="nomlogosoustitre">

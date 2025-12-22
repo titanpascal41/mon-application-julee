@@ -509,7 +509,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                   <div className="form-group">
                     <label htmlFor="societeNom">
                       Nom <span className="required">*</span>
-                      <span className="hint">(sera converti en majuscules)</span>
                     </label>
                     <input
                       type="text"
@@ -617,7 +616,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                         <button
                           className="btn-link"
                           onClick={() => handleEditSociete(societe)}
-                          style={{ color: "#667eea" }}
+                          style={{ color: "#4A90E2" }}
                         >
                           Modifier
                         </button>
@@ -709,7 +708,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleUOInputChange}
                       required
                     >
-                      <option value="">Sélectionner un type</option>
                       {getTypesUO().map((type) => (
                         <option key={type} value={type}>
                           {type}
@@ -754,7 +752,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleUOInputChange}
                       required
                     >
-                      <option value="">Sélectionner une société</option>
                       {societes.map((societe) => (
                         <option key={societe.id} value={societe.id}>
                           {societe.nom}
@@ -781,7 +778,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label className="toggle-switch">
                       <input
                         type="checkbox"
                         name="actif"
@@ -840,7 +837,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                         <button
                           className="btn-link"
                           onClick={() => handleEditUO(uo)}
-                          style={{ color: "#667eea" }}
+                          style={{ color: "#4A90E2" }}
                         >
                           Modifier
                         </button>
@@ -930,7 +927,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleStatutInputChange}
                       required
                     >
-                      <option value="">Sélectionner une catégorie</option>
                       {getCategories().map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
@@ -961,7 +957,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleStatutInputChange}
                       required
                     >
-                      <option value="">Sélectionner une option</option>
                       {getQuiPeutAppliquer().map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -970,7 +965,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label className="toggle-switch">
                       <input
                         type="checkbox"
                         name="actif"
@@ -1025,7 +1020,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                         <button
                           className="btn-link"
                           onClick={() => handleEditStatut(statut)}
-                          style={{ color: "#667eea" }}
+                          style={{ color: "#4A90E2" }}
                         >
                           Modifier
                         </button>

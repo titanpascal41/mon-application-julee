@@ -14,6 +14,7 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
     analyse: false,
     kanban: false,
   });
+  const [clickedMainMenu, setClickedMainMenu] = useState(null);
 
   // Ouvrir automatiquement le menu parent si une sous-page est active
   useEffect(() => {
@@ -24,7 +25,7 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
         "parametrage-uo",
         "parametrage-statuts",
       ],
-      demandes: ["demandes-liste", "demandes-nouvelle", "demandes-validation"],
+      demandes: ["demandes-liste", "demandes-nouvelle", "demandes-validation", "demandes-soumission-validation"],
       pilotage: ["pilotage-dashboard", "pilotage-indicateurs"],
       planning: [
         "planning-cadre-temporel",
@@ -57,6 +58,9 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
       ...prev,
       [menuKey]: !prev[menuKey],
     }));
+    // Marquer ce menu comme cliqué pour enlever le contraste des sous-modules
+    // Le contraste ne reviendra que si on clique directement sur un sous-module
+    setClickedMainMenu(menuKey);
   };
 
   const menuItems = [
@@ -124,6 +128,11 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
           key: "validation-demandes",
           label: "Validation des Demandes",
           path: "demandes-validation",
+        },
+        {
+          key: "soumission-validation",
+          label: "Soumission et Validation",
+          path: "demandes-soumission-validation",
         },
       ],
     },
@@ -247,7 +256,7 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
                 <div
                   className={`nav-item ${
                     expandedMenus[item.key] ? "expanded" : ""
-                  } ${activePage.startsWith(item.key) ? "active" : ""}`}
+                  }`}
                   onClick={() => toggleMenu(item.key)}
                 >
                   <span className="nav-icon">{item.icon}</span>
@@ -266,9 +275,13 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
                       <div
                         key={submenu.key}
                         className={`submenu-item ${
-                          activePage === submenu.path ? "active" : ""
+                          activePage === submenu.path && clickedMainMenu !== item.key ? "active" : ""
                         }`}
-                        onClick={() => setActivePage(submenu.path)}
+                        onClick={() => {
+                          setActivePage(submenu.path);
+                          // Réinitialiser clickedMainMenu pour permettre le contraste sur ce sous-module
+                          setClickedMainMenu(null);
+                        }}
                       >
                         {submenu.label}
                       </div>
@@ -278,9 +291,7 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
               </>
             ) : (
               <div
-                className={`nav-item ${
-                  activePage === item.path ? "active" : ""
-                }`}
+                className={`nav-item ${activePage === item.path ? "active" : ""}`}
                 onClick={() => setActivePage(item.path)}
               >
                 <span className="nav-icon">{item.icon}</span>
