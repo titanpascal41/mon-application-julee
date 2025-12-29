@@ -1,0 +1,43 @@
+{
+  "uat": [
+    {
+      "id": 1,
+      "nom": "UAT Authentification",
+      "description": "Tests d'acceptation utilisateur pour le module d'authentification",
+      "dateDebut": "2024-01-10",
+      "dateFin": "2024-01-12",
+      "statut": "Acceptée",
+      "resultat": "Tous les tests sont passés avec succès",
+      "testeur": "Marie Martin",
+      "version": "1.0.0",
+      "dateCreation": "2024-01-08T10:00:00.000Z",
+      "dateModification": "2024-01-12T16:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nom": "UAT Tableau de bord",
+      "description": "Tests d'acceptation utilisateur pour le tableau de bord",
+      "dateDebut": "2024-01-15",
+      "dateFin": null,
+      "statut": "En cours",
+      "resultat": null,
+      "testeur": "Jean Dupont",
+      "version": "1.0.1",
+      "dateCreation": "2024-01-13T10:00:00.000Z",
+      "dateModification": "2024-01-15T09:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "nom": "UAT Gestion Kanban",
+      "description": "Tests d'acceptation utilisateur pour le module Kanban",
+      "dateDebut": null,
+      "dateFin": null,
+      "statut": "Planifiée",
+      "resultat": null,
+      "testeur": null,
+      "version": "1.1.0",
+      "dateCreation": "2024-01-15T10:00:00.000Z",
+      "dateModification": "2024-01-15T10:00:00.000Z"
+    }
+  ]
+}

@@ -9,12 +9,18 @@ const chargerDemandes = () => {
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
   
   if (donneesStockees) {
-    return JSON.parse(donneesStockees);
-  } else {
-    const demandesInitiales = donneesInitiales.demandes || [];
-    sauvegarderDemandes(demandesInitiales);
-    return demandesInitiales;
+    // Vérifier si le tableau n'est pas vide
+    const demandesStockees = JSON.parse(donneesStockees);
+    if (demandesStockees && demandesStockees.length > 0) {
+      // Utiliser les données de localStorage si elles ne sont pas vides
+      return demandesStockees;
+    }
   }
+  
+  // Sinon, utiliser les données initiales du fichier JSON
+  const demandesInitiales = donneesInitiales.demandes || [];
+  sauvegarderDemandes(demandesInitiales);
+  return demandesInitiales;
 };
 
 // Sauvegarder les demandes dans localStorage
@@ -71,6 +77,7 @@ const mettreAJourDemande = (id, {
   dateSoumissionBacklog,
   lienCompteRendu,
   redacteurBacklog,
+  dateValidationBacklog,
   dateElaborationDATFL,
   dateValidationDATFL,
   dateElaborationPlanningDEV,
@@ -118,6 +125,7 @@ const mettreAJourDemande = (id, {
     ...(dateSoumissionBacklog !== undefined && { dateSoumissionBacklog }),
     ...(lienCompteRendu !== undefined && { lienCompteRendu }),
     ...(redacteurBacklog !== undefined && { redacteurBacklog }),
+    ...(dateValidationBacklog !== undefined && { dateValidationBacklog }),
     ...(dateElaborationDATFL !== undefined && { dateElaborationDATFL }),
     ...(dateValidationDATFL !== undefined && { dateValidationDATFL }),
     ...(dateElaborationPlanningDEV !== undefined && { dateElaborationPlanningDEV }),

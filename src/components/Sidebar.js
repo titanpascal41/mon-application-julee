@@ -1,16 +1,30 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import logoj from "../image/LOGO J.webp";
 
-const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
+const Sidebar = ({ collapsed, setCollapsed }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Déterminer la page active depuis l'URL
+  const getActivePage = () => {
+    const path = location.pathname;
+    if (path === "/" || path === "/dashboard") {
+      return "dashboard";
+    }
+    return path.substring(1); // Enlever le "/" initial
+  };
+
+  const activePage = getActivePage();
   const [expandedMenus, setExpandedMenus] = useState({
     administration: false,
     parametrage: false,
     demandes: false,
-    pilotage: false,
+    "plan-charge": false,
     planning: false,
-    suivi: false,
-    livraison: false,
+    "recette-livraison": false,
+    bugs: false,
     analyse: false,
     kanban: false,
   });
@@ -25,15 +39,19 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
         "parametrage-uo",
         "parametrage-statuts",
       ],
-      demandes: ["demandes-liste", "demandes-nouvelle", "demandes-validation", "demandes-soumission-validation"],
-      pilotage: ["pilotage-dashboard", "pilotage-indicateurs"],
+      demandes: ["demandes-gestion"],
       planning: [
         "planning-cadre-temporel",
         "planning-sprints",
         "planning-roadmap",
+        "planning-jalon",
       ],
-      suivi: ["suivi-recette", "suivi-uat"],
-      livraison: ["livraison-deploiement"],
+      "recette-livraison": [
+        "recette-livraison-suivi-recette",
+        "recette-livraison-recette-utilisateur",
+        "recette-livraison-livraison",
+      ],
+      bugs: ["bugs-declaration-qualification", "bugs-suivi-resolution-cloture"],
       analyse: ["analyse-kpi"],
       kanban: [
         "kanban-config",
@@ -43,15 +61,17 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
       ],
     };
 
+    const currentPath = location.pathname.substring(1); // Enlever le "/" initial
+    
     Object.keys(menuKeys).forEach((menuKey) => {
-      if (menuKeys[menuKey].includes(activePage)) {
+      if (menuKeys[menuKey].includes(currentPath)) {
         setExpandedMenus((prev) => ({
           ...prev,
           [menuKey]: true,
         }));
       }
     });
-  }, [activePage]);
+  }, [location.pathname]);
 
   const toggleMenu = (menuKey) => {
     setExpandedMenus((prev) => ({
@@ -115,41 +135,31 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
       icon: "📋",
       submenus: [
         {
-          key: "liste-demandes",
-          label: "Liste des Demandes",
-          path: "demandes-liste",
-        },
-        {
-          key: "nouvelle-demande",
-          label: "Nouvelle Demande",
-          path: "demandes-nouvelle",
-        },
-        {
-          key: "validation-demandes",
-          label: "Validation des Demandes",
-          path: "demandes-validation",
-        },
-        {
-          key: "soumission-validation",
-          label: "Soumission et Validation",
-          path: "demandes-soumission-validation",
+          key: "gestion-demandes",
+          label: "Gestion des Demandes",
+          path: "demandes-gestion",
         },
       ],
     },
     {
-      key: "pilotage",
-      label: "Pilotage",
-      icon: "🎯",
+      key: "plan-charge",
+      label: "Plan de Charge Équipes",
+      icon: "👥",
       submenus: [
         {
-          key: "tableau-bord-pilotage",
-          label: "Tableau de Bord",
-          path: "pilotage-dashboard",
+          key: "saisie-ressources",
+          label: "Saisie des Ressources",
+          path: "plan-charge-saisie-ressources",
         },
         {
-          key: "indicateurs",
-          label: "Indicateurs",
-          path: "pilotage-indicateurs",
+          key: "delai-plan-charge",
+          label: "Délai Plan de Charge",
+          path: "plan-charge-delai-plan-charge",
+        },
+        {
+          key: "cout-produit",
+          label: "Coût du Produit",
+          path: "plan-charge-cout-produit",
         },
       ],
     },
@@ -164,37 +174,50 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
           path: "planning-cadre-temporel",
         },
         { key: "sprints", label: "Sprints", path: "planning-sprints" },
-        { key: "roadmap", label: "Roadmap", path: "planning-roadmap" },
+        {
+          key: "roadmap",
+          label: "Roadmap (Vision à long terme)",
+          path: "planning-roadmap",
+        },
+        { key: "jalon", label: "Jalon", path: "planning-jalon" },
       ],
     },
     {
-      key: "suivi",
-      label: "Suivi Utilisation (UAT)",
-      icon: "✅",
+      key: "recette-livraison",
+      label: "Recette et Livraison",
+      icon: "🚀",
       submenus: [
-        { key: "suivi-recette", label: "Suivi Recette", path: "suivi-recette" },
+        {
+          key: "suivi-recette",
+          label: "Suivi Recette",
+          path: "recette-livraison-suivi-recette",
+        },
         {
           key: "recette-utilisateur",
           label: "Recette Utilisateur (UAT)",
-          path: "suivi-uat",
+          path: "recette-livraison-recette-utilisateur",
+        },
+        {
+          key: "livraison",
+          label: "Livraison et Mise en Production",
+          path: "recette-livraison-livraison",
         },
       ],
     },
     {
-      key: "suivi-financier",
-      label: "Suivi Financier",
-      icon: "💰",
-      path: "suivi-financier",
-    },
-    {
-      key: "livraison",
-      label: "Livraison et Mise en Production",
-      icon: "🚀",
+      key: "bugs",
+      label: "Bugs",
+      icon: "🐛",
       submenus: [
         {
-          key: "livraison-deploiement",
-          label: "Livraison et Déploiement",
-          path: "livraison-deploiement",
+          key: "declaration-qualification",
+          label: "Déclaration et Qualification des Bugs",
+          path: "bugs-declaration-qualification",
+        },
+        {
+          key: "suivi-resolution-cloture",
+          label: "Suivi Résolution Clôture",
+          path: "bugs-suivi-resolution-cloture",
         },
       ],
     },
@@ -272,31 +295,36 @@ const Sidebar = ({ activePage, setActivePage, collapsed, setCollapsed }) => {
                 {!collapsed && expandedMenus[item.key] && (
                   <div className="submenu">
                     {item.submenus.map((submenu) => (
-                      <div
+                      <Link
                         key={submenu.key}
+                        to={`/${submenu.path}`}
                         className={`submenu-item ${
-                          activePage === submenu.path && clickedMainMenu !== item.key ? "active" : ""
+                          activePage === submenu.path &&
+                          clickedMainMenu !== item.key
+                            ? "active"
+                            : ""
                         }`}
                         onClick={() => {
-                          setActivePage(submenu.path);
                           // Réinitialiser clickedMainMenu pour permettre le contraste sur ce sous-module
                           setClickedMainMenu(null);
                         }}
                       >
                         {submenu.label}
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 )}
               </>
             ) : (
-              <div
-                className={`nav-item ${activePage === item.path ? "active" : ""}`}
-                onClick={() => setActivePage(item.path)}
+              <Link
+                to={`/${item.path}`}
+                className={`nav-item ${
+                  activePage === item.path ? "active" : ""
+                }`}
               >
                 <span className="nav-icon">{item.icon}</span>
                 {!collapsed && <span className="nav-label">{item.label}</span>}
-              </div>
+              </Link>
             )}
           </div>
         ))}

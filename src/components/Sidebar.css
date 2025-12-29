@@ -100,6 +100,7 @@
   position: relative;
   color: rgba(44, 62, 80, 0.8);
   font-size: 14px;
+  text-decoration: none;
 }
 
 .nav-item:hover {
@@ -164,6 +165,8 @@
   font-size: 13px;
   position: relative;
   background: transparent;
+  text-decoration: none;
+  display: block;
 }
 
 .submenu-item:hover {

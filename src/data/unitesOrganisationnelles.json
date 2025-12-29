@@ -1,4 +1,36 @@
 {
-  "unitesOrganisationnelles": []
+  "unitesOrganisationnelles": [
+    {
+      "id": 1,
+      "nom": "Direction Générale",
+      "description": "Direction générale de l'entreprise",
+      "responsable": "Jean Dupont",
+      "parentId": null,
+      "dateCreation": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nom": "Développement",
+      "description": "Équipe de développement logiciel",
+      "responsable": "Marie Martin",
+      "parentId": 1,
+      "dateCreation": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "nom": "Qualité",
+      "description": "Équipe qualité et tests",
+      "responsable": "Pierre Durand",
+      "parentId": 1,
+      "dateCreation": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "nom": "Support",
+      "description": "Équipe de support client",
+      "responsable": "Sophie Bernard",
+      "parentId": 1,
+      "dateCreation": "2024-01-01T08:00:00.000Z"
+    }
+  ]
 }
-

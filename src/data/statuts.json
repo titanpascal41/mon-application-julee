@@ -1,4 +1,46 @@
 {
-  "statuts": []
+  "statuts": [
+    {
+      "id": 1,
+      "nom": "Ouvert",
+      "description": "Élément ouvert, en attente de traitement",
+      "couleur": "#3498db",
+      "ordre": 1
+    },
+    {
+      "id": 2,
+      "nom": "En cours",
+      "description": "Élément en cours de traitement",
+      "couleur": "#f39c12",
+      "ordre": 2
+    },
+    {
+      "id": 3,
+      "nom": "En attente",
+      "description": "Élément en attente d'une action externe",
+      "couleur": "#9b59b6",
+      "ordre": 3
+    },
+    {
+      "id": 4,
+      "nom": "Résolu",
+      "description": "Élément résolu",
+      "couleur": "#27ae60",
+      "ordre": 4
+    },
+    {
+      "id": 5,
+      "nom": "Fermé",
+      "description": "Élément fermé",
+      "couleur": "#95a5a6",
+      "ordre": 5
+    },
+    {
+      "id": 6,
+      "nom": "Annulé",
+      "description": "Élément annulé",
+      "couleur": "#e74c3c",
+      "ordre": 6
+    }
+  ]
 }
-

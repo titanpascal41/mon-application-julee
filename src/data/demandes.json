@@ -1,4 +1,40 @@
 {
-  "demandes": []
+  "demandes": [
+    {
+      "id": 1,
+      "dateReception": "2024-01-05",
+      "dateEnregistrement": "2024-01-05",
+      "societesDemandeurs": [1],
+      "interlocuteur": "Pierre Durand",
+      "description": "Demande d'amélioration de l'interface utilisateur",
+      "priorite": "Haute",
+      "statut": "En cours",
+      "dateCreation": "2024-01-05T09:00:00.000Z",
+      "dateModification": "2024-01-10T14:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "dateReception": "2024-01-08",
+      "dateEnregistrement": "2024-01-08",
+      "societesDemandeurs": [1, 2],
+      "interlocuteur": "Sophie Bernard",
+      "description": "Demande de nouvelle fonctionnalité de reporting",
+      "priorite": "Moyenne",
+      "statut": "Ouvert",
+      "dateCreation": "2024-01-08T10:00:00.000Z",
+      "dateModification": "2024-01-08T10:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "dateReception": "2024-01-12",
+      "dateEnregistrement": "2024-01-12",
+      "societesDemandeurs": [2],
+      "interlocuteur": "Marc Lefebvre",
+      "description": "Correction de bugs critiques",
+      "priorite": "Haute",
+      "statut": "Résolu",
+      "dateCreation": "2024-01-12T11:00:00.000Z",
+      "dateModification": "2024-01-14T16:00:00.000Z"
+    }
+  ]
 }
-

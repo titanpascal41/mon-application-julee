@@ -27,7 +27,7 @@ const Pilotage = ({ activeSubPage: activeSubPageProp }) => {
             </div>
             <div className="stat-card">
               <h3>Budget utilisé</h3>
-              <p className="stat-value">€125,000</p>
+              <p className="stat-value">FCFA125,000</p>
             </div>
           </div>
           

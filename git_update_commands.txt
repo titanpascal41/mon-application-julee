@@ -1,0 +1,21 @@
+# Commandes pour mettre à jour votre code sur GitHub
+# Ouvrez Git Bash ou votre terminal Git et exécutez ces commandes dans le dossier de votre projet
+
+# 1. Vérifier l'état des fichiers modifiés
+git status
+
+# 2. Ajouter tous les fichiers modifiés
+git add .
+
+# 3. Faire un commit avec un message descriptif
+git commit -m "Mise à jour application : corrections de bugs et passage à la devise FCFA
+
+- Correction de la navigation dans Plan de Charge Équipes (Coût du Produit)
+- Correction d'une erreur de syntaxe dans PlanChargeEquipes.js
+- Passage de l'euro (€) au franc CFA (FCFA) dans toute l'application"
+
+# 4. Pousser les changements vers GitHub
+git push origin main
+
+# Si votre branche principale s'appelle 'master' au lieu de 'main', utilisez :
+# git push origin master

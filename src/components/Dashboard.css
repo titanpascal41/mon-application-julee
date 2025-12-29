@@ -28,6 +28,8 @@
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  height: calc(100% - 30px);
+  min-height: calc(100% - 30px);
 }
 
 .dashboard-content h1 {
