@@ -1,0 +1,34 @@
+{
+  "cadreTemporel": [
+    {
+      "id": 1,
+      "nom": "Trimestre 1 - 2024",
+      "description": "Premier trimestre 2024",
+      "dateDebut": "2024-01-01",
+      "dateFin": "2024-03-31",
+      "type": "Trimestre",
+      "dateCreation": "2024-01-01T08:00:00.000Z",
+      "dateModification": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nom": "Trimestre 2 - 2024",
+      "description": "Deuxième trimestre 2024",
+      "dateDebut": "2024-04-01",
+      "dateFin": "2024-06-30",
+      "type": "Trimestre",
+      "dateCreation": "2024-01-01T08:00:00.000Z",
+      "dateModification": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "nom": "Année 2024",
+      "description": "Année complète 2024",
+      "dateDebut": "2024-01-01",
+      "dateFin": "2024-12-31",
+      "type": "Année",
+      "dateCreation": "2024-01-01T08:00:00.000Z",
+      "dateModification": "2024-01-01T08:00:00.000Z"
+    }
+  ]
+}

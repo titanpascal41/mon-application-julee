@@ -13,15 +13,19 @@ const chargerProfils = () => {
   const donneesStockees = localStorage.getItem("profilsJulee");
   
   if (donneesStockees) {
-    // Si oui, utiliser les données de localStorage
-    return JSON.parse(donneesStockees);
-  } else {
-    // Sinon, utiliser les données initiales du fichier JSON
-    const profilsInitiaux = donneesInitiales.profils || [];
-    // Sauvegarder dans localStorage pour la première fois
-    sauvegarderProfils(profilsInitiaux);
-    return profilsInitiaux;
+    // Si oui, vérifier si le tableau n'est pas vide
+    const profilsStockes = JSON.parse(donneesStockees);
+    if (profilsStockes && profilsStockes.length > 0) {
+      // Utiliser les données de localStorage si elles ne sont pas vides
+      return profilsStockes;
+    }
   }
+  
+  // Sinon, utiliser les données initiales du fichier JSON
+  const profilsInitiaux = donneesInitiales.profils || [];
+  // Sauvegarder dans localStorage pour la première fois
+  sauvegarderProfils(profilsInitiaux);
+  return profilsInitiaux;
 };
 
 // Trouver un profil par ID
@@ -52,16 +56,15 @@ const profilEstUtilise = (profilId) => {
 };
 
 // Créer un nouveau profil
-const creerProfil = (nom, prenom) => {
+const creerProfil = (nom) => {
   const profils = chargerProfils();
   
-  // Normaliser le nom en majuscules et le prénom en minuscules
+  // Normaliser le nom en majuscules
   const nomNormalise = nom.trim().toUpperCase();
-  const prenomNormalise = prenom.trim().toLowerCase();
   
-  // Vérifier que les champs ne sont pas vides
-  if (!nomNormalise || !prenomNormalise) {
-    return { succes: false, message: "Le nom et le prénom sont obligatoires" };
+  // Vérifier que le champ n'est pas vide
+  if (!nomNormalise) {
+    return { succes: false, message: "Le nom est obligatoire" };
   }
   
   // Vérifier si le nom existe déjà
@@ -76,8 +79,7 @@ const creerProfil = (nom, prenom) => {
   
   const nouveauProfil = {
     id: nouvelId,
-    nom: nomNormalise,
-    prenom: prenomNormalise
+    nom: nomNormalise
   };
   
   profils.push(nouveauProfil);
@@ -87,7 +89,7 @@ const creerProfil = (nom, prenom) => {
 };
 
 // Mettre à jour un profil
-const mettreAJourProfil = (id, nom, prenom) => {
+const mettreAJourProfil = (id, nom) => {
   const profils = chargerProfils();
   const index = profils.findIndex((p) => p.id === id);
   
@@ -95,13 +97,12 @@ const mettreAJourProfil = (id, nom, prenom) => {
     return { succes: false, message: "Profil introuvable" };
   }
   
-  // Normaliser le nom en majuscules et le prénom en minuscules
+  // Normaliser le nom en majuscules
   const nomNormalise = nom.trim().toUpperCase();
-  const prenomNormalise = prenom.trim().toLowerCase();
   
-  // Vérifier que les champs ne sont pas vides
-  if (!nomNormalise || !prenomNormalise) {
-    return { succes: false, message: "Le nom et le prénom sont obligatoires" };
+  // Vérifier que le champ n'est pas vide
+  if (!nomNormalise) {
+    return { succes: false, message: "Le nom est obligatoire" };
   }
   
   // Vérifier si le nom existe déjà (en excluant le profil actuel)
@@ -112,8 +113,7 @@ const mettreAJourProfil = (id, nom, prenom) => {
   // Mettre à jour le profil
   profils[index] = {
     ...profils[index],
-    nom: nomNormalise,
-    prenom: prenomNormalise
+    nom: nomNormalise
   };
   
   sauvegarderProfils(profils);

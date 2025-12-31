@@ -1,0 +1,37 @@
+{
+  "livraisons": [
+    {
+      "id": 1,
+      "numeroVersion": "1.0.0",
+      "dateLivraison": "2024-01-12",
+      "statut": "OK",
+      "environnement": "Production",
+      "commentaires": "Livraison réussie, toutes les validations passées",
+      "recetteId": 1,
+      "dateCreation": "2024-01-12T10:00:00.000Z",
+      "dateModification": "2024-01-12T18:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "numeroVersion": "1.0.1",
+      "dateLivraison": "2024-01-18",
+      "statut": "Prévue",
+      "environnement": "Staging",
+      "commentaires": "Livraison prévue pour le 18 janvier",
+      "recetteId": null,
+      "dateCreation": "2024-01-15T09:00:00.000Z",
+      "dateModification": "2024-01-15T09:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "numeroVersion": "1.1.0",
+      "dateLivraison": null,
+      "statut": "En cours",
+      "environnement": "Développement",
+      "commentaires": "Livraison en cours de préparation",
+      "recetteId": 3,
+      "dateCreation": "2024-01-20T08:00:00.000Z",
+      "dateModification": "2024-01-20T08:00:00.000Z"
+    }
+  ]
+}

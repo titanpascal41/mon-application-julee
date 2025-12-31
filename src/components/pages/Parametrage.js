@@ -6,6 +6,7 @@ import {
   mettreAJourSociete,
   supprimerSociete,
 } from "../../data/societes";
+import SocieteInput from "../SocieteInput";
 import {
   chargerUO,
   creerUO,
@@ -24,7 +25,7 @@ import {
 
 const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
   const [activeSubPage, setActiveSubPage] = useState("societes");
-  
+
   // États pour la gestion des sociétés
   const [societes, setSocietes] = useState([]);
   const [showSocieteForm, setShowSocieteForm] = useState(false);
@@ -37,9 +38,10 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     responsable: "",
   });
   const [societeMessage, setSocieteMessage] = useState({ type: "", text: "" });
-  const [showSocieteDeleteConfirm, setShowSocieteDeleteConfirm] = useState(false);
+  const [showSocieteDeleteConfirm, setShowSocieteDeleteConfirm] =
+    useState(false);
   const [societeToDelete, setSocieteToDelete] = useState(null);
-  
+
   // États pour la gestion des UO
   const [uoList, setUOList] = useState([]);
   const [showUOForm, setShowUOForm] = useState(false);
@@ -76,8 +78,13 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     if (activeSubPageProp) {
       // Extraire le type de sous-page depuis le path
       if (activeSubPageProp.includes("societes")) setActiveSubPage("societes");
-      else if (activeSubPageProp.includes("uo") || activeSubPageProp.includes("unites")) setActiveSubPage("uo");
-      else if (activeSubPageProp.includes("statuts")) setActiveSubPage("statuts");
+      else if (
+        activeSubPageProp.includes("uo") ||
+        activeSubPageProp.includes("unites")
+      )
+        setActiveSubPage("uo");
+      else if (activeSubPageProp.includes("statuts"))
+        setActiveSubPage("statuts");
     }
   }, [activeSubPageProp]);
 
@@ -172,9 +179,58 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setSocieteToDelete(null);
   };
 
+  const validateSocieteForm = () => {
+    if (!societeFormData.nom.trim()) {
+      setSocieteMessage({
+        type: "error",
+        text: "Le nom de la société est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!societeFormData.adresse.trim()) {
+      setSocieteMessage({
+        type: "error",
+        text: "L'adresse est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!societeFormData.email.trim()) {
+      setSocieteMessage({
+        type: "error",
+        text: "L'email est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!societeFormData.telephone.trim()) {
+      setSocieteMessage({
+        type: "error",
+        text: "Le téléphone est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!societeFormData.responsable.trim()) {
+      setSocieteMessage({
+        type: "error",
+        text: "Le responsable est obligatoire.",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSocieteSubmit = (e) => {
     e.preventDefault();
     setSocieteMessage({ type: "", text: "" });
+
+    // Validation personnalisée
+    if (!validateSocieteForm()) {
+      return;
+    }
 
     let resultat;
     if (editingSociete) {
@@ -284,9 +340,58 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setUOToDelete(null);
   };
 
+  const validateUOForm = () => {
+    if (!uoFormData.nom.trim()) {
+      setUOMessage({
+        type: "error",
+        text: "Le nom de l'UO est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!uoFormData.type) {
+      setUOMessage({
+        type: "error",
+        text: "Le type de l'UO est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!uoFormData.adresse.trim()) {
+      setUOMessage({
+        type: "error",
+        text: "L'adresse est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!uoFormData.codePostal.trim()) {
+      setUOMessage({
+        type: "error",
+        text: "Le code postal est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!uoFormData.societeId) {
+      setUOMessage({
+        type: "error",
+        text: "La société est obligatoire.",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleUOSubmit = (e) => {
     e.preventDefault();
     setUOMessage({ type: "", text: "" });
+
+    // Validation personnalisée
+    if (!validateUOForm()) {
+      return;
+    }
 
     let resultat;
     if (editingUO) {
@@ -346,10 +451,16 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
   // Fonction pour filtrer les UO parentes possibles (exclure l'UO actuelle et celles d'une autre société)
   const getUOParentesPossibles = () => {
     if (editingUO) {
-      return uoList.filter((uo) => uo.id !== editingUO.id && uo.societeId === parseInt(uoFormData.societeId || editingUO.societeId));
+      return uoList.filter(
+        (uo) =>
+          uo.id !== editingUO.id &&
+          uo.societeId === parseInt(uoFormData.societeId || editingUO.societeId)
+      );
     }
     if (uoFormData.societeId) {
-      return uoList.filter((uo) => uo.societeId === parseInt(uoFormData.societeId));
+      return uoList.filter(
+        (uo) => uo.societeId === parseInt(uoFormData.societeId)
+      );
     }
     return uoList;
   };
@@ -471,45 +582,62 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
             </button>
           </div>
 
-          {societeMessage.text && (
-            <div
-              className={`info-box ${
-                societeMessage.type === "error" ? "error-box" : "success-box"
-              }`}
-              style={{
-                marginTop: "16px",
-                backgroundColor: societeMessage.type === "error" ? "#fee2e2" : "#d1fae5",
-                borderColor: societeMessage.type === "error" ? "#fecaca" : "#a7f3d0",
-                color: societeMessage.type === "error" ? "#991b1b" : "#065f46",
-              }}
-            >
-              <p>{societeMessage.text}</p>
-            </div>
-          )}
-
           {showSocieteForm && (
             <div className="modal-overlay" onClick={handleCancelSociete}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="modal-header">
-                  <h3>{editingSociete ? "Modifier la société" : "Ajouter une société"}</h3>
-                  <button className="modal-close" onClick={handleCancelSociete}>&times;</button>
+                  <h3>
+                    {editingSociete
+                      ? "Modifier la société"
+                      : "Ajouter une société"}
+                  </h3>
+                  <button className="modal-close" onClick={handleCancelSociete}>
+                    &times;
+                  </button>
                 </div>
+                {societeMessage.text && (
+                  <div
+                    className={`info-box ${
+                      societeMessage.type === "error"
+                        ? "error-box"
+                        : "success-box"
+                    }`}
+                    style={{
+                      margin: "16px 24px 0 24px",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      backgroundColor:
+                        societeMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                      border: `1px solid ${
+                        societeMessage.type === "error" ? "#fecaca" : "#a7f3d0"
+                      }`,
+                      color:
+                        societeMessage.type === "error" ? "#991b1b" : "#065f46",
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>{societeMessage.text}</p>
+                  </div>
+                )}
                 <form onSubmit={handleSocieteSubmit}>
                   <div className="form-group">
-                    <label htmlFor="societeId">
-                      Identifiant de la société
-                    </label>
+                    <label htmlFor="societeId">Identifiant de la société</label>
                     <input
                       type="text"
                       id="societeId"
-                      value={editingSociete ? editingSociete.id : "Généré automatiquement"}
+                      value={
+                        editingSociete
+                          ? editingSociete.id
+                          : "Généré automatiquement"
+                      }
                       disabled
                     />
                   </div>
                   <div className="form-group">
                     <label htmlFor="societeNom">
                       Nom <span className="required">*</span>
-                      <span className="hint">(sera converti en majuscules)</span>
                     </label>
                     <input
                       type="text"
@@ -517,7 +645,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="nom"
                       value={societeFormData.nom}
                       onChange={handleSocieteInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -530,7 +657,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="adresse"
                       value={societeFormData.adresse}
                       onChange={handleSocieteInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -543,7 +669,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="email"
                       value={societeFormData.email}
                       onChange={handleSocieteInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -556,7 +681,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="telephone"
                       value={societeFormData.telephone}
                       onChange={handleSocieteInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -569,14 +693,17 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="responsable"
                       value={societeFormData.responsable}
                       onChange={handleSocieteInputChange}
-                      required
                     />
                   </div>
                   <div className="modal-actions">
                     <button type="submit" className="btn-primary">
                       {editingSociete ? "Mettre à jour" : "Créer"}
                     </button>
-                    <button type="button" className="btn-secondary" onClick={handleCancelSociete}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleCancelSociete}
+                    >
                       Annuler
                     </button>
                   </div>
@@ -615,16 +742,15 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       <td>{societe.responsable}</td>
                       <td>
                         <button
-                          className="btn-link"
+                          className="btn-secondary"
                           onClick={() => handleEditSociete(societe)}
-                          style={{ color: "#667eea" }}
+                          style={{ marginRight: "5px" }}
                         >
                           Modifier
                         </button>
                         <button
-                          className="btn-link"
+                          className="btn-danger"
                           onClick={() => handleDeleteSociete(societe)}
-                          style={{ color: "#ef4444" }}
                         >
                           Supprimer
                         </button>
@@ -636,7 +762,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
             )}
           </div>
         </div>
-      )
+      ),
     },
     uo: {
       title: "Gestion des Unités Organisationnelles",
@@ -648,38 +774,52 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
             </button>
           </div>
 
-          {uoMessage.text && (
-            <div
-              className={`info-box ${
-                uoMessage.type === "error" ? "error-box" : "success-box"
-              }`}
-              style={{
-                marginTop: "16px",
-                backgroundColor: uoMessage.type === "error" ? "#fee2e2" : "#d1fae5",
-                borderColor: uoMessage.type === "error" ? "#fecaca" : "#a7f3d0",
-                color: uoMessage.type === "error" ? "#991b1b" : "#065f46",
-              }}
-            >
-              <p>{uoMessage.text}</p>
-            </div>
-          )}
-
           {showUOForm && (
             <div className="modal-overlay" onClick={handleCancelUO}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px" }}>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: "600px" }}
+              >
                 <div className="modal-header">
-                  <h3>{editingUO ? "Modifier l'unité organisationnelle" : "Ajouter une unité organisationnelle"}</h3>
-                  <button className="modal-close" onClick={handleCancelUO}>&times;</button>
+                  <h3>
+                    {editingUO
+                      ? "Modifier l'unité organisationnelle"
+                      : "Ajouter une unité organisationnelle"}
+                  </h3>
+                  <button className="modal-close" onClick={handleCancelUO}>
+                    &times;
+                  </button>
                 </div>
+                {uoMessage.text && (
+                  <div
+                    className={`info-box ${
+                      uoMessage.type === "error" ? "error-box" : "success-box"
+                    }`}
+                    style={{
+                      margin: "16px 24px 0 24px",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      backgroundColor:
+                        uoMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                      border: `1px solid ${
+                        uoMessage.type === "error" ? "#fecaca" : "#a7f3d0"
+                      }`,
+                      color: uoMessage.type === "error" ? "#991b1b" : "#065f46",
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>{uoMessage.text}</p>
+                  </div>
+                )}
                 <form onSubmit={handleUOSubmit}>
                   <div className="form-group">
-                    <label htmlFor="uoId">
-                      Identifiant de l'UO
-                    </label>
+                    <label htmlFor="uoId">Identifiant de l'UO</label>
                     <input
                       type="text"
                       id="uoId"
-                      value={editingUO ? editingUO.id : "Généré automatiquement"}
+                      value={
+                        editingUO ? editingUO.id : "Généré automatiquement"
+                      }
                       disabled
                     />
                   </div>
@@ -695,7 +835,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       value={uoFormData.nom}
                       onChange={handleUOInputChange}
                       maxLength={100}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -707,9 +846,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="type"
                       value={uoFormData.type}
                       onChange={handleUOInputChange}
-                      required
                     >
-                      <option value="">Sélectionner un type</option>
                       {getTypesUO().map((type) => (
                         <option key={type} value={type}>
                           {type}
@@ -727,7 +864,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="adresse"
                       value={uoFormData.adresse}
                       onChange={handleUOInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -740,32 +876,27 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       name="codePostal"
                       value={uoFormData.codePostal}
                       onChange={handleUOInputChange}
-                      required
                     />
                   </div>
+                  <SocieteInput
+                    label="Société"
+                    id="uoSocieteId"
+                    name="societeId"
+                    value={uoFormData.societeId}
+                    onChange={(value) => {
+                      setUOFormData((prev) => ({
+                        ...prev,
+                        societeId: value,
+                      }));
+                      if (uoMessage.text) {
+                        setUOMessage({ type: "", text: "" });
+                      }
+                    }}
+                    multiple={false}
+                    required={true}
+                  />
                   <div className="form-group">
-                    <label htmlFor="uoSocieteId">
-                      Société <span className="required">*</span>
-                    </label>
-                    <select
-                      id="uoSocieteId"
-                      name="societeId"
-                      value={uoFormData.societeId}
-                      onChange={handleUOInputChange}
-                      required
-                    >
-                      <option value="">Sélectionner une société</option>
-                      {societes.map((societe) => (
-                        <option key={societe.id} value={societe.id}>
-                          {societe.nom}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="uoParenteId">
-                      UO parente
-                    </label>
+                    <label htmlFor="uoParenteId">UO parente</label>
                     <select
                       id="uoParenteId"
                       name="uoParenteId"
@@ -781,7 +912,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label className="toggle-switch">
                       <input
                         type="checkbox"
                         name="actif"
@@ -795,7 +926,11 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     <button type="submit" className="btn-primary">
                       {editingUO ? "Mettre à jour" : "Créer"}
                     </button>
-                    <button type="button" className="btn-secondary" onClick={handleCancelUO}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleCancelUO}
+                    >
                       Annuler
                     </button>
                   </div>
@@ -838,16 +973,15 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       <td>{uo.actif ? "Actif" : "Non actif"}</td>
                       <td>
                         <button
-                          className="btn-link"
+                          className="btn-secondary"
                           onClick={() => handleEditUO(uo)}
-                          style={{ color: "#667eea" }}
+                          style={{ marginRight: "5px" }}
                         >
                           Modifier
                         </button>
                         <button
-                          className="btn-link"
+                          className="btn-danger"
                           onClick={() => handleDeleteUO(uo)}
-                          style={{ color: "#ef4444" }}
                         >
                           Supprimer
                         </button>
@@ -871,38 +1005,52 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
             </button>
           </div>
 
-          {statutMessage.text && (
-            <div
-              className={`info-box ${
-                statutMessage.type === "error" ? "error-box" : "success-box"
-              }`}
-              style={{
-                marginTop: "16px",
-                backgroundColor: statutMessage.type === "error" ? "#fee2e2" : "#d1fae5",
-                borderColor: statutMessage.type === "error" ? "#fecaca" : "#a7f3d0",
-                color: statutMessage.type === "error" ? "#991b1b" : "#065f46",
-              }}
-            >
-              <p>{statutMessage.text}</p>
-            </div>
-          )}
-
           {showStatutForm && (
             <div className="modal-overlay" onClick={handleCancelStatut}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px" }}>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: "600px" }}
+              >
                 <div className="modal-header">
-                  <h3>{editingStatut ? "Modifier le statut" : "Ajouter un statut"}</h3>
-                  <button className="modal-close" onClick={handleCancelStatut}>&times;</button>
+                  <h3>
+                    {editingStatut ? "Modifier le statut" : "Ajouter un statut"}
+                  </h3>
+                  <button className="modal-close" onClick={handleCancelStatut}>
+                    &times;
+                  </button>
                 </div>
+                {statutMessage.text && (
+                  <div
+                    className={`info-box ${
+                      statutMessage.type === "error" ? "error-box" : "success-box"
+                    }`}
+                    style={{
+                      margin: "16px 24px 0 24px",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      backgroundColor:
+                        statutMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                      border: `1px solid ${
+                        statutMessage.type === "error" ? "#fecaca" : "#a7f3d0"
+                      }`,
+                      color: statutMessage.type === "error" ? "#991b1b" : "#065f46",
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>{statutMessage.text}</p>
+                  </div>
+                )}
                 <form onSubmit={handleStatutSubmit}>
                   <div className="form-group">
-                    <label htmlFor="statutId">
-                      Identifiant du statut
-                    </label>
+                    <label htmlFor="statutId">Identifiant du statut</label>
                     <input
                       type="text"
                       id="statutId"
-                      value={editingStatut ? editingStatut.id : "Généré automatiquement"}
+                      value={
+                        editingStatut
+                          ? editingStatut.id
+                          : "Généré automatiquement"
+                      }
                       disabled
                     />
                   </div>
@@ -930,7 +1078,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleStatutInputChange}
                       required
                     >
-                      <option value="">Sélectionner une catégorie</option>
                       {getCategories().map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
@@ -939,9 +1086,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label htmlFor="statutDescription">
-                      Description
-                    </label>
+                    <label htmlFor="statutDescription">Description</label>
                     <textarea
                       id="statutDescription"
                       name="description"
@@ -952,7 +1097,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                   </div>
                   <div className="form-group">
                     <label htmlFor="statutQuiPeutAppliquer">
-                      Qui peut appliquer ce statut <span className="required">*</span>
+                      Qui peut appliquer ce statut{" "}
+                      <span className="required">*</span>
                     </label>
                     <select
                       id="statutQuiPeutAppliquer"
@@ -961,7 +1107,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleStatutInputChange}
                       required
                     >
-                      <option value="">Sélectionner une option</option>
                       {getQuiPeutAppliquer().map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -970,7 +1115,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     </select>
                   </div>
                   <div className="form-group">
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label className="toggle-switch">
                       <input
                         type="checkbox"
                         name="actif"
@@ -984,7 +1129,11 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     <button type="submit" className="btn-primary">
                       {editingStatut ? "Mettre à jour" : "Créer"}
                     </button>
-                    <button type="button" className="btn-secondary" onClick={handleCancelStatut}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleCancelStatut}
+                    >
                       Annuler
                     </button>
                   </div>
@@ -1023,16 +1172,15 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       <td>{statut.actif ? "Actif" : "Non actif"}</td>
                       <td>
                         <button
-                          className="btn-link"
+                          className="btn-secondary"
                           onClick={() => handleEditStatut(statut)}
-                          style={{ color: "#667eea" }}
+                          style={{ marginRight: "5px" }}
                         >
                           Modifier
                         </button>
                         <button
-                          className="btn-link"
+                          className="btn-danger"
                           onClick={() => handleDeleteStatut(statut)}
-                          style={{ color: "#ef4444" }}
                         >
                           Supprimer
                         </button>
@@ -1045,7 +1193,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
           </div>
         </div>
       ),
-    }
+    },
   };
 
   return (
@@ -1054,10 +1202,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
         <h1>{subPages[activeSubPage].title}</h1>
         <p>Configurez les paramètres du système</p>
       </div>
-      
-      <div className="page-content">
-        {subPages[activeSubPage].content}
-      </div>
+
+      <div className="page-content">{subPages[activeSubPage].content}</div>
 
       {/* Popup de confirmation de suppression de statut */}
       {showStatutDeleteConfirm && statutToDelete && (
@@ -1072,7 +1218,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <strong>"{statutToDelete.nom}"</strong> ?
               </p>
               <p className="confirm-warning">
-                Cette action est irréversible. Un statut ne peut pas être supprimé s'il est utilisé dans une demande.
+                Cette action est irréversible. Un statut ne peut pas être
+                supprimé s'il est utilisé dans une demande.
               </p>
             </div>
             <div className="confirm-modal-actions">
@@ -1108,7 +1255,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <strong>"{uoToDelete.nom}"</strong> ?
               </p>
               <p className="confirm-warning">
-                Cette action est irréversible. Une UO ne peut pas être supprimée si elle contient des utilisateurs ou des UO filles.
+                Cette action est irréversible. Une UO ne peut pas être supprimée
+                si elle contient des utilisateurs ou des UO filles.
               </p>
             </div>
             <div className="confirm-modal-actions">
@@ -1144,7 +1292,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <strong>"{societeToDelete.nom}"</strong> ?
               </p>
               <p className="confirm-warning">
-                Cette action est irréversible. Une société ne peut pas être supprimée si elle possède des utilisateurs actifs.
+                Cette action est irréversible. Une société ne peut pas être
+                supprimée si elle possède des utilisateurs actifs.
               </p>
             </div>
             <div className="confirm-modal-actions">
@@ -1171,4 +1320,3 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
 };
 
 export default Parametrage;
-

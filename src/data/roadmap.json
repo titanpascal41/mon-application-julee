@@ -1,0 +1,49 @@
+{
+  "phases": [
+    {
+      "id": 1,
+      "nom": "Phase 1 - Initialisation",
+      "description": "Phase d'initialisation et de mise en place",
+      "dateDebut": "2024-01-01",
+      "dateFin": "2024-02-29",
+      "statut": "En cours",
+      "objectifs": [
+        "Mise en place de l'infrastructure",
+        "Développement des fonctionnalités de base",
+        "Tests initiaux"
+      ],
+      "dateCreation": "2024-01-01T08:00:00.000Z",
+      "dateModification": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nom": "Phase 2 - Développement",
+      "description": "Phase de développement des fonctionnalités principales",
+      "dateDebut": "2024-03-01",
+      "dateFin": "2024-05-31",
+      "statut": "Planifiée",
+      "objectifs": [
+        "Développement des modules principaux",
+        "Intégration des composants",
+        "Tests d'intégration"
+      ],
+      "dateCreation": "2024-01-01T08:00:00.000Z",
+      "dateModification": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "nom": "Phase 3 - Finalisation",
+      "description": "Phase de finalisation et de déploiement",
+      "dateDebut": "2024-06-01",
+      "dateFin": "2024-07-31",
+      "statut": "Planifiée",
+      "objectifs": [
+        "Finalisation des fonctionnalités",
+        "Tests de recette",
+        "Déploiement en production"
+      ],
+      "dateCreation": "2024-01-01T08:00:00.000Z",
+      "dateModification": "2024-01-01T08:00:00.000Z"
+    }
+  ]
+}

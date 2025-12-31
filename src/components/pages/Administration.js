@@ -15,14 +15,13 @@ import {
 
 const Administration = ({ activeSubPage: activeSubPageProp }) => {
   const [activeSubPage, setActiveSubPage] = useState("profils");
-  
+
   // États pour la gestion des profils
   const [profils, setProfils] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingProfil, setEditingProfil] = useState(null);
   const [formData, setFormData] = useState({
     nom: "",
-    prenom: "",
   });
   const [message, setMessage] = useState({ type: "", text: "" });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -38,7 +37,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
     email: "",
     motDePasse: "",
     profilId: "",
-    description: "",
   });
   const [userMessage, setUserMessage] = useState({ type: "", text: "" });
   const [showUserDeleteConfirm, setShowUserDeleteConfirm] = useState(false);
@@ -48,7 +46,8 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
     if (activeSubPageProp) {
       // Extraire le type de sous-page depuis le path
       if (activeSubPageProp.includes("profils")) setActiveSubPage("profils");
-      else if (activeSubPageProp.includes("utilisateurs")) setActiveSubPage("utilisateurs");
+      else if (activeSubPageProp.includes("utilisateurs"))
+        setActiveSubPage("utilisateurs");
     }
   }, [activeSubPageProp]);
 
@@ -66,6 +65,8 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
   useEffect(() => {
     if (activeSubPage === "profils") {
       chargerLesProfils();
+      // Charger aussi les utilisateurs pour afficher le nombre d'utilisateurs par profil
+      chargerLesUtilisateurs();
     } else if (activeSubPage === "utilisateurs") {
       // Charger les profils pour le dropdown et les utilisateurs
       chargerLesProfils();
@@ -87,7 +88,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
 
   const handleCreate = () => {
     setEditingProfil(null);
-    setFormData({ nom: "", prenom: "" });
+    setFormData({ nom: "" });
     setShowForm(true);
     setMessage({ type: "", text: "" });
   };
@@ -96,7 +97,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
     setEditingProfil(profil);
     setFormData({
       nom: profil.nom,
-      prenom: profil.prenom,
     });
     setShowForm(true);
     setMessage({ type: "", text: "" });
@@ -148,7 +148,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
       email: "",
       motDePasse: "",
       profilId: "",
-      description: "",
     });
     setShowUserForm(true);
     setUserMessage({ type: "", text: "" });
@@ -162,7 +161,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
       email: user.email,
       motDePasse: "", // Ne pas afficher le mot de passe
       profilId: user.profilId || "",
-      description: user.description || "",
     });
     setShowUserForm(true);
     setUserMessage({ type: "", text: "" });
@@ -194,9 +192,58 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
     setUserToDelete(null);
   };
 
+  const validateUserForm = () => {
+    if (!userFormData.nom.trim()) {
+      setUserMessage({
+        type: "error",
+        text: "Le nom est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!userFormData.prenom.trim()) {
+      setUserMessage({
+        type: "error",
+        text: "Le prénom est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!userFormData.email.trim()) {
+      setUserMessage({
+        type: "error",
+        text: "L'email est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!editingUser && !userFormData.motDePasse.trim()) {
+      setUserMessage({
+        type: "error",
+        text: "Le mot de passe est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!userFormData.profilId) {
+      setUserMessage({
+        type: "error",
+        text: "Le profil est obligatoire.",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleUserSubmit = (e) => {
     e.preventDefault();
     setUserMessage({ type: "", text: "" });
+
+    // Validation personnalisée
+    if (!validateUserForm()) {
+      return;
+    }
 
     let resultat;
     if (editingUser) {
@@ -208,7 +255,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
         userFormData.email,
         userFormData.motDePasse,
         parseInt(userFormData.profilId),
-        userFormData.description
+        ""
       );
     } else {
       // Création
@@ -218,7 +265,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
         userFormData.email,
         userFormData.motDePasse,
         parseInt(userFormData.profilId),
-        userFormData.description
+        ""
       );
     }
 
@@ -232,7 +279,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
         email: "",
         motDePasse: "",
         profilId: "",
-        description: "",
       });
       setEditingUser(null);
       setTimeout(() => setUserMessage({ type: "", text: "" }), 3000);
@@ -249,7 +295,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
       email: "",
       motDePasse: "",
       profilId: "",
-      description: "",
     });
     setEditingUser(null);
     setUserMessage({ type: "", text: "" });
@@ -259,27 +304,52 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
   const getProfilName = (profilId) => {
     if (!profilId) return "Aucun profil";
     const profil = profils.find((p) => p.id === profilId);
-    return profil ? `${profil.nom} ${profil.prenom}` : "Profil introuvable";
+    return profil ? profil.nom : "Profil introuvable";
+  };
+
+  // Fonction pour compter le nombre d'utilisateurs par profil
+  const getNombreUtilisateursParProfil = (profilId) => {
+    return utilisateurs.filter((user) => user.profilId === profilId).length;
+  };
+
+  const validateProfilForm = () => {
+    if (!formData.nom.trim()) {
+      setMessage({
+        type: "error",
+        text: "Le nom est obligatoire.",
+      });
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage({ type: "", text: "" });
 
+    // Validation personnalisée
+    if (!validateProfilForm()) {
+      return;
+    }
+
     let resultat;
     if (editingProfil) {
       // Mise à jour
-      resultat = mettreAJourProfil(editingProfil.id, formData.nom, formData.prenom);
+      resultat = mettreAJourProfil(
+        editingProfil.id,
+        formData.nom
+      );
     } else {
       // Création
-      resultat = creerProfil(formData.nom, formData.prenom);
+      resultat = creerProfil(formData.nom);
     }
 
     if (resultat.succes) {
       setMessage({ type: "success", text: resultat.message });
       chargerLesProfils();
       setShowForm(false);
-      setFormData({ nom: "", prenom: "" });
+      setFormData({ nom: "" });
       setEditingProfil(null);
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } else {
@@ -289,7 +359,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
 
   const handleCancel = () => {
     setShowForm(false);
-    setFormData({ nom: "", prenom: "" });
+    setFormData({ nom: "" });
     setEditingProfil(null);
     setMessage({ type: "", text: "" });
   };
@@ -305,45 +375,59 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
             </button>
           </div>
 
-          {message.text && (
-            <div
-              className={`info-box ${
-                message.type === "error" ? "error-box" : "success-box"
-              }`}
-              style={{
-                marginTop: "16px",
-                backgroundColor: message.type === "error" ? "#fee2e2" : "#d1fae5",
-                borderColor: message.type === "error" ? "#fecaca" : "#a7f3d0",
-                color: message.type === "error" ? "#991b1b" : "#065f46",
-              }}
-            >
-              <p>{message.text}</p>
-            </div>
-          )}
-
           {showForm && (
             <div className="modal-overlay" onClick={handleCancel}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="modal-header">
-                  <h3>{editingProfil ? "Modifier le profil" : "Créer un nouveau profil"}</h3>
-                  <button className="modal-close" onClick={handleCancel}>&times;</button>
+                  <h3>
+                    {editingProfil
+                      ? "Modifier le profil"
+                      : "Créer un nouveau profil"}
+                  </h3>
+                  <button className="modal-close" onClick={handleCancel}>
+                    &times;
+                  </button>
                 </div>
+                {message.text && (
+                  <div
+                    className={`info-box ${
+                      message.type === "error" ? "error-box" : "success-box"
+                    }`}
+                    style={{
+                      margin: "16px 24px 0 24px",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      backgroundColor:
+                        message.type === "error" ? "#fee2e2" : "#d1fae5",
+                      border: `1px solid ${
+                        message.type === "error" ? "#fecaca" : "#a7f3d0"
+                      }`,
+                      color: message.type === "error" ? "#991b1b" : "#065f46",
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>{message.text}</p>
+                  </div>
+                )}
                 <form onSubmit={handleSubmit}>
                   <div className="form-group">
-                    <label htmlFor="idProfil">
-                      Identifiant du profil
-                    </label>
+                    <label htmlFor="idProfil">Identifiant du profil</label>
                     <input
                       type="text"
                       id="idProfil"
-                      value={editingProfil ? editingProfil.id : "Généré automatiquement"}
+                      value={
+                        editingProfil
+                          ? editingProfil.id
+                          : "Généré automatiquement"
+                      }
                       disabled
                     />
                   </div>
                   <div className="form-group">
                     <label htmlFor="nom">
                       Nom <span className="required">*</span>
-                      <span className="hint">(sera converti en majuscules)</span>
                     </label>
                     <input
                       type="text"
@@ -351,28 +435,17 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       name="nom"
                       value={formData.nom}
                       onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="prenom">
-                      Prénom <span className="required">*</span>
-                      <span className="hint">(sera converti en minuscules)</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="prenom"
-                      name="prenom"
-                      value={formData.prenom}
-                      onChange={handleInputChange}
-                      required
                     />
                   </div>
                   <div className="modal-actions">
                     <button type="submit" className="btn-primary">
                       {editingProfil ? "Mettre à jour" : "Créer"}
                     </button>
-                    <button type="button" className="btn-secondary" onClick={handleCancel}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleCancel}
+                    >
                       Annuler
                     </button>
                   </div>
@@ -393,7 +466,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                   <tr>
                     <th>Identifiant</th>
                     <th>Nom</th>
-                    <th>Prénom</th>
+                    <th>Nombre d'utilisateurs</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -402,19 +475,35 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                     <tr key={profil.id}>
                       <td>{profil.id}</td>
                       <td>{profil.nom}</td>
-                      <td>{profil.prenom}</td>
+                      <td>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "4px 12px",
+                            borderRadius: "12px",
+                            backgroundColor: "#dbeafe",
+                            color: "#1e40af",
+                            fontWeight: "500",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {getNombreUtilisateursParProfil(profil.id)} utilisateur
+                          {getNombreUtilisateursParProfil(profil.id) !== 1
+                            ? "s"
+                            : ""}
+                        </span>
+                      </td>
                       <td>
                         <button
-                          className="btn-link"
+                          className="btn-secondary"
                           onClick={() => handleEdit(profil)}
-                          style={{ color: "#667eea" }}
+                          style={{ marginRight: "5px" }}
                         >
                           Modifier
                         </button>
                         <button
-                          className="btn-link"
+                          className="btn-danger"
                           onClick={() => handleDelete(profil)}
-                          style={{ color: "#ef4444" }}
                         >
                           Supprimer
                         </button>
@@ -426,50 +515,94 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
             )}
           </div>
         </div>
-      )
+      ),
     },
     utilisateurs: {
       title: "Gestion des Utilisateurs",
       content: (
         <div>
+          {profils.length === 0 ? (
+            <div
+              className="info-box error-box"
+              style={{
+                marginBottom: "24px",
+                padding: "16px",
+                borderRadius: "8px",
+                backgroundColor: "#fef3c7",
+                border: "1px solid #fde68a",
+                color: "#92400e",
+              }}
+            >
+              <p style={{ margin: 0, fontWeight: "500" }}>
+                ⚠️ Aucun profil disponible. Vous devez d'abord créer un profil
+                avant de pouvoir créer un utilisateur.
+              </p>
+              <p style={{ margin: "8px 0 0 0", fontSize: "14px" }}>
+                Veuillez aller dans la section "Gestion des Profils" pour créer
+                un profil.
+              </p>
+            </div>
+          ) : null}
           <div className="action-buttons">
-            <button className="btn-primary" onClick={handleCreateUser}>
+            <button
+              className="btn-primary"
+              onClick={handleCreateUser}
+              disabled={profils.length === 0}
+              style={{
+                opacity: profils.length === 0 ? 0.5 : 1,
+                cursor: profils.length === 0 ? "not-allowed" : "pointer",
+              }}
+            >
               Ajouter un utilisateur
             </button>
           </div>
 
-          {userMessage.text && (
-            <div
-              className={`info-box ${
-                userMessage.type === "error" ? "error-box" : "success-box"
-              }`}
-              style={{
-                marginTop: "16px",
-                backgroundColor: userMessage.type === "error" ? "#fee2e2" : "#d1fae5",
-                borderColor: userMessage.type === "error" ? "#fecaca" : "#a7f3d0",
-                color: userMessage.type === "error" ? "#991b1b" : "#065f46",
-              }}
-            >
-              <p>{userMessage.text}</p>
-            </div>
-          )}
-
           {showUserForm && (
             <div className="modal-overlay" onClick={handleCancelUser}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="modal-header">
-                  <h3>{editingUser ? "Modifier l'utilisateur" : "Créer un nouvel utilisateur"}</h3>
-                  <button className="modal-close" onClick={handleCancelUser}>&times;</button>
+                  <h3>
+                    {editingUser
+                      ? "Modifier l'utilisateur"
+                      : "Créer un nouvel utilisateur"}
+                  </h3>
+                  <button className="modal-close" onClick={handleCancelUser}>
+                    &times;
+                  </button>
                 </div>
+                {userMessage.text && (
+                  <div
+                    className={`info-box ${
+                      userMessage.type === "error" ? "error-box" : "success-box"
+                    }`}
+                    style={{
+                      margin: "16px 24px 0 24px",
+                      padding: "12px",
+                      borderRadius: "6px",
+                      backgroundColor:
+                        userMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                      border: `1px solid ${
+                        userMessage.type === "error" ? "#fecaca" : "#a7f3d0"
+                      }`,
+                      color:
+                        userMessage.type === "error" ? "#991b1b" : "#065f46",
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>{userMessage.text}</p>
+                  </div>
+                )}
                 <form onSubmit={handleUserSubmit}>
                   <div className="form-group">
-                    <label htmlFor="userId">
-                      Identifiant de l'utilisateur
-                    </label>
+                    <label htmlFor="userId">Identifiant de l'utilisateur</label>
                     <input
                       type="text"
                       id="userId"
-                      value={editingUser ? editingUser.id : "Généré automatiquement"}
+                      value={
+                        editingUser ? editingUser.id : "Généré automatiquement"
+                      }
                       disabled
                     />
                   </div>
@@ -484,10 +617,10 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleUserInputChange}
                       required
                     >
-                      <option value="">Sélectionner un profil</option>
+                      <option value="">-- Sélectionner un profil --</option>
                       {profils.map((profil) => (
                         <option key={profil.id} value={profil.id}>
-                          {profil.nom} {profil.prenom}
+                          {profil.nom}
                         </option>
                       ))}
                     </select>
@@ -502,7 +635,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       name="nom"
                       value={userFormData.nom}
                       onChange={handleUserInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -515,7 +647,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       name="prenom"
                       value={userFormData.prenom}
                       onChange={handleUserInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
@@ -528,13 +659,14 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       name="email"
                       value={userFormData.email}
                       onChange={handleUserInputChange}
-                      required
                     />
                   </div>
                   <div className="form-group">
                     <label htmlFor="userMotDePasse">
                       Mot de passe <span className="required">*</span>
-                      <span className="hint">(minimum 8 caractères différents)</span>
+                      <span className="hint">
+                        (minimum 8 caractères différents)
+                      </span>
                     </label>
                     <input
                       type="password"
@@ -542,36 +674,20 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       name="motDePasse"
                       value={userFormData.motDePasse}
                       onChange={handleUserInputChange}
-                      required={!editingUser}
-                      placeholder={editingUser ? "Laisser vide pour ne pas modifier" : ""}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="userDescription">
-                      Description
-                    </label>
-                    <textarea
-                      id="userDescription"
-                      name="description"
-                      value={userFormData.description}
-                      onChange={handleUserInputChange}
-                      rows="4"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1px solid #d1d5db",
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontFamily: "inherit",
-                        resize: "vertical",
-                      }}
+                      placeholder={
+                        editingUser ? "Laisser vide pour ne pas modifier" : ""
+                      }
                     />
                   </div>
                   <div className="modal-actions">
                     <button type="submit" className="btn-primary">
                       {editingUser ? "Mettre à jour" : "Créer"}
                     </button>
-                    <button type="button" className="btn-secondary" onClick={handleCancelUser}>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleCancelUser}
+                    >
                       Annuler
                     </button>
                   </div>
@@ -579,59 +695,8 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
               </div>
             </div>
           )}
-
-          <div className="table-container" style={{ marginTop: "24px" }}>
-            <h3>Liste des utilisateurs</h3>
-            {utilisateurs.length === 0 ? (
-              <p style={{ color: "#6b7280", marginTop: "16px" }}>
-                Aucun utilisateur créé pour le moment.
-              </p>
-            ) : (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Profil</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {utilisateurs.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.id}</td>
-                      <td>{getProfilName(user.profilId)}</td>
-                      <td>{user.nom}</td>
-                      <td>{user.prenom}</td>
-                      <td>{user.email}</td>
-                      <td>{user.description || "-"}</td>
-                      <td>
-                        <button
-                          className="btn-link"
-                          onClick={() => handleEditUser(user)}
-                          style={{ color: "#667eea" }}
-                        >
-                          Modifier
-                        </button>
-                        <button
-                          className="btn-link"
-                          onClick={() => handleDeleteUser(user)}
-                          style={{ color: "#ef4444" }}
-                        >
-                          Supprimer
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
         </div>
-      )
+      ),
     },
   };
 
@@ -642,9 +707,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
         <p>Gérez les paramètres administratifs du système</p>
       </div>
 
-      <div className="page-content">
-        {subPages[activeSubPage].content}
-      </div>
+      <div className="page-content">{subPages[activeSubPage].content}</div>
 
       {/* Popup de confirmation de suppression de profil */}
       {showDeleteConfirm && profilToDelete && (
@@ -656,11 +719,12 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
             <div className="confirm-modal-body">
               <p>
                 Êtes-vous sûr de vouloir supprimer le profil{" "}
-                <strong>"{profilToDelete.nom} {profilToDelete.prenom}"</strong> ?
+                <strong>
+                  "{profilToDelete.nom}"
+                </strong>{" "}
+                ?
               </p>
-              <p className="confirm-warning">
-                Cette action est irréversible.
-              </p>
+              <p className="confirm-warning">Cette action est irréversible.</p>
             </div>
             <div className="confirm-modal-actions">
               <button
@@ -692,10 +756,14 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
             <div className="confirm-modal-body">
               <p>
                 Êtes-vous sûr de vouloir supprimer l'utilisateur{" "}
-                <strong>"{userToDelete.nom} {userToDelete.prenom}"</strong> ?
+                <strong>
+                  "{userToDelete.nom} {userToDelete.prenom}"
+                </strong>{" "}
+                ?
               </p>
               <p className="confirm-warning">
-                Cette action est irréversible. L'utilisateur devra se reconnecter.
+                Cette action est irréversible. L'utilisateur devra se
+                reconnecter.
               </p>
             </div>
             <div className="confirm-modal-actions">
@@ -722,4 +790,3 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
 };
 
 export default Administration;
-

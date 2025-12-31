@@ -1,4 +1,22 @@
 {
-  "societes": []
+  "societes": [
+    {
+      "id": 1,
+      "nom": "TechCorp",
+      "description": "Société principale de développement",
+      "adresse": "123 Rue de la Technologie, 75001 Paris",
+      "telephone": "+33 1 23 45 67 89",
+      "email": "contact@techcorp.fr",
+      "dateCreation": "2024-01-01T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nom": "InnovationSoft",
+      "description": "Partenaire technologique",
+      "adresse": "456 Avenue de l'Innovation, 69001 Lyon",
+      "telephone": "+33 4 12 34 56 78",
+      "email": "info@innovationsoft.fr",
+      "dateCreation": "2024-01-01T08:00:00.000Z"
+    }
+  ]
 }
-

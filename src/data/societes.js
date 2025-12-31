@@ -10,15 +10,19 @@ const chargerSocietes = () => {
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
   
   if (donneesStockees) {
-    // Si oui, utiliser les données de localStorage
-    return JSON.parse(donneesStockees);
-  } else {
-    // Sinon, utiliser les données initiales du fichier JSON
-    const societesInitiales = donneesInitiales.societes || [];
-    // Sauvegarder dans localStorage pour la première fois
-    sauvegarderSocietes(societesInitiales);
-    return societesInitiales;
+    // Si oui, vérifier si le tableau n'est pas vide
+    const societesStockees = JSON.parse(donneesStockees);
+    if (societesStockees && societesStockees.length > 0) {
+      // Utiliser les données de localStorage si elles ne sont pas vides
+      return societesStockees;
+    }
   }
+  
+  // Sinon, utiliser les données initiales du fichier JSON
+  const societesInitiales = donneesInitiales.societes || [];
+  // Sauvegarder dans localStorage pour la première fois
+  sauvegarderSocietes(societesInitiales);
+  return societesInitiales;
 };
 
 // Sauvegarder les sociétés dans localStorage
@@ -33,6 +37,44 @@ const nomSocieteExiste = (nom, idExclu = null) => {
   return societes.some(
     (s) => s.nom === nomUpper && (idExclu === null || s.id !== idExclu)
   );
+};
+
+// Créer une nouvelle société (version simple avec seulement le nom)
+const creerSocieteSimple = (nom) => {
+  const societes = chargerSocietes();
+
+  // Vérifier que le nom est fourni
+  if (!nom || !nom.trim()) {
+    return { succes: false, message: "Le nom de la société est obligatoire" };
+  }
+
+  // Convertir le nom en majuscules
+  const nomUpper = nom.toUpperCase().trim();
+
+  // Vérifier l'unicité du nom
+  if (nomSocieteExiste(nomUpper)) {
+    // Si la société existe déjà, retourner l'ID de la société existante
+    const societeExistante = societes.find((s) => s.nom === nomUpper);
+    return { succes: true, message: "Société déjà existante", societe: societeExistante };
+  }
+
+  // Générer un nouvel ID
+  const nouvelId =
+    societes.length > 0 ? Math.max(...societes.map((s) => s.id)) + 1 : 1;
+
+  const nouvelleSociete = {
+    id: nouvelId,
+    nom: nomUpper,
+    adresse: "À compléter",
+    email: "À compléter",
+    telephone: "À compléter",
+    responsable: "À compléter",
+  };
+
+  societes.push(nouvelleSociete);
+  sauvegarderSocietes(societes);
+
+  return { succes: true, message: "Société créée avec succès", societe: nouvelleSociete };
 };
 
 // Créer une nouvelle société
@@ -144,6 +186,7 @@ export {
   chargerSocietes,
   sauvegarderSocietes,
   creerSociete,
+  creerSocieteSimple,
   mettreAJourSociete,
   supprimerSociete,
   nomSocieteExiste,

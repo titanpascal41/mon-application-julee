@@ -9,12 +9,18 @@ const chargerDemandes = () => {
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
   
   if (donneesStockees) {
-    return JSON.parse(donneesStockees);
-  } else {
-    const demandesInitiales = donneesInitiales.demandes || [];
-    sauvegarderDemandes(demandesInitiales);
-    return demandesInitiales;
+    // Vérifier si le tableau n'est pas vide
+    const demandesStockees = JSON.parse(donneesStockees);
+    if (demandesStockees && demandesStockees.length > 0) {
+      // Utiliser les données de localStorage si elles ne sont pas vides
+      return demandesStockees;
+    }
   }
+  
+  // Sinon, utiliser les données initiales du fichier JSON
+  const demandesInitiales = donneesInitiales.demandes || [];
+  sauvegarderDemandes(demandesInitiales);
+  return demandesInitiales;
 };
 
 // Sauvegarder les demandes dans localStorage
@@ -63,7 +69,21 @@ const creerDemande = ({ dateReception, societesDemandeurs, interlocuteur }) => {
 };
 
 // Mettre à jour une demande
-const mettreAJourDemande = (id, { dateReception, societesDemandeurs, interlocuteur }) => {
+const mettreAJourDemande = (id, { 
+  dateReception, 
+  societesDemandeurs, 
+  interlocuteur,
+  // Champs de soumission et validation
+  dateSoumissionBacklog,
+  lienCompteRendu,
+  redacteurBacklog,
+  dateValidationBacklog,
+  dateElaborationDATFL,
+  dateValidationDATFL,
+  dateElaborationPlanningDEV,
+  dateValidationPlanningDEV,
+  statutSoumission
+}) => {
   const demandes = chargerDemandes();
   const index = demandes.findIndex((d) => d.id === id);
 
@@ -71,28 +91,46 @@ const mettreAJourDemande = (id, { dateReception, societesDemandeurs, interlocute
     return { succes: false, message: "Demande introuvable" };
   }
 
-  // Vérifier que tous les champs obligatoires sont remplis
-  if (!dateReception || !societesDemandeurs || societesDemandeurs.length === 0 || !interlocuteur) {
-    return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
-  }
+  // Vérifier que tous les champs obligatoires sont remplis (seulement si on met à jour les champs de base)
+  if (dateReception !== undefined && societesDemandeurs !== undefined && interlocuteur !== undefined) {
+    if (!dateReception || !societesDemandeurs || societesDemandeurs.length === 0 || !interlocuteur) {
+      return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
+    }
 
-  // Vérifier que les sociétés existent
-  const societes = chargerSocietes();
-  const societesIds = Array.isArray(societesDemandeurs) ? societesDemandeurs : [societesDemandeurs];
-  const toutesSocietesExistantes = societesIds.every((id) => 
-    societes.some((s) => s.id === parseInt(id))
-  );
-  
-  if (!toutesSocietesExistantes) {
-    return { succes: false, message: "Une ou plusieurs sociétés sélectionnées n'existent pas" };
+    // Vérifier que les sociétés existent
+    const societes = chargerSocietes();
+    const societesIds = Array.isArray(societesDemandeurs) ? societesDemandeurs : [societesDemandeurs];
+    const toutesSocietesExistantes = societesIds.every((id) => 
+      societes.some((s) => s.id === parseInt(id))
+    );
+    
+    if (!toutesSocietesExistantes) {
+      return { succes: false, message: "Une ou plusieurs sociétés sélectionnées n'existent pas" };
+    }
   }
 
   // Mettre à jour la demande (la date d'enregistrement reste inchangée)
+  const demandeExistante = demandes[index];
   demandes[index] = {
-    ...demandes[index],
-    dateReception: dateReception,
-    societesDemandeurs: societesIds.map((id) => parseInt(id)),
-    interlocuteur: interlocuteur.trim(),
+    ...demandeExistante,
+    // Mettre à jour seulement les champs fournis
+    ...(dateReception !== undefined && { dateReception: dateReception }),
+    ...(societesDemandeurs !== undefined && { 
+      societesDemandeurs: Array.isArray(societesDemandeurs) 
+        ? societesDemandeurs.map((id) => parseInt(id))
+        : [parseInt(societesDemandeurs)]
+    }),
+    ...(interlocuteur !== undefined && { interlocuteur: interlocuteur.trim() }),
+    // Champs de soumission et validation
+    ...(dateSoumissionBacklog !== undefined && { dateSoumissionBacklog }),
+    ...(lienCompteRendu !== undefined && { lienCompteRendu }),
+    ...(redacteurBacklog !== undefined && { redacteurBacklog }),
+    ...(dateValidationBacklog !== undefined && { dateValidationBacklog }),
+    ...(dateElaborationDATFL !== undefined && { dateElaborationDATFL }),
+    ...(dateValidationDATFL !== undefined && { dateValidationDATFL }),
+    ...(dateElaborationPlanningDEV !== undefined && { dateElaborationPlanningDEV }),
+    ...(dateValidationPlanningDEV !== undefined && { dateValidationPlanningDEV }),
+    ...(statutSoumission !== undefined && { statutSoumission }),
   };
 
   sauvegarderDemandes(demandes);

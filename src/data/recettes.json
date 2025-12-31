@@ -1,0 +1,43 @@
+{
+  "recettes": [
+    {
+      "id": 1,
+      "dateDebut": "2024-01-10",
+      "dateFin": "2024-01-12",
+      "anomaliesBloquantes": 0,
+      "anomaliesMajeures": 2,
+      "anomaliesMineures": 5,
+      "statut": "OK",
+      "commentaires": "Recette validée avec quelques anomalies mineures à corriger",
+      "gp": "Jean Dupont",
+      "dateCreation": "2024-01-10T08:00:00.000Z",
+      "dateModification": "2024-01-12T17:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "dateDebut": "2024-01-15",
+      "dateFin": null,
+      "anomaliesBloquantes": 1,
+      "anomaliesMajeures": 3,
+      "anomaliesMineures": 8,
+      "statut": "Bloquée",
+      "commentaires": "Anomalie bloquante détectée, recette automatiquement bloquée",
+      "gp": "Marie Martin",
+      "dateCreation": "2024-01-15T09:00:00.000Z",
+      "dateModification": "2024-01-15T15:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "dateDebut": "2024-01-20",
+      "dateFin": null,
+      "anomaliesBloquantes": 0,
+      "anomaliesMajeures": 0,
+      "anomaliesMineures": 2,
+      "statut": "En cours",
+      "commentaires": "Recette en cours d'exécution",
+      "gp": "Jean Dupont",
+      "dateCreation": "2024-01-20T08:00:00.000Z",
+      "dateModification": "2024-01-20T08:00:00.000Z"
+    }
+  ]
+}
