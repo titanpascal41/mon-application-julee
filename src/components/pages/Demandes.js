@@ -20,7 +20,26 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
     dateReception: "",
     societesDemandeurs: [],
     interlocuteur: "",
+    typeProjet: "",
+    nomProjet: "",
+    descriptionPerimetre: "",
+    perimetre: "",
   });
+  const perimetreOptions = [
+    "ND",
+    "ANL",
+    "DEV",
+    "DEP",
+    "DEM",
+    "REC",
+    "TIF",
+    "LIV",
+    "FREC",
+    "ANN",
+    "SUSP",
+    "A PLAN",
+    "ENREG",
+  ];
 
   // États pour la soumission et validation
   const [soumissionFormData, setSoumissionFormData] = useState({
@@ -96,6 +115,10 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       dateReception: "",
       societesDemandeurs: [],
       interlocuteur: "",
+      typeProjet: "",
+      nomProjet: "",
+      descriptionPerimetre: "",
+      perimetre: "",
     });
     setShowDemandeForm(true);
     setDemandeMessage({ type: "", text: "" });
@@ -107,6 +130,10 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       dateReception: demande.dateReception,
       societesDemandeurs: demande.societesDemandeurs.map((id) => id.toString()),
       interlocuteur: demande.interlocuteur,
+      typeProjet: demande.typeProjet || "",
+      nomProjet: demande.nomProjet || "",
+      descriptionPerimetre: demande.descriptionPerimetre || "",
+      perimetre: demande.perimetre || "",
     });
     setShowDemandeForm(true);
     setDemandeMessage({ type: "", text: "" });
@@ -166,6 +193,38 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       return false;
     }
 
+    if (!demandeFormData.typeProjet.trim()) {
+      setDemandeMessage({
+        type: "error",
+        text: "Le type de projet est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!demandeFormData.nomProjet.trim()) {
+      setDemandeMessage({
+        type: "error",
+        text: "Le nom du projet est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!demandeFormData.descriptionPerimetre.trim()) {
+      setDemandeMessage({
+        type: "error",
+        text: "La description du périmètre est obligatoire.",
+      });
+      return false;
+    }
+
+    if (!demandeFormData.perimetre) {
+      setDemandeMessage({
+        type: "error",
+        text: "Le périmètre est obligatoire.",
+      });
+      return false;
+    }
+
     return true;
   };
 
@@ -196,6 +255,10 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
         dateReception: "",
         societesDemandeurs: [],
         interlocuteur: "",
+        typeProjet: "",
+        nomProjet: "",
+        descriptionPerimetre: "",
+        perimetre: "",
       });
       setEditingDemande(null);
       setTimeout(() => setDemandeMessage({ type: "", text: "" }), 3000);
@@ -210,6 +273,10 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       dateReception: "",
       societesDemandeurs: [],
       interlocuteur: "",
+      typeProjet: "",
+      nomProjet: "",
+      descriptionPerimetre: "",
+      perimetre: "",
     });
     setEditingDemande(null);
     setDemandeMessage({ type: "", text: "" });
@@ -420,7 +487,6 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       </div>
 
       <div className="page-content">
-        {/* Rubrique 1: CRUD de demande */}
         <div className="section-rubrique" style={{ marginBottom: "48px" }}>
           <h2
             style={{
@@ -429,7 +495,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
               borderBottom: "2px solid #e5e7eb",
             }}
           >
-            CRUD de Demande
+            Demandes
           </h2>
 
           <div className="action-buttons">
@@ -480,19 +546,6 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleDemandeSubmit}>
                   <div className="form-group">
-                    <label htmlFor="demandeId">Identifiant de la demande</label>
-                    <input
-                      type="text"
-                      id="demandeId"
-                      value={
-                        editingDemande
-                          ? editingDemande.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="demandeDateEnregistrement">
                       Date d'enregistrement
                     </label>
@@ -518,6 +571,69 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                       value={demandeFormData.dateReception}
                       onChange={handleDemandeInputChange}
                     />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="demandeTypeProjet">
+                      Type de projet <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="demandeTypeProjet"
+                      name="typeProjet"
+                      value={demandeFormData.typeProjet}
+                      onChange={handleDemandeInputChange}
+                      placeholder="Ex : Refonte, Nouvelle feature..."
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="demandeNomProjet">
+                      Nom du projet <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="demandeNomProjet"
+                      name="nomProjet"
+                      value={demandeFormData.nomProjet}
+                      onChange={handleDemandeInputChange}
+                      placeholder="Nom du projet"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="demandeDescriptionPerimetre">
+                      Description du périmètre <span className="required">*</span>
+                    </label>
+                    <textarea
+                      id="demandeDescriptionPerimetre"
+                      name="descriptionPerimetre"
+                      value={demandeFormData.descriptionPerimetre}
+                      onChange={handleDemandeInputChange}
+                      rows={3}
+                      placeholder="Décrivez le périmètre concerné"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="demandePerimetre">
+                      Périmètre <span className="required">*</span>
+                    </label>
+                    <select
+                      id="demandePerimetre"
+                      name="perimetre"
+                      value={demandeFormData.perimetre}
+                      onChange={handleDemandeInputChange}
+                      required
+                    >
+                      <option value="" disabled>
+                        Sélectionnez un périmètre
+                      </option>
+                      {perimetreOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="form-group">
                     <label htmlFor="demandeSocietesDemandeurs">
@@ -593,22 +709,26 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Date d'enregistrement</th>
                     <th>Date de réception</th>
                     <th>Sociétés demandeurs</th>
                     <th>Interlocuteur</th>
+                    <th>Type projet</th>
+                    <th>Nom projet</th>
+                    <th>Périmètre</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {demandes.map((demande) => (
                     <tr key={demande.id}>
-                      <td>{demande.id}</td>
                       <td>{demande.dateEnregistrement}</td>
                       <td>{demande.dateReception}</td>
                       <td>{getSocietesNames(demande.societesDemandeurs)}</td>
                       <td>{demande.interlocuteur}</td>
+                      <td>{demande.typeProjet || "-"}</td>
+                      <td>{demande.nomProjet || "-"}</td>
+                      <td>{demande.perimetre || "-"}</td>
                       <td>
                         <button
                           className="btn-secondary"
@@ -702,7 +822,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                 <form onSubmit={handleSoumissionSubmit}>
                   <div className="form-group">
                     <label htmlFor="soumissionDemandeId">
-                      ID Demande <span className="required">*</span>
+                      Demande associée <span className="required">*</span>
                     </label>
                     <select
                       id="soumissionDemandeId"
@@ -717,7 +837,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                       )}
                       {demandes.map((demande) => (
                         <option key={demande.id} value={demande.id}>
-                          #{demande.id} - {demande.interlocuteur}
+                          {demande.nomProjet || "Demande"} — {demande.interlocuteur}
                         </option>
                       ))}
                     </select>
@@ -974,7 +1094,6 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID Demande</th>
                     <th>Date de réception de la demande</th>
                     <th>Date soumission du backlog</th>
                     <th>Date validation du backlog</th>
@@ -999,7 +1118,6 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                     )
                     .map((demande) => (
                       <tr key={demande.id}>
-                        <td>#{demande.id}</td>
                         <td>{demande.dateReception || "-"}</td>
                         <td>{demande.dateSoumissionBacklog || "-"}</td>
                         <td>{demande.dateValidationBacklog || "-"}</td>
@@ -1052,7 +1170,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                   ).length === 0 && (
                     <tr>
                       <td
-                        colSpan="12"
+                        colSpan="11"
                         style={{ textAlign: "center", padding: "24px" }}
                       >
                         Aucune soumission enregistrée pour le moment.

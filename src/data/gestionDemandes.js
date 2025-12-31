@@ -29,12 +29,32 @@ const sauvegarderDemandes = (demandes) => {
 };
 
 // Créer une nouvelle demande
-const creerDemande = ({ dateReception, societesDemandeurs, interlocuteur }) => {
+const creerDemande = ({
+  dateReception,
+  societesDemandeurs,
+  interlocuteur,
+  typeProjet,
+  nomProjet,
+  descriptionPerimetre,
+  perimetre,
+}) => {
   const demandes = chargerDemandes();
 
   // Vérifier que tous les champs obligatoires sont remplis
-  if (!dateReception || !societesDemandeurs || societesDemandeurs.length === 0 || !interlocuteur) {
-    return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
+  if (
+    !dateReception ||
+    !societesDemandeurs ||
+    societesDemandeurs.length === 0 ||
+    !interlocuteur ||
+    !typeProjet ||
+    !nomProjet ||
+    !descriptionPerimetre ||
+    !perimetre
+  ) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
   }
 
   // Vérifier que les sociétés existent
@@ -60,6 +80,10 @@ const creerDemande = ({ dateReception, societesDemandeurs, interlocuteur }) => {
     dateReception: dateReception,
     societesDemandeurs: societesIds.map((id) => parseInt(id)),
     interlocuteur: interlocuteur.trim(),
+    typeProjet: typeProjet.trim(),
+    nomProjet: nomProjet.trim(),
+    descriptionPerimetre: descriptionPerimetre.trim(),
+    perimetre,
   };
 
   demandes.push(nouvelleDemande);
@@ -73,6 +97,10 @@ const mettreAJourDemande = (id, {
   dateReception, 
   societesDemandeurs, 
   interlocuteur,
+  typeProjet,
+  nomProjet,
+  descriptionPerimetre,
+  perimetre,
   // Champs de soumission et validation
   dateSoumissionBacklog,
   lienCompteRendu,
@@ -92,8 +120,25 @@ const mettreAJourDemande = (id, {
   }
 
   // Vérifier que tous les champs obligatoires sont remplis (seulement si on met à jour les champs de base)
-  if (dateReception !== undefined && societesDemandeurs !== undefined && interlocuteur !== undefined) {
-    if (!dateReception || !societesDemandeurs || societesDemandeurs.length === 0 || !interlocuteur) {
+  if (
+    dateReception !== undefined &&
+    societesDemandeurs !== undefined &&
+    interlocuteur !== undefined &&
+    typeProjet !== undefined &&
+    nomProjet !== undefined &&
+    descriptionPerimetre !== undefined &&
+    perimetre !== undefined
+  ) {
+    if (
+      !dateReception ||
+      !societesDemandeurs ||
+      societesDemandeurs.length === 0 ||
+      !interlocuteur ||
+      !typeProjet ||
+      !nomProjet ||
+      !descriptionPerimetre ||
+      !perimetre
+    ) {
       return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
     }
 
@@ -121,6 +166,10 @@ const mettreAJourDemande = (id, {
         : [parseInt(societesDemandeurs)]
     }),
     ...(interlocuteur !== undefined && { interlocuteur: interlocuteur.trim() }),
+    ...(typeProjet !== undefined && { typeProjet: typeProjet.trim() }),
+    ...(nomProjet !== undefined && { nomProjet: nomProjet.trim() }),
+    ...(descriptionPerimetre !== undefined && { descriptionPerimetre: descriptionPerimetre.trim() }),
+    ...(perimetre !== undefined && { perimetre }),
     // Champs de soumission et validation
     ...(dateSoumissionBacklog !== undefined && { dateSoumissionBacklog }),
     ...(lienCompteRendu !== undefined && { lienCompteRendu }),

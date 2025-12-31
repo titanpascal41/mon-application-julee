@@ -6,7 +6,7 @@ import logoj from "../image/LOGO J.webp";
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Déterminer la page active depuis l'URL
   const getActivePage = () => {
     const path = location.pathname;
@@ -63,7 +63,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     };
 
     const currentPath = location.pathname.substring(1); // Enlever le "/" initial
-    
+
     Object.keys(menuKeys).forEach((menuKey) => {
       if (menuKeys[menuKey].includes(currentPath)) {
         setExpandedMenus((prev) => ({
@@ -88,13 +88,15 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "dashboard",
       label: "Dashboard",
-      icon: "📊",
+      icon: "fa-solid fa-gauge",
+      iconColor: "#3B82F6", // Bleu
       path: "dashboard",
     },
     {
       key: "administration",
       label: "Administration",
-      icon: "⚙️",
+      icon: "fa-solid fa-user-gear",
+      iconColor: "#8B5CF6", // Violet
       submenus: [
         {
           key: "gestion-profils",
@@ -111,7 +113,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "parametrage",
       label: "Paramétrage",
-      icon: "🔧",
+      icon: "fa-solid fa-sliders",
+      iconColor: "#64748B", // Gris ardoise
       submenus: [
         {
           key: "gestion-societes",
@@ -138,7 +141,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "demandes",
       label: "Demandes",
-      icon: "📋",
+      icon: "fa-solid fa-file-circle-plus",
+      iconColor: "#10B981", // Vert émeraude
       submenus: [
         {
           key: "gestion-demandes",
@@ -150,7 +154,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "plan-charge",
       label: "Plan de Charge Équipes",
-      icon: "👥",
+      icon: "fa-solid fa-people-group",
+      iconColor: "#F97316", // Orange
       submenus: [
         {
           key: "saisie-ressources",
@@ -172,7 +177,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "planning",
       label: "Planning Projet",
-      icon: "📅",
+      icon: "fa-solid fa-calendar-days",
+      iconColor: "#06B6D4", // Cyan
       submenus: [
         {
           key: "cadre-temporel",
@@ -191,7 +197,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "recette-livraison",
       label: "Recette et Livraison",
-      icon: "🚀",
+      icon: "fa-solid fa-rocket",
+      iconColor: "#6366F1", // Indigo
       submenus: [
         {
           key: "suivi-recette",
@@ -213,7 +220,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "bugs",
       label: "Bugs",
-      icon: "🐛",
+      icon: "fa-solid fa-bug",
+      iconColor: "#EF4444", // Rouge
       submenus: [
         {
           key: "declaration-qualification",
@@ -230,7 +238,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "analyse",
       label: "Analyse et Calcul de Performance",
-      icon: "📈",
+      icon: "fa-solid fa-chart-line",
+      iconColor: "#EAB308", // Or/Jaune
       submenus: [
         {
           key: "indicateurs-kpi",
@@ -242,7 +251,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     {
       key: "kanban",
       label: "Kanban",
-      icon: "📌",
+      icon: "fa-solid fa-table-columns",
+      iconColor: "#EC4899", // Rose
       submenus: [
         {
           key: "configuration-kanban",
@@ -288,14 +298,18 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                   }`}
                   onClick={() => toggleMenu(item.key)}
                 >
-                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-icon">
+                    <i
+                      className={item.icon}
+                      style={{ color: item.iconColor }}
+                      aria-hidden="true"
+                    ></i>
+                  </span>
+                  <span className="nav-label">{item.label}</span>
                   {!collapsed && (
-                    <>
-                      <span className="nav-label">{item.label}</span>
-                      <span className="nav-arrow">
-                        {expandedMenus[item.key] ? "▼" : "▶"}
-                      </span>
-                    </>
+                    <span className="nav-arrow">
+                      {expandedMenus[item.key] ? "▼" : "▶"}
+                    </span>
                   )}
                 </div>
                 {!collapsed && expandedMenus[item.key] && (
@@ -328,8 +342,14 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
                   activePage === item.path ? "active" : ""
                 }`}
               >
-                <span className="nav-icon">{item.icon}</span>
-                {!collapsed && <span className="nav-label">{item.label}</span>}
+                <span className="nav-icon">
+                  <i
+                    className={item.icon}
+                    style={{ color: item.iconColor }}
+                    aria-hidden="true"
+                  ></i>
+                </span>
+                <span className="nav-label">{item.label}</span>
               </Link>
             )}
           </div>
