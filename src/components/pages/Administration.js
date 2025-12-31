@@ -617,7 +617,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleUserInputChange}
                       required
                     >
-                      <option value="">-- Sélectionner un profil --</option>
                       {profils.map((profil) => (
                         <option key={profil.id} value={profil.id}>
                           {profil.nom}

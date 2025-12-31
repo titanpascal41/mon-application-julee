@@ -274,7 +274,6 @@ const Bugs = ({ activeSubPage: activeSubPageProp }) => {
                         onChange={handleInputChange}
                         required
                       >
-                        <option value="">Sélectionner un module</option>
                         {modulesDisponibles.map((module) => (
                           <option key={module} value={module}>
                             {module}
@@ -294,7 +293,6 @@ const Bugs = ({ activeSubPage: activeSubPageProp }) => {
                         onChange={handleInputChange}
                         required
                       >
-                        <option value="">Sélectionner une sévérité</option>
                         <option value="Bloquant">Bloquant</option>
                         <option value="Majeur">Majeur</option>
                         <option value="Mineur">Mineur</option>

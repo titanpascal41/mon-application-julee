@@ -150,8 +150,8 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
     setRessourceFormData({
       nom: ressource.nom,
       type: ressource.type,
-      disponibiliteHJ: ressource.disponibiliteHJ.toString(),
-      tauxJournalier: ressource.tauxJournalier.toString(),
+      disponibiliteHJ: (ressource.disponibiliteHJ || 0).toString(),
+      tauxJournalier: (ressource.tauxJournalier || 0).toString(),
       actif: ressource.actif,
     });
     setShowRessourceForm(true);
@@ -359,12 +359,12 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
   const handleEditCout = (cout) => {
     setEditingCout(cout);
     setCoutFormData({
-      chargePrevisionnelleDEV: cout.chargePrevisionnelleDEV.toString(),
-      chargeEffectiveDEV: cout.chargeEffectiveDEV.toString(),
-      tjmDEV: cout.tjmDEV.toString(),
-      chargePrevisionnelleTIV: cout.chargePrevisionnelleTIV.toString(),
-      chargeEffectiveTIV: cout.chargeEffectiveTIV.toString(),
-      tjmTIV: cout.tjmTIV.toString(),
+      chargePrevisionnelleDEV: (cout.chargePrevisionnelleDEV || 0).toString(),
+      chargeEffectiveDEV: (cout.chargeEffectiveDEV || 0).toString(),
+      tjmDEV: (cout.tjmDEV || 0).toString(),
+      chargePrevisionnelleTIV: (cout.chargePrevisionnelleTIV || 0).toString(),
+      chargeEffectiveTIV: (cout.chargeEffectiveTIV || 0).toString(),
+      tjmTIV: (cout.tjmTIV || 0).toString(),
     });
     setShowCoutForm(true);
     setCoutMessage({ type: "", text: "" });
@@ -530,7 +530,6 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                       onChange={handleRessourceInputChange}
                       required
                     >
-                      <option value="">Sélectionner un type</option>
                       <option value="DEV">DEV</option>
                       <option value="TIV">TIV</option>
                     </select>
@@ -1115,27 +1114,27 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                           </td>
                           <td>
                             <div className="total-cost-display predicted">
-                              <span className="cost-value">{cout.coutPrevuDEV.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutPrevuDEV || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <div className="total-cost-display actual">
-                              <span className="cost-value">{cout.coutReelDEV.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutReelDEV || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <span className={`status-badge ${
-                              cout.chargeEffectiveDEV > cout.chargePrevisionnelleDEV
+                              (cout.chargeEffectiveDEV || 0) > (cout.chargePrevisionnelleDEV || 0)
                                 ? 'status-over'
-                                : cout.chargeEffectiveDEV < cout.chargePrevisionnelleDEV
+                                : (cout.chargeEffectiveDEV || 0) < (cout.chargePrevisionnelleDEV || 0)
                                 ? 'status-under'
                                 : 'status-equal'
                             }`}>
-                              {cout.chargeEffectiveDEV > cout.chargePrevisionnelleDEV
+                              {(cout.chargeEffectiveDEV || 0) > (cout.chargePrevisionnelleDEV || 0)
                                 ? 'Dépassement'
-                                : cout.chargeEffectiveDEV < cout.chargePrevisionnelleDEV
+                                : (cout.chargeEffectiveDEV || 0) < (cout.chargePrevisionnelleDEV || 0)
                                 ? 'Économie'
                                 : 'Conforme'}
                             </span>
@@ -1170,25 +1169,25 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                       <div className="summary-item">
                         <span className="summary-label">Total coût prévu DEV :</span>
                         <span className="summary-value predicted">
-                          {couts.reduce((sum, c) => sum + c.coutPrevuDEV, 0).toLocaleString()} FCFA
+                          {couts.reduce((sum, c) => sum + (c.coutPrevuDEV || 0), 0).toLocaleString()} FCFA
                         </span>
                       </div>
                       <div className="summary-item">
                         <span className="summary-label">Total coût réel DEV :</span>
                         <span className="summary-value actual">
-                          {couts.reduce((sum, c) => sum + c.coutReelDEV, 0).toLocaleString()} FCFA
+                          {couts.reduce((sum, c) => sum + (c.coutReelDEV || 0), 0).toLocaleString()} FCFA
                         </span>
                       </div>
                       <div className="summary-item">
                         <span className="summary-label">Écart total DEV :</span>
                         <span className={`summary-value ${
-                          couts.reduce((sum, c) => sum + c.coutReelDEV, 0) - couts.reduce((sum, c) => sum + c.coutPrevuDEV, 0) > 0
+                          couts.reduce((sum, c) => sum + (c.coutReelDEV || 0), 0) - couts.reduce((sum, c) => sum + (c.coutPrevuDEV || 0), 0) > 0
                             ? 'over'
-                            : couts.reduce((sum, c) => sum + c.coutReelDEV, 0) - couts.reduce((sum, c) => sum + c.coutPrevuDEV, 0) < 0
+                            : couts.reduce((sum, c) => sum + (c.coutReelDEV || 0), 0) - couts.reduce((sum, c) => sum + (c.coutPrevuDEV || 0), 0) < 0
                             ? 'under'
                             : 'equal'
                         }`}>
-                          {(couts.reduce((sum, c) => sum + c.coutReelDEV, 0) - couts.reduce((sum, c) => sum + c.coutPrevuDEV, 0)).toLocaleString()} FCFA
+                          {(couts.reduce((sum, c) => sum + (c.coutReelDEV || 0), 0) - couts.reduce((sum, c) => sum + (c.coutPrevuDEV || 0), 0)).toLocaleString()} FCFA
                         </span>
                       </div>
                     </div>
@@ -1280,27 +1279,27 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                           </td>
                           <td>
                             <div className="total-cost-display predicted">
-                              <span className="cost-value">{cout.coutPrevuTIV.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutPrevuTIV || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <div className="total-cost-display actual">
-                              <span className="cost-value">{cout.coutReelTIV.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutReelTIV || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <span className={`status-badge ${
-                              cout.chargeEffectiveTIV > cout.chargePrevisionnelleTIV
+                              (cout.chargeEffectiveTIV || 0) > (cout.chargePrevisionnelleTIV || 0)
                                 ? 'status-over'
-                                : cout.chargeEffectiveTIV < cout.chargePrevisionnelleTIV
+                                : (cout.chargeEffectiveTIV || 0) < (cout.chargePrevisionnelleTIV || 0)
                                 ? 'status-under'
                                 : 'status-equal'
                             }`}>
-                              {cout.chargeEffectiveTIV > cout.chargePrevisionnelleTIV
+                              {(cout.chargeEffectiveTIV || 0) > (cout.chargePrevisionnelleTIV || 0)
                                 ? 'Dépassement'
-                                : cout.chargeEffectiveTIV < cout.chargePrevisionnelleTIV
+                                : (cout.chargeEffectiveTIV || 0) < (cout.chargePrevisionnelleTIV || 0)
                                 ? 'Économie'
                                 : 'Conforme'}
                             </span>
@@ -1335,25 +1334,25 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                       <div className="summary-item">
                         <span className="summary-label">Total coût prévu TIV :</span>
                         <span className="summary-value predicted">
-                          {couts.reduce((sum, c) => sum + c.coutPrevuTIV, 0).toLocaleString()} FCFA
+                          {couts.reduce((sum, c) => sum + (c.coutPrevuTIV || 0), 0).toLocaleString()} FCFA
                         </span>
                       </div>
                       <div className="summary-item">
                         <span className="summary-label">Total coût réel TIV :</span>
                         <span className="summary-value actual">
-                          {couts.reduce((sum, c) => sum + c.coutReelTIV, 0).toLocaleString()} FCFA
+                          {couts.reduce((sum, c) => sum + (c.coutReelTIV || 0), 0).toLocaleString()} FCFA
                         </span>
                       </div>
                       <div className="summary-item">
                         <span className="summary-label">Écart total TIV :</span>
                         <span className={`summary-value ${
-                          couts.reduce((sum, c) => sum + c.coutReelTIV, 0) - couts.reduce((sum, c) => sum + c.coutPrevuTIV, 0) > 0
+                          couts.reduce((sum, c) => sum + (c.coutReelTIV || 0), 0) - couts.reduce((sum, c) => sum + (c.coutPrevuTIV || 0), 0) > 0
                             ? 'over'
-                            : couts.reduce((sum, c) => sum + c.coutReelTIV, 0) - couts.reduce((sum, c) => sum + c.coutPrevuTIV, 0) < 0
+                            : couts.reduce((sum, c) => sum + (c.coutReelTIV || 0), 0) - couts.reduce((sum, c) => sum + (c.coutPrevuTIV || 0), 0) < 0
                             ? 'under'
                             : 'equal'
                         }`}>
-                          {(couts.reduce((sum, c) => sum + c.coutReelTIV, 0) - couts.reduce((sum, c) => sum + c.coutPrevuTIV, 0)).toLocaleString()} FCFA
+                          {(couts.reduce((sum, c) => sum + (c.coutReelTIV || 0), 0) - couts.reduce((sum, c) => sum + (c.coutPrevuTIV || 0), 0)).toLocaleString()} FCFA
                         </span>
                       </div>
                     </div>
@@ -1402,25 +1401,25 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                           </td>
                           <td>
                             <div className="total-cost-display actual">
-                              <span className="cost-value">{cout.coutReelDEV.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutReelDEV || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <div className="total-cost-display actual">
-                              <span className="cost-value">{cout.coutReelTIV.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutReelTIV || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <div className="total-cost-display total">
-                              <span className="cost-value">{cout.coutReelTotal.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.coutReelTotal || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
                           <td>
                             <div className="total-cost-display net-amount">
-                              <span className="cost-value">{cout.netAPayer.toLocaleString()}</span>
+                              <span className="cost-value">{(cout.netAPayer || 0).toLocaleString()}</span>
                               <span className="cost-unit">FCFA</span>
                             </div>
                           </td>
@@ -1534,7 +1533,7 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                     </thead>
                     <tbody>
                       {couts.map((cout) => {
-                        const coutPrevuTotal = cout.coutPrevuDEV + cout.coutPrevuTIV;
+                        const coutPrevuTotal = (cout.coutPrevuDEV || 0) + (cout.coutPrevuTIV || 0);
                         return (
                           <tr key={cout.id}>
                             <td>
@@ -1542,13 +1541,13 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                             </td>
                             <td>
                               <div className="cost-display">
-                                <span className="cost-value">{cout.coutPrevuDEV.toLocaleString()}</span>
+                                <span className="cost-value">{(cout.coutPrevuDEV || 0).toLocaleString()}</span>
                                 <span className="cost-unit">FCFA</span>
                               </div>
                             </td>
                             <td>
                               <div className="cost-display">
-                                <span className="cost-value">{cout.coutPrevuTIV.toLocaleString()}</span>
+                                <span className="cost-value">{(cout.coutPrevuTIV || 0).toLocaleString()}</span>
                                 <span className="cost-unit">FCFA</span>
                               </div>
                             </td>
@@ -1560,47 +1559,47 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                             </td>
                             <td>
                               <div className="cost-display">
-                                <span className="cost-value">{cout.coutReelDEV.toLocaleString()}</span>
+                                <span className="cost-value">{(cout.coutReelDEV || 0).toLocaleString()}</span>
                                 <span className="cost-unit">FCFA</span>
                               </div>
                             </td>
                             <td>
                               <div className="cost-display">
-                                <span className="cost-value">{cout.coutReelTIV.toLocaleString()}</span>
+                                <span className="cost-value">{(cout.coutReelTIV || 0).toLocaleString()}</span>
                                 <span className="cost-unit">FCFA</span>
                               </div>
                             </td>
                             <td>
                               <div className="total-cost-display actual">
-                                <span className="cost-value">{cout.coutReelTotal.toLocaleString()}</span>
+                                <span className="cost-value">{(cout.coutReelTotal || 0).toLocaleString()}</span>
                                 <span className="cost-unit">FCFA</span>
                               </div>
                             </td>
                             <td>
                               <div className={`total-cost-display ecart ${
-                                cout.ecart > 0
+                                (cout.ecart || 0) > 0
                                   ? 'over'
-                                  : cout.ecart < 0
+                                  : (cout.ecart || 0) < 0
                                   ? 'under'
                                   : 'equal'
                               }`}>
                                 <span className="cost-value">
-                                  {cout.ecart >= 0 ? "+" : ""}{cout.ecart.toLocaleString()}
+                                  {(cout.ecart || 0) >= 0 ? "+" : ""}{(cout.ecart || 0).toLocaleString()}
                                 </span>
                                 <span className="cost-unit">FCFA</span>
                               </div>
                             </td>
                             <td>
                               <span className={`status-badge ${
-                                cout.ecart > 0
+                                (cout.ecart || 0) > 0
                                   ? "status-over"
-                                  : cout.ecart === 0
+                                  : (cout.ecart || 0) === 0
                                   ? "status-equal"
                                   : "status-under"
                               }`}>
-                                {cout.ecart > 0
+                                {(cout.ecart || 0) > 0
                                   ? "Dépassement"
-                                  : cout.ecart === 0
+                                  : (cout.ecart || 0) === 0
                                   ? "Budget respecté"
                                   : "Économie"}
                               </span>
@@ -1634,9 +1633,9 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                     <h3>⚖️ Résumé des écarts budgétaires</h3>
                     {(() => {
                       const stats = getStatistiquesCouts();
-                      const projetsEnDeficit = couts.filter(c => c.ecart > 0).length;
-                      const projetsEnBenefice = couts.filter(c => c.ecart < 0).length;
-                      const projetsEquilibres = couts.filter(c => c.ecart === 0).length;
+                      const projetsEnDeficit = couts.filter(c => (c.ecart || 0) > 0).length;
+                      const projetsEnBenefice = couts.filter(c => (c.ecart || 0) < 0).length;
+                      const projetsEquilibres = couts.filter(c => (c.ecart || 0) === 0).length;
 
                       return (
                         <div className="summary-grid">

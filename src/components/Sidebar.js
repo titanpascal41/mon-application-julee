@@ -38,6 +38,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         "parametrage-societes",
         "parametrage-uo",
         "parametrage-statuts",
+        "parametrage-collaborateurs",
       ],
       demandes: ["demandes-gestion"],
       planning: [
@@ -126,6 +127,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           key: "gestion-statuts",
           label: "Gestion des Statuts",
           path: "parametrage-statuts",
+        },
+        {
+          key: "gestion-collaborateurs",
+          label: "Gestion des Collaborateurs",
+          path: "parametrage-collaborateurs",
         },
       ],
     },

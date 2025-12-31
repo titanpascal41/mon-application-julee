@@ -22,6 +22,12 @@ import {
   getCategories,
   getQuiPeutAppliquer,
 } from "../../data/gestionStatuts";
+import {
+  chargerCollaborateurs,
+  creerCollaborateur,
+  mettreAJourCollaborateur,
+  supprimerCollaborateur,
+} from "../../data/gestionCollaborateurs";
 
 const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
   const [activeSubPage, setActiveSubPage] = useState("societes");
@@ -74,6 +80,25 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
   const [showStatutDeleteConfirm, setShowStatutDeleteConfirm] = useState(false);
   const [statutToDelete, setStatutToDelete] = useState(null);
 
+  // États pour la gestion des collaborateurs
+  const [collaborateurs, setCollaborateurs] = useState([]);
+  const [showCollaborateurForm, setShowCollaborateurForm] = useState(false);
+  const [editingCollaborateur, setEditingCollaborateur] = useState(null);
+  const [collaborateurFormData, setCollaborateurFormData] = useState({
+    nom: "",
+    email: "",
+    poste: "",
+    telephone: "",
+    actif: true,
+  });
+  const [collaborateurMessage, setCollaborateurMessage] = useState({
+    type: "",
+    text: "",
+  });
+  const [showCollaborateurDeleteConfirm, setShowCollaborateurDeleteConfirm] =
+    useState(false);
+  const [collaborateurToDelete, setCollaborateurToDelete] = useState(null);
+
   useEffect(() => {
     if (activeSubPageProp) {
       // Extraire le type de sous-page depuis le path
@@ -85,6 +110,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
         setActiveSubPage("uo");
       else if (activeSubPageProp.includes("statuts"))
         setActiveSubPage("statuts");
+      else if (activeSubPageProp.includes("collaborateurs"))
+        setActiveSubPage("collaborateurs");
     }
   }, [activeSubPageProp]);
 
@@ -103,6 +130,11 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setStatuts(statutsCharges);
   }, []);
 
+  const chargerLesCollaborateurs = useCallback(() => {
+    const collaborateursCharges = chargerCollaborateurs();
+    setCollaborateurs(collaborateursCharges);
+  }, []);
+
   // Charger les données au montage et quand on change de sous-page
   useEffect(() => {
     if (activeSubPage === "societes") {
@@ -112,8 +144,16 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
       chargerLesUO();
     } else if (activeSubPage === "statuts") {
       chargerLesStatuts();
+    } else if (activeSubPage === "collaborateurs") {
+      chargerLesCollaborateurs();
     }
-  }, [activeSubPage, chargerLesSocietes, chargerLesUO, chargerLesStatuts]);
+  }, [
+    activeSubPage,
+    chargerLesSocietes,
+    chargerLesUO,
+    chargerLesStatuts,
+    chargerLesCollaborateurs,
+  ]);
 
   // Fonctions pour la gestion des sociétés
   const handleSocieteInputChange = (e) => {
@@ -569,6 +609,135 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     });
     setEditingStatut(null);
     setStatutMessage({ type: "", text: "" });
+  };
+
+  // Fonctions pour la gestion des collaborateurs
+  const handleCollaborateurInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setCollaborateurFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    if (collaborateurMessage.text) {
+      setCollaborateurMessage({ type: "", text: "" });
+    }
+  };
+
+  const handleCreateCollaborateur = () => {
+    setEditingCollaborateur(null);
+    setCollaborateurFormData({
+      nom: "",
+      email: "",
+      poste: "",
+      telephone: "",
+      actif: true,
+    });
+    setShowCollaborateurForm(true);
+    setCollaborateurMessage({ type: "", text: "" });
+  };
+
+  const handleEditCollaborateur = (collaborateur) => {
+    setEditingCollaborateur(collaborateur);
+    setCollaborateurFormData({
+      nom: collaborateur.nom,
+      email: collaborateur.email,
+      poste: collaborateur.poste,
+      telephone: collaborateur.telephone,
+      actif: collaborateur.actif,
+    });
+    setShowCollaborateurForm(true);
+    setCollaborateurMessage({ type: "", text: "" });
+  };
+
+  const handleDeleteCollaborateur = (collaborateur) => {
+    setCollaborateurToDelete(collaborateur);
+    setShowCollaborateurDeleteConfirm(true);
+  };
+
+  const confirmDeleteCollaborateur = () => {
+    if (collaborateurToDelete) {
+      const resultat = supprimerCollaborateur(collaborateurToDelete.id);
+      if (resultat.succes) {
+        setCollaborateurMessage({ type: "success", text: resultat.message });
+        chargerLesCollaborateurs();
+        setTimeout(() => setCollaborateurMessage({ type: "", text: "" }), 3000);
+      } else {
+        setCollaborateurMessage({ type: "error", text: resultat.message });
+        setTimeout(() => setCollaborateurMessage({ type: "", text: "" }), 5000);
+      }
+    }
+    setShowCollaborateurDeleteConfirm(false);
+    setCollaborateurToDelete(null);
+  };
+
+  const cancelDeleteCollaborateur = () => {
+    setShowCollaborateurDeleteConfirm(false);
+    setCollaborateurToDelete(null);
+  };
+
+  const validateCollaborateurForm = () => {
+    if (!collaborateurFormData.nom.trim()) {
+      setCollaborateurMessage({
+        type: "error",
+        text: "Le nom est obligatoire.",
+      });
+      return false;
+    }
+    if (!collaborateurFormData.email.trim()) {
+      setCollaborateurMessage({
+        type: "error",
+        text: "L'email est obligatoire.",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handleCollaborateurSubmit = (e) => {
+    e.preventDefault();
+    setCollaborateurMessage({ type: "", text: "" });
+
+    if (!validateCollaborateurForm()) return;
+
+    let resultat;
+    if (editingCollaborateur) {
+      resultat = mettreAJourCollaborateur(
+        editingCollaborateur.id,
+        collaborateurFormData
+      );
+    } else {
+      resultat = creerCollaborateur(collaborateurFormData);
+    }
+
+    if (resultat.succes) {
+      setCollaborateurMessage({ type: "success", text: resultat.message });
+      chargerLesCollaborateurs();
+      setShowCollaborateurForm(false);
+      setCollaborateurFormData({
+        nom: "",
+        email: "",
+        poste: "",
+        telephone: "",
+        actif: true,
+      });
+      setEditingCollaborateur(null);
+      setTimeout(() => setCollaborateurMessage({ type: "", text: "" }), 3000);
+    } else {
+      setCollaborateurMessage({ type: "error", text: resultat.message });
+    }
+  };
+
+  const handleCancelCollaborateur = () => {
+    setShowCollaborateurForm(false);
+    setCollaborateurFormData({
+      nom: "",
+      email: "",
+      poste: "",
+      telephone: "",
+      actif: true,
+    });
+    setEditingCollaborateur(null);
+    setCollaborateurMessage({ type: "", text: "" });
   };
 
   const subPages = {
@@ -1194,6 +1363,204 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
         </div>
       ),
     },
+    collaborateurs: {
+      title: "Gestion des Collaborateurs",
+      content: (
+        <div>
+          <div className="action-buttons">
+            <button className="btn-primary" onClick={handleCreateCollaborateur}>
+              Ajouter un collaborateur
+            </button>
+          </div>
+
+          {collaborateurMessage.text && (
+            <div
+              className={`info-box ${
+                collaborateurMessage.type === "error" ? "error-box" : "success-box"
+              }`}
+              style={{
+                margin: "16px 0",
+                backgroundColor:
+                  collaborateurMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                borderColor:
+                  collaborateurMessage.type === "error" ? "#fecaca" : "#a7f3d0",
+                color: collaborateurMessage.type === "error" ? "#991b1b" : "#065f46",
+              }}
+            >
+              <p style={{ margin: 0 }}>{collaborateurMessage.text}</p>
+            </div>
+          )}
+
+          {showCollaborateurForm && (
+            <div className="modal-overlay" onClick={handleCancelCollaborateur}>
+              <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+                style={{ maxWidth: "620px" }}
+              >
+                <div className="modal-header">
+                  <h3>
+                    {editingCollaborateur
+                      ? "Modifier le collaborateur"
+                      : "Ajouter un collaborateur"}
+                  </h3>
+                  <button
+                    className="modal-close"
+                    onClick={handleCancelCollaborateur}
+                  >
+                    &times;
+                  </button>
+                </div>
+                <form onSubmit={handleCollaborateurSubmit}>
+                  <div className="form-group">
+                    <label htmlFor="collabId">Identifiant</label>
+                    <input
+                      type="text"
+                      id="collabId"
+                      value={
+                        editingCollaborateur
+                          ? editingCollaborateur.id
+                          : "Généré automatiquement"
+                      }
+                      disabled
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="collabNom">
+                      Nom <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="collabNom"
+                      name="nom"
+                      value={collaborateurFormData.nom}
+                      onChange={handleCollaborateurInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="collabEmail">
+                      Email <span className="required">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="collabEmail"
+                      name="email"
+                      value={collaborateurFormData.email}
+                      onChange={handleCollaborateurInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="collabPoste">Poste / Rôle</label>
+                    <input
+                      type="text"
+                      id="collabPoste"
+                      name="poste"
+                      value={collaborateurFormData.poste}
+                      onChange={handleCollaborateurInputChange}
+                      placeholder="Ex: Développeur, PO, QA"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="collabTelephone">Téléphone</label>
+                    <input
+                      type="tel"
+                      id="collabTelephone"
+                      name="telephone"
+                      value={collaborateurFormData.telephone}
+                      onChange={handleCollaborateurInputChange}
+                      placeholder="+225..."
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        name="actif"
+                        checked={collaborateurFormData.actif}
+                        onChange={handleCollaborateurInputChange}
+                      />
+                      <span>Actif</span>
+                    </label>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="submit" className="btn-primary">
+                      {editingCollaborateur ? "Mettre à jour" : "Créer"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleCancelCollaborateur}
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          <div className="table-container" style={{ marginTop: "24px" }}>
+            <h3>Liste des collaborateurs</h3>
+            {collaborateurs.length === 0 ? (
+              <p style={{ color: "#6b7280", marginTop: "16px" }}>
+                Aucun collaborateur créé pour le moment.
+              </p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Poste</th>
+                    <th>Téléphone</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {collaborateurs.map((collaborateur) => (
+                    <tr key={collaborateur.id}>
+                      <td>{collaborateur.id}</td>
+                      <td>{collaborateur.nom}</td>
+                      <td>{collaborateur.email}</td>
+                      <td>{collaborateur.poste || "-"}</td>
+                      <td>{collaborateur.telephone || "-"}</td>
+                      <td>
+                        <span
+                          className={`badge ${
+                            collaborateur.actif ? "badge-success" : "badge-secondary"
+                          }`}
+                        >
+                          {collaborateur.actif ? "Actif" : "Inactif"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handleEditCollaborateur(collaborateur)}
+                          style={{ marginRight: "5px" }}
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          className="btn-danger"
+                          onClick={() => handleDeleteCollaborateur(collaborateur)}
+                        >
+                          Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      ),
+    },
   };
 
   return (
@@ -1308,6 +1675,42 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 type="button"
                 className="btn-secondary"
                 onClick={cancelDeleteSociete}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup de confirmation de suppression de collaborateur */}
+      {showCollaborateurDeleteConfirm && collaborateurToDelete && (
+        <div className="modal-overlay" onClick={cancelDeleteCollaborateur}>
+          <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-modal-header">
+              <h3>Confirmer la suppression</h3>
+            </div>
+            <div className="confirm-modal-body">
+              <p>
+                Êtes-vous sûr de vouloir supprimer le collaborateur{" "}
+                <strong>"{collaborateurToDelete.nom}"</strong> ?
+              </p>
+              <p className="confirm-warning">
+                Cette action est irréversible.
+              </p>
+            </div>
+            <div className="confirm-modal-actions">
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={confirmDeleteCollaborateur}
+              >
+                Supprimer
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={cancelDeleteCollaborateur}
               >
                 Annuler
               </button>

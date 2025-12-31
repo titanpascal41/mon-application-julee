@@ -1058,7 +1058,6 @@ const RecetteLivraison = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleUATInputChange}
                       required
                     >
-                      <option value="">Sélectionner un statut</option>
                       {STATUTS_UAT.map((statut) => (
                         <option key={statut} value={statut}>
                           {statut}

@@ -7,12 +7,13 @@ import {
   supprimerDemande,
 } from "../../data/gestionDemandes";
 import { chargerSocietes } from "../../data/societes";
-import SocieteInput from "../SocieteInput";
+import { chargerCollaborateurs } from "../../data/gestionCollaborateurs";
 
 const Demandes = ({ activeSubPage: activeSubPageProp }) => {
   // États pour la gestion des demandes
   const [demandes, setDemandes] = useState([]);
   const [societes, setSocietes] = useState([]);
+  const [collaborateurs, setCollaborateurs] = useState([]);
   const [showDemandeForm, setShowDemandeForm] = useState(false);
   const [editingDemande, setEditingDemande] = useState(null);
   const [demandeFormData, setDemandeFormData] = useState({
@@ -55,24 +56,27 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
     setSocietes(societesChargees);
   }, []);
 
+  const chargerLesCollaborateurs = useCallback(() => {
+    const collaborateursCharges = chargerCollaborateurs();
+    setCollaborateurs(collaborateursCharges);
+  }, []);
+
   // Charger les données au montage
   useEffect(() => {
     chargerLesDemandes();
     chargerLesSocietes();
-  }, [chargerLesDemandes, chargerLesSocietes]);
+    chargerLesCollaborateurs();
+  }, [chargerLesDemandes, chargerLesSocietes, chargerLesCollaborateurs]);
 
   // Fonctions pour la gestion des demandes
   const handleDemandeInputChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "societesDemandeurs") {
-      // Gérer la sélection multiple
-      const selectedOptions = Array.from(
-        e.target.selectedOptions,
-        (option) => option.value
-      );
+      // Sélection simple : on stocke quand même en tableau pour compatibilité avec la data
       setDemandeFormData((prev) => ({
         ...prev,
-        [name]: selectedOptions,
+        societesDemandeurs: value ? [value] : [],
       }));
     } else {
       setDemandeFormData((prev) => ({
@@ -80,6 +84,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
         [name]: value,
       }));
     }
+
     if (demandeMessage.text) {
       setDemandeMessage({ type: "", text: "" });
     }
@@ -514,35 +519,52 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleDemandeInputChange}
                     />
                   </div>
-                  <SocieteInput
-                    label="Sociétés demandeurs"
-                    id="demandeSocietesDemandeurs"
-                    name="societesDemandeurs"
-                    value={demandeFormData.societesDemandeurs}
-                    onChange={(value) => {
-                      setDemandeFormData((prev) => ({
-                        ...prev,
-                        societesDemandeurs: value,
-                      }));
-                      if (demandeMessage.text) {
-                        setDemandeMessage({ type: "", text: "" });
-                      }
-                    }}
-                    multiple={true}
-                    required={true}
-                  />
+                  <div className="form-group">
+                    <label htmlFor="demandeSocietesDemandeurs">
+                      Sociétés demandeurs <span className="required">*</span>
+                    </label>
+                    <select
+                      id="demandeSocietesDemandeurs"
+                      name="societesDemandeurs"
+                      value={demandeFormData.societesDemandeurs[0] || ""}
+                      onChange={handleDemandeInputChange}
+                      required
+                    >
+                      {societes.length === 0 && (
+                        <option value="" disabled>
+                          Aucune société disponible (ajoutez-en dans Paramétrage)
+                        </option>
+                      )}
+                      {societes.map((societe) => (
+                        <option key={societe.id} value={societe.id.toString()}>
+                          {societe.nom}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="form-group">
                     <label htmlFor="demandeInterlocuteur">
-                      Interlocuteur (Nom interlocuteur){" "}
+                      Interlocuteur (issu du Paramétrage){" "}
                       <span className="required">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="demandeInterlocuteur"
                       name="interlocuteur"
                       value={demandeFormData.interlocuteur}
                       onChange={handleDemandeInputChange}
-                    />
+                      required
+                    >
+                      {collaborateurs.length === 0 && (
+                        <option value="" disabled>
+                          Aucun collaborateur trouvé (ajoutez-en dans Paramétrage)
+                        </option>
+                      )}
+                      {collaborateurs.map((collab) => (
+                        <option key={collab.id} value={collab.nom}>
+                          {collab.nom} {collab.email ? `- ${collab.email}` : ""}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="modal-actions">
                     <button type="submit" className="btn-primary">
@@ -688,7 +710,11 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                       value={soumissionFormData.demandeId}
                       onChange={handleSoumissionInputChange}
                     >
-                      <option value="">Sélectionner une demande</option>
+                      {demandes.length === 0 && (
+                        <option value="" disabled>
+                          Aucune demande disponible
+                        </option>
+                      )}
                       {demandes.map((demande) => (
                         <option key={demande.id} value={demande.id}>
                           #{demande.id} - {demande.interlocuteur}

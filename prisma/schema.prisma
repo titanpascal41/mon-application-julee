@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Societe {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  description String?
+  adresse     String?
+  telephone   String?
+  email       String?
+  dateCreation DateTime? @db.Timestamptz(3)
+
+  demandes    Demande[]
+  uos         UniteOrganisationnelle[]
+}
+
+model UniteOrganisationnelle {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  description String?
+  responsable String?
+  parentId    Int?
+  societeId   Int?
+  dateCreation DateTime? @db.Timestamptz(3)
+
+  parent   UniteOrganisationnelle? @relation("UOParent", fields: [parentId], references: [id])
+  enfants  UniteOrganisationnelle[] @relation("UOParent")
+  societe  Societe? @relation(fields: [societeId], references: [id])
+  utilisateurs Utilisateur[]
+}
+
+model Profil {
+  id  Int    @id @default(autoincrement())
+  nom String @unique
+
+  utilisateurs Utilisateur[]
+}
+
+model Utilisateur {
+  id        Int      @id @default(autoincrement())
+  prenom    String
+  nom       String
+  email     String   @unique
+  motDePasse String
+  description String?
+  actif     Boolean  @default(true)
+  profilId  Int
+  uoId      Int?
+
+  profil    Profil   @relation(fields: [profilId], references: [id])
+  uo        UniteOrganisationnelle? @relation(fields: [uoId], references: [id])
+}
+
+model Collaborateur {
+  id         Int      @id @default(autoincrement())
+  nom        String
+  email      String
+  poste      String?
+  telephone  String?
+  actif      Boolean  @default(true)
+
+  demandes   Demande[]
+}
+
+model Demande {
+  id               Int      @id @default(autoincrement())
+  dateReception    DateTime
+  dateEnregistrement DateTime @default(now())
+  description      String?
+  priorite         String?
+  statut           String?
+  dateCreation     DateTime? @db.Timestamptz(3)
+  dateModification DateTime? @db.Timestamptz(3)
+
+  interlocuteurNom String?
+  societeId        Int
+  interlocuteurId  Int?
+
+  societe          Societe       @relation(fields: [societeId], references: [id])
+  interlocuteur    Collaborateur? @relation(fields: [interlocuteurId], references: [id])
+
+  couts            CoutProduit[]
+  delais           DelaiPlanCharge[]
+}
+
+model Ressource {
+  id                Int     @id @default(autoincrement())
+  nom               String
+  type              String
+  disponibiliteHJ   Float
+  tauxJournalier    Float
+  actif             Boolean @default(true)
+}
+
+model DelaiPlanCharge {
+  id                 Int      @id @default(autoincrement())
+  dateValidationSI   DateTime
+  dateReponseDEV     DateTime?
+  dateReponseTIV     DateTime?
+  delaiDEV           Int?
+  respectDelaiDEV    Boolean?
+  delaiTIV           Int?
+  respectDelaiTIV    Boolean?
+
+  demandeId          Int?
+  demande            Demande? @relation(fields: [demandeId], references: [id])
+}
+
+model CoutProduit {
+  id                        Int      @id @default(autoincrement())
+  chargePrevisionnelleDEV   Float?
+  chargeEffectiveDEV        Float?
+  tjmDEV                    Float?
+  chargePrevisionnelleTIV   Float?
+  chargeEffectiveTIV        Float?
+  tjmTIV                    Float?
+  coutPrevuDEV              Float?
+  coutReelDEV               Float?
+  coutPrevuTIV              Float?
+  coutReelTIV               Float?
+  coutReelTotal             Float?
+  netAPayer                 Float?
+  ecart                     Float?
+
+  demandeId                 Int?
+  demande                   Demande? @relation(fields: [demandeId], references: [id])
+}
+
+model RoadmapPhase {
+  id             Int      @id @default(autoincrement())
+  nom            String
+  description    String?
+  dateDebut      DateTime?
+  dateFin        DateTime?
+  statut         String?
+  objectifs      Json?
+  dateCreation   DateTime? @db.Timestamptz(3)
+  dateModification DateTime? @db.Timestamptz(3)
+}
+
+model CadreTemporel {
+  id             Int      @id @default(autoincrement())
+  nom            String
+  description    String?
+  type           String?
+  dateDebut      DateTime?
+  dateFin        DateTime?
+  dateCreation   DateTime? @db.Timestamptz(3)
+  dateModification DateTime? @db.Timestamptz(3)
+}
+
+model Sprint {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  statut    String?
+  dateDebut DateTime?
+  dateFin   DateTime?
+}
+
+model Recette {
+  id                  Int      @id @default(autoincrement())
+  dateDebut           DateTime?
+  dateFin             DateTime?
+  anomaliesBloquantes Int      @default(0)
+  anomaliesMajeures   Int      @default(0)
+  anomaliesMineures   Int      @default(0)
+  statut              String?
+  commentaires        String?
+  gp                  String?
+  dateCreation        DateTime? @db.Timestamptz(3)
+  dateModification    DateTime? @db.Timestamptz(3)
+
+  livraisons          Livraison[]
+}
+
+model UAT {
+  id               Int      @id @default(autoincrement())
+  nom              String
+  description      String?
+  dateDebut        DateTime?
+  dateFin          DateTime?
+  statut           String?
+  resultat         String?
+  testeur          String?
+  version          String?
+  dateCreation     DateTime? @db.Timestamptz(3)
+  dateModification DateTime? @db.Timestamptz(3)
+}
+
+model Livraison {
+  id               Int      @id @default(autoincrement())
+  numeroVersion    String
+  dateLivraison    DateTime?
+  statut           String?
+  environnement    String?
+  commentaires     String?
+  dateCreation     DateTime? @db.Timestamptz(3)
+  dateModification DateTime? @db.Timestamptz(3)
+
+  recetteId        Int?
+  recette          Recette? @relation(fields: [recetteId], references: [id])
+}
+

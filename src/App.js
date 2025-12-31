@@ -76,6 +76,14 @@ function App() {
             }
           />
           <Route
+            path="/parametrage-collaborateurs"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/demandes-gestion"
             element={
               <ProtectedRoute>

@@ -69,9 +69,34 @@ const calculerCouts = (coutData) => {
   };
 };
 
+// Fonction pour migrer et recalculer les coûts existants si nécessaire
+const migrerEtRecalculerCouts = (couts) => {
+  let aMigre = false;
+  const coutsMigres = couts.map(cout => {
+    // Vérifier si les propriétés calculées manquent
+    if (cout.coutPrevuDEV === undefined || cout.coutReelDEV === undefined || 
+        cout.coutPrevuTIV === undefined || cout.coutReelTIV === undefined ||
+        cout.coutReelTotal === undefined || cout.netAPayer === undefined || cout.ecart === undefined) {
+      aMigre = true;
+      // Recalculer les coûts
+      const calculs = calculerCouts(cout);
+      return { ...cout, ...calculs };
+    }
+    return cout;
+  });
+  
+  // Sauvegarder si migration effectuée
+  if (aMigre) {
+    sauvegarderCoutsDansStockage(coutsMigres);
+  }
+  
+  return coutsMigres;
+};
+
 // Charger tous les coûts
 export const chargerCouts = () => {
-  return chargerCoutsDepuisStockage();
+  const couts = chargerCoutsDepuisStockage();
+  return migrerEtRecalculerCouts(couts);
 };
 
 // Créer un nouveau suivi de coût
@@ -156,12 +181,12 @@ export const getStatistiquesCouts = () => {
     };
   }
 
-  const totalPrevu = couts.reduce((sum, c) => sum + (c.coutPrevuDEV + c.coutPrevuTIV), 0);
-  const totalReel = couts.reduce((sum, c) => sum + c.coutReelTotal, 0);
-  const ecartTotal = couts.reduce((sum, c) => sum + c.ecart, 0);
+  const totalPrevu = couts.reduce((sum, c) => sum + ((c.coutPrevuDEV || 0) + (c.coutPrevuTIV || 0)), 0);
+  const totalReel = couts.reduce((sum, c) => sum + (c.coutReelTotal || 0), 0);
+  const ecartTotal = couts.reduce((sum, c) => sum + (c.ecart || 0), 0);
 
-  const projetsEnDeficit = couts.filter(c => c.ecart > 0).length;
-  const projetsEnBenefice = couts.filter(c => c.ecart < 0).length;
+  const projetsEnDeficit = couts.filter(c => (c.ecart || 0) > 0).length;
+  const projetsEnBenefice = couts.filter(c => (c.ecart || 0) < 0).length;
 
   return {
     totalProjets: couts.length,
@@ -176,11 +201,11 @@ export const getStatistiquesCouts = () => {
 // Obtenir les coûts avec écart positif (dépassement)
 export const getCoutsEnDeficit = () => {
   const couts = chargerCoutsDepuisStockage();
-  return couts.filter(c => c.ecart > 0).sort((a, b) => b.ecart - a.ecart);
+  return couts.filter(c => (c.ecart || 0) > 0).sort((a, b) => (b.ecart || 0) - (a.ecart || 0));
 };
 
 // Obtenir les coûts avec écart négatif (économie)
 export const getCoutsEnBenefice = () => {
   const couts = chargerCoutsDepuisStockage();
-  return couts.filter(c => c.ecart < 0).sort((a, b) => a.ecart - b.ecart);
+  return couts.filter(c => (c.ecart || 0) < 0).sort((a, b) => (a.ecart || 0) - (b.ecart || 0));
 };
