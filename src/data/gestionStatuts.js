@@ -47,12 +47,12 @@ const statutEstUtilise = (statutId) => {
 };
 
 // Créer un nouveau statut
-const creerStatut = ({ nom, categorie, description, quiPeutAppliquer, actif }) => {
+const creerStatut = ({ nom, description, actif }) => {
   const statuts = chargerStatuts();
 
-  // Vérifier que tous les champs obligatoires sont remplis
-  if (!nom || !categorie || !quiPeutAppliquer) {
-    return { succes: false, message: "Le nom, la catégorie et 'Qui peut appliquer' sont obligatoires" };
+  // Vérifier que le nom est renseigné
+  if (!nom) {
+    return { succes: false, message: "Le nom du statut est obligatoire" };
   }
 
   // Vérifier l'unicité du nom
@@ -66,9 +66,9 @@ const creerStatut = ({ nom, categorie, description, quiPeutAppliquer, actif }) =
   const nouveauStatut = {
     id: nouvelId,
     nom: nom.trim(),
-    categorie: categorie,
     description: description ? description.trim() : "",
-    quiPeutAppliquer: quiPeutAppliquer,
+    // Règle métier: seul l'administrateur peut appliquer/modifier
+    quiPeutAppliquer: "Administrateur",
     actif: actif === true || actif === "true",
   };
 
@@ -79,7 +79,7 @@ const creerStatut = ({ nom, categorie, description, quiPeutAppliquer, actif }) =
 };
 
 // Mettre à jour un statut
-const mettreAJourStatut = (id, { nom, categorie, description, quiPeutAppliquer, actif }) => {
+const mettreAJourStatut = (id, { nom, description, actif }) => {
   const statuts = chargerStatuts();
   const index = statuts.findIndex((s) => s.id === id);
 
@@ -87,9 +87,9 @@ const mettreAJourStatut = (id, { nom, categorie, description, quiPeutAppliquer, 
     return { succes: false, message: "Statut introuvable" };
   }
 
-  // Vérifier que tous les champs obligatoires sont remplis
-  if (!nom || !categorie || !quiPeutAppliquer) {
-    return { succes: false, message: "Le nom, la catégorie et 'Qui peut appliquer' sont obligatoires" };
+  // Vérifier que le nom est renseigné
+  if (!nom) {
+    return { succes: false, message: "Le nom du statut est obligatoire" };
   }
 
   // Vérifier l'unicité du nom (en excluant le statut actuel)
@@ -101,9 +101,9 @@ const mettreAJourStatut = (id, { nom, categorie, description, quiPeutAppliquer, 
   statuts[index] = {
     ...statuts[index],
     nom: nom.trim(),
-    categorie: categorie,
     description: description ? description.trim() : "",
-    quiPeutAppliquer: quiPeutAppliquer,
+    // Règle métier: seul l'administrateur peut appliquer/modifier
+    quiPeutAppliquer: "Administrateur",
     actif: actif === true || actif === "true",
   };
 
@@ -136,16 +136,6 @@ const supprimerStatut = (id) => {
   return { succes: true, message: "Statut supprimé avec succès" };
 };
 
-// Obtenir les catégories disponibles
-const getCategories = () => {
-  return ["demande", "tache", "projet"];
-};
-
-// Obtenir les options pour "Qui peut appliquer"
-const getQuiPeutAppliquer = () => {
-  return ["Administrateur", "gestionnaire", "tous les utilisateurs"];
-};
-
 // Exporter les fonctions
 export {
   chargerStatuts,
@@ -155,7 +145,5 @@ export {
   supprimerStatut,
   nomStatutExiste,
   statutEstUtilise,
-  getCategories,
-  getQuiPeutAppliquer,
 };
 

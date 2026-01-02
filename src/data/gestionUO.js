@@ -30,11 +30,11 @@ const uoContientUtilisateurs = (uoId) => {
 };
 
 // Créer une nouvelle UO
-const creerUO = ({ nom, type, adresse, codePostal, actif, societeId, uoParenteId }) => {
+const creerUO = ({ nom, type, actif, societeId }) => {
   const uoList = chargerUO();
 
   // Vérifier que tous les champs obligatoires sont remplis
-  if (!nom || !type || !adresse || !codePostal || societeId === null || societeId === undefined || societeId === "") {
+  if (!nom || !type || societeId === null || societeId === undefined || societeId === "") {
     return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
   }
 
@@ -50,19 +50,6 @@ const creerUO = ({ nom, type, adresse, codePostal, actif, societeId, uoParenteId
     return { succes: false, message: "La société sélectionnée n'existe pas" };
   }
 
-  // Vérifier que l'UO parente existe si elle est fournie
-  if (uoParenteId && uoParenteId !== "") {
-    const uoParenteExiste = uoList.some((uo) => uo.id === parseInt(uoParenteId));
-    if (!uoParenteExiste) {
-      return { succes: false, message: "L'UO parente sélectionnée n'existe pas" };
-    }
-    // Vérifier que l'UO parente appartient à la même société
-    const uoParente = uoList.find((uo) => uo.id === parseInt(uoParenteId));
-    if (uoParente.societeId !== parseInt(societeId)) {
-      return { succes: false, message: "L'UO parente doit appartenir à la même société" };
-    }
-  }
-
   // Générer un nouvel ID
   const nouvelId = uoList.length > 0 ? Math.max(...uoList.map((uo) => uo.id)) + 1 : 1;
 
@@ -70,11 +57,11 @@ const creerUO = ({ nom, type, adresse, codePostal, actif, societeId, uoParenteId
     id: nouvelId,
     nom: nom.trim(),
     type: type,
-    adresse: adresse.trim(),
-    codePostal: codePostal.trim(),
+    adresse: "",
+    codePostal: "",
     actif: actif === true || actif === "true",
     societeId: parseInt(societeId),
-    uoParenteId: uoParenteId && uoParenteId !== "" ? parseInt(uoParenteId) : null,
+    uoParenteId: null,
   };
 
   uoList.push(nouvelleUO);
@@ -84,7 +71,7 @@ const creerUO = ({ nom, type, adresse, codePostal, actif, societeId, uoParenteId
 };
 
 // Mettre à jour une UO
-const mettreAJourUO = (id, { nom, type, adresse, codePostal, actif, societeId, uoParenteId }) => {
+const mettreAJourUO = (id, { nom, type, actif, societeId }) => {
   const uoList = chargerUO();
   const index = uoList.findIndex((uo) => uo.id === id);
 
@@ -93,7 +80,7 @@ const mettreAJourUO = (id, { nom, type, adresse, codePostal, actif, societeId, u
   }
 
   // Vérifier que tous les champs obligatoires sont remplis
-  if (!nom || !type || !adresse || !codePostal || societeId === null || societeId === undefined || societeId === "") {
+  if (!nom || !type || societeId === null || societeId === undefined || societeId === "") {
     return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
   }
 
@@ -120,33 +107,16 @@ const mettreAJourUO = (id, { nom, type, adresse, codePostal, actif, societeId, u
     };
   }
 
-  // Vérifier que l'UO parente existe si elle est fournie
-  if (uoParenteId && uoParenteId !== "") {
-    const uoParenteExiste = uoList.some((uo) => uo.id === parseInt(uoParenteId) && uo.id !== id);
-    if (!uoParenteExiste) {
-      return { succes: false, message: "L'UO parente sélectionnée n'existe pas" };
-    }
-    // Vérifier que l'UO parente appartient à la même société
-    const uoParente = uoList.find((uo) => uo.id === parseInt(uoParenteId));
-    if (uoParente.societeId !== nouvelleSocieteId) {
-      return { succes: false, message: "L'UO parente doit appartenir à la même société" };
-    }
-    // Vérifier qu'on ne crée pas de boucle (une UO ne peut pas être son propre parent)
-    if (parseInt(uoParenteId) === id) {
-      return { succes: false, message: "Une UO ne peut pas être sa propre parente" };
-    }
-  }
-
   // Mettre à jour l'UO
   uoList[index] = {
     ...uoList[index],
     nom: nom.trim(),
     type: type,
-    adresse: adresse.trim(),
-    codePostal: codePostal.trim(),
+    adresse: "",
+    codePostal: "",
     actif: actif === true || actif === "true",
     societeId: nouvelleSocieteId,
-    uoParenteId: uoParenteId && uoParenteId !== "" ? parseInt(uoParenteId) : null,
+    uoParenteId: null,
   };
 
   sauvegarderUO(uoList);

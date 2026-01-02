@@ -19,8 +19,6 @@ import {
   creerStatut,
   mettreAJourStatut,
   supprimerStatut,
-  getCategories,
-  getQuiPeutAppliquer,
 } from "../../data/gestionStatuts";
 import {
   chargerCollaborateurs,
@@ -55,11 +53,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
   const [uoFormData, setUOFormData] = useState({
     nom: "",
     type: "",
-    adresse: "",
-    codePostal: "",
     actif: true,
     societeId: "",
-    uoParenteId: "",
   });
   const [uoMessage, setUOMessage] = useState({ type: "", text: "" });
   const [showUODeleteConfirm, setShowUODeleteConfirm] = useState(false);
@@ -71,9 +66,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
   const [editingStatut, setEditingStatut] = useState(null);
   const [statutFormData, setStatutFormData] = useState({
     nom: "",
-    categorie: "",
     description: "",
-    quiPeutAppliquer: "",
     actif: true,
   });
   const [statutMessage, setStatutMessage] = useState({ type: "", text: "" });
@@ -329,11 +322,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setUOFormData({
       nom: "",
       type: "",
-      adresse: "",
-      codePostal: "",
       actif: true,
       societeId: "",
-      uoParenteId: "",
     });
     setShowUOForm(true);
     setUOMessage({ type: "", text: "" });
@@ -344,11 +334,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setUOFormData({
       nom: uo.nom,
       type: uo.type,
-      adresse: uo.adresse,
-      codePostal: uo.codePostal,
       actif: uo.actif,
       societeId: uo.societeId.toString(),
-      uoParenteId: uo.uoParenteId ? uo.uoParenteId.toString() : "",
     });
     setShowUOForm(true);
     setUOMessage({ type: "", text: "" });
@@ -397,22 +384,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
       return false;
     }
 
-    if (!uoFormData.adresse.trim()) {
-      setUOMessage({
-        type: "error",
-        text: "L'adresse est obligatoire.",
-      });
-      return false;
-    }
-
-    if (!uoFormData.codePostal.trim()) {
-      setUOMessage({
-        type: "error",
-        text: "Le code postal est obligatoire.",
-      });
-      return false;
-    }
-
     if (!uoFormData.societeId) {
       setUOMessage({
         type: "error",
@@ -447,11 +418,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
       setUOFormData({
         nom: "",
         type: "",
-        adresse: "",
-        codePostal: "",
         actif: true,
         societeId: "",
-        uoParenteId: "",
       });
       setEditingUO(null);
       setTimeout(() => setUOMessage({ type: "", text: "" }), 3000);
@@ -465,11 +433,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setUOFormData({
       nom: "",
       type: "",
-      adresse: "",
-      codePostal: "",
       actif: true,
       societeId: "",
-      uoParenteId: "",
     });
     setEditingUO(null);
     setUOMessage({ type: "", text: "" });
@@ -521,9 +486,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setEditingStatut(null);
     setStatutFormData({
       nom: "",
-      categorie: "",
       description: "",
-      quiPeutAppliquer: "",
       actif: true,
     });
     setShowStatutForm(true);
@@ -534,9 +497,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setEditingStatut(statut);
     setStatutFormData({
       nom: statut.nom,
-      categorie: statut.categorie,
       description: statut.description || "",
-      quiPeutAppliquer: statut.quiPeutAppliquer,
       actif: statut.actif,
     });
     setShowStatutForm(true);
@@ -586,9 +547,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
       setShowStatutForm(false);
       setStatutFormData({
         nom: "",
-        categorie: "",
         description: "",
-        quiPeutAppliquer: "",
         actif: true,
       });
       setEditingStatut(null);
@@ -602,9 +561,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setShowStatutForm(false);
     setStatutFormData({
       nom: "",
-      categorie: "",
       description: "",
-      quiPeutAppliquer: "",
       actif: true,
     });
     setEditingStatut(null);
@@ -1023,30 +980,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       ))}
                     </select>
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="uoAdresse">
-                      Adresse <span className="required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="uoAdresse"
-                      name="adresse"
-                      value={uoFormData.adresse}
-                      onChange={handleUOInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="uoCodePostal">
-                      Code postal <span className="required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="uoCodePostal"
-                      name="codePostal"
-                      value={uoFormData.codePostal}
-                      onChange={handleUOInputChange}
-                    />
-                  </div>
                   <SocieteInput
                     label="Société"
                     id="uoSocieteId"
@@ -1064,22 +997,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     multiple={false}
                     required={true}
                   />
-                  <div className="form-group">
-                    <label htmlFor="uoParenteId">UO parente</label>
-                    <select
-                      id="uoParenteId"
-                      name="uoParenteId"
-                      value={uoFormData.uoParenteId}
-                      onChange={handleUOInputChange}
-                    >
-                      <option value="">Aucune (UO principale)</option>
-                      {getUOParentesPossibles().map((uo) => (
-                        <option key={uo.id} value={uo.id}>
-                          {uo.nom}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                   <div className="form-group">
                     <label className="toggle-switch">
                       <input
@@ -1237,24 +1154,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="statutCategorie">
-                      Catégorie <span className="required">*</span>
-                    </label>
-                    <select
-                      id="statutCategorie"
-                      name="categorie"
-                      value={statutFormData.categorie}
-                      onChange={handleStatutInputChange}
-                      required
-                    >
-                      {getCategories().map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="statutDescription">Description</label>
                     <textarea
                       id="statutDescription"
@@ -1263,25 +1162,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       onChange={handleStatutInputChange}
                       rows="4"
                     />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="statutQuiPeutAppliquer">
-                      Qui peut appliquer ce statut{" "}
-                      <span className="required">*</span>
-                    </label>
-                    <select
-                      id="statutQuiPeutAppliquer"
-                      name="quiPeutAppliquer"
-                      value={statutFormData.quiPeutAppliquer}
-                      onChange={handleStatutInputChange}
-                      required
-                    >
-                      {getQuiPeutAppliquer().map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
                   </div>
                   <div className="form-group">
                     <label className="toggle-switch">
@@ -1323,9 +1203,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                   <tr>
                     <th>ID</th>
                     <th>Nom</th>
-                    <th>Catégorie</th>
                     <th>Description</th>
-                    <th>Qui peut appliquer</th>
                     <th>Statut</th>
                     <th>Actions</th>
                   </tr>
@@ -1335,9 +1213,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     <tr key={statut.id}>
                       <td>{statut.id}</td>
                       <td>{statut.nom}</td>
-                      <td>{statut.categorie}</td>
                       <td>{statut.description || "-"}</td>
-                      <td>{statut.quiPeutAppliquer}</td>
                       <td>{statut.actif ? "Actif" : "Non actif"}</td>
                       <td>
                         <button

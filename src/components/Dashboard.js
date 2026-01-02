@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
@@ -9,16 +9,13 @@ import Pilotage from "./pages/Pilotage";
 import PlanningProjet from "./pages/PlanningProjet";
 import SuiviFinancier from "./pages/SuiviFinancier";
 import RecetteLivraison from "./pages/RecetteLivraison";
-import Bugs from "./pages/Bugs";
-import AnalysePerformance from "./pages/AnalysePerformance";
-import Kanban from "./pages/Kanban";
 import PlanChargeEquipes from "./pages/PlanChargeEquipes";
 import "./Dashboard.css";
 
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   // Récupérer l'utilisateur depuis localStorage
@@ -119,24 +116,9 @@ const Dashboard = () => {
       return <RecetteLivraison activeSubPage={activePage} />;
     }
 
-    // Pages Bugs
-    if (activePage.startsWith("bugs")) {
-      return <Bugs activeSubPage={activePage} />;
-    }
-
     // Pages Suivi Financier
     if (activePage === "suivi-financier") {
       return <SuiviFinancier />;
-    }
-
-    // Pages Analyse Performance
-    if (activePage.startsWith("analyse")) {
-      return <AnalysePerformance />;
-    }
-
-    // Pages Kanban
-    if (activePage.startsWith("kanban")) {
-      return <Kanban activeSubPage={activePage} />;
     }
 
     return <div className="page-container">Page non trouvée</div>;

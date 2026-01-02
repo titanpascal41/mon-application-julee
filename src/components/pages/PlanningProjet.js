@@ -46,8 +46,7 @@ const PlanningProjet = ({ activeSubPage: activeSubPageProp }) => {
         setActiveSubPage("sprints");
       else if (activeSubPageProp.includes("roadmap"))
         setActiveSubPage("roadmap");
-      else if (activeSubPageProp.includes("jalon"))
-        setActiveSubPage("jalon");
+      else setActiveSubPage("cadre-temporel");
     }
   }, [activeSubPageProp]);
 
@@ -395,20 +394,6 @@ const PlanningProjet = ({ activeSubPage: activeSubPageProp }) => {
               <h3>Roadmap</h3>
               <p>Visualisez la vision à long terme du projet</p>
               <button className="btn-primary">Voir la roadmap</button>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    jalon: {
-      title: "Jalon",
-      content: (
-        <div>
-          <div className="planning-sections">
-            <div className="section-card">
-              <h3>Jalon</h3>
-              <p>Gérez les jalons du projet</p>
-              <button className="btn-primary">Gérer les jalons</button>
             </div>
           </div>
         </div>

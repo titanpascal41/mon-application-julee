@@ -24,9 +24,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     "plan-charge": false,
     planning: false,
     "recette-livraison": false,
-    bugs: false,
-    analyse: false,
-    kanban: false,
   });
   const [clickedMainMenu, setClickedMainMenu] = useState(null);
 
@@ -45,20 +42,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         "planning-cadre-temporel",
         "planning-sprints",
         "planning-roadmap",
-        "planning-jalon",
       ],
       "recette-livraison": [
         "recette-livraison-suivi-recette",
         "recette-livraison-recette-utilisateur",
         "recette-livraison-livraison",
-      ],
-      bugs: ["bugs-declaration-qualification", "bugs-suivi-resolution-cloture"],
-      analyse: ["analyse-kpi"],
-      kanban: [
-        "kanban-config",
-        "kanban-cartes",
-        "kanban-indicateurs",
-        "kanban-reporting",
       ],
     };
 
@@ -191,7 +179,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           label: "Roadmap (Vision à long terme)",
           path: "planning-roadmap",
         },
-        { key: "jalon", label: "Jalon", path: "planning-jalon" },
       ],
     },
     {
@@ -214,65 +201,6 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           key: "livraison",
           label: "Livraison et Mise en Production",
           path: "recette-livraison-livraison",
-        },
-      ],
-    },
-    {
-      key: "bugs",
-      label: "Bugs",
-      icon: "fa-solid fa-bug",
-      iconColor: "#EF4444", // Rouge
-      submenus: [
-        {
-          key: "declaration-qualification",
-          label: "Déclaration et Qualification des Bugs",
-          path: "bugs-declaration-qualification",
-        },
-        {
-          key: "suivi-resolution-cloture",
-          label: "Suivi Résolution Clôture",
-          path: "bugs-suivi-resolution-cloture",
-        },
-      ],
-    },
-    {
-      key: "analyse",
-      label: "Analyse et Calcul de Performance",
-      icon: "fa-solid fa-chart-line",
-      iconColor: "#EAB308", // Or/Jaune
-      submenus: [
-        {
-          key: "indicateurs-kpi",
-          label: "Indicateurs Clés (KPIs)",
-          path: "analyse-kpi",
-        },
-      ],
-    },
-    {
-      key: "kanban",
-      label: "Kanban",
-      icon: "fa-solid fa-table-columns",
-      iconColor: "#EC4899", // Rose
-      submenus: [
-        {
-          key: "configuration-kanban",
-          label: "Configuration et Structure",
-          path: "kanban-config",
-        },
-        {
-          key: "gestion-cartes",
-          label: "Gestion des Cartes",
-          path: "kanban-cartes",
-        },
-        {
-          key: "indicateurs-kanban",
-          label: "Indicateurs et Performance",
-          path: "kanban-indicateurs",
-        },
-        {
-          key: "reporting-kanban",
-          label: "Reporting et Exportation",
-          path: "kanban-reporting",
         },
       ],
     },
