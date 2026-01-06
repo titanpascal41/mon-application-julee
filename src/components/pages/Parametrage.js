@@ -335,7 +335,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
       nom: uo.nom,
       type: uo.type,
       actif: uo.actif,
-      societeId: uo.societeId.toString(),
+      societeId: uo.societeId != null ? uo.societeId.toString() : "",
     });
     setShowUOForm(true);
     setUOMessage({ type: "", text: "" });
@@ -848,7 +848,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Nom</th>
                     <th>Adresse</th>
                     <th>Email</th>
@@ -860,7 +859,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <tbody>
                   {societes.map((societe) => (
                     <tr key={societe.id}>
-                      <td>{societe.id}</td>
                       <td>{societe.nom}</td>
                       <td>{societe.adresse}</td>
                       <td>{societe.email}</td>
@@ -1035,7 +1033,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Nom</th>
                     <th>Type</th>
                     <th>Adresse</th>
@@ -1049,7 +1046,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <tbody>
                   {uoList.map((uo) => (
                     <tr key={uo.id}>
-                      <td>{uo.id}</td>
                       <td>{uo.nom}</td>
                       <td>{uo.type}</td>
                       <td>{uo.adresse}</td>
@@ -1109,7 +1105,9 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 {statutMessage.text && (
                   <div
                     className={`info-box ${
-                      statutMessage.type === "error" ? "error-box" : "success-box"
+                      statutMessage.type === "error"
+                        ? "error-box"
+                        : "success-box"
                     }`}
                     style={{
                       margin: "16px 24px 0 24px",
@@ -1120,7 +1118,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       border: `1px solid ${
                         statutMessage.type === "error" ? "#fecaca" : "#a7f3d0"
                       }`,
-                      color: statutMessage.type === "error" ? "#991b1b" : "#065f46",
+                      color:
+                        statutMessage.type === "error" ? "#991b1b" : "#065f46",
                     }}
                   >
                     <p style={{ margin: 0 }}>{statutMessage.text}</p>
@@ -1201,7 +1200,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Nom</th>
                     <th>Description</th>
                     <th>Statut</th>
@@ -1211,7 +1209,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <tbody>
                   {statuts.map((statut) => (
                     <tr key={statut.id}>
-                      <td>{statut.id}</td>
                       <td>{statut.nom}</td>
                       <td>{statut.description || "-"}</td>
                       <td>{statut.actif ? "Actif" : "Non actif"}</td>
@@ -1252,7 +1249,9 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
           {collaborateurMessage.text && (
             <div
               className={`info-box ${
-                collaborateurMessage.type === "error" ? "error-box" : "success-box"
+                collaborateurMessage.type === "error"
+                  ? "error-box"
+                  : "success-box"
               }`}
               style={{
                 margin: "16px 0",
@@ -1260,7 +1259,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                   collaborateurMessage.type === "error" ? "#fee2e2" : "#d1fae5",
                 borderColor:
                   collaborateurMessage.type === "error" ? "#fecaca" : "#a7f3d0",
-                color: collaborateurMessage.type === "error" ? "#991b1b" : "#065f46",
+                color:
+                  collaborateurMessage.type === "error" ? "#991b1b" : "#065f46",
               }}
             >
               <p style={{ margin: 0 }}>{collaborateurMessage.text}</p>
@@ -1387,7 +1387,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Poste</th>
@@ -1399,7 +1398,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 <tbody>
                   {collaborateurs.map((collaborateur) => (
                     <tr key={collaborateur.id}>
-                      <td>{collaborateur.id}</td>
                       <td>{collaborateur.nom}</td>
                       <td>{collaborateur.email}</td>
                       <td>{collaborateur.poste || "-"}</td>
@@ -1407,7 +1405,9 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                       <td>
                         <span
                           className={`badge ${
-                            collaborateur.actif ? "badge-success" : "badge-secondary"
+                            collaborateur.actif
+                              ? "badge-success"
+                              : "badge-secondary"
                           }`}
                         >
                           {collaborateur.actif ? "Actif" : "Inactif"}
@@ -1423,7 +1423,9 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                         </button>
                         <button
                           className="btn-danger"
-                          onClick={() => handleDeleteCollaborateur(collaborateur)}
+                          onClick={() =>
+                            handleDeleteCollaborateur(collaborateur)
+                          }
                         >
                           Supprimer
                         </button>
@@ -1571,9 +1573,7 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 Êtes-vous sûr de vouloir supprimer le collaborateur{" "}
                 <strong>"{collaborateurToDelete.nom}"</strong> ?
               </p>
-              <p className="confirm-warning">
-                Cette action est irréversible.
-              </p>
+              <p className="confirm-warning">Cette action est irréversible.</p>
             </div>
             <div className="confirm-modal-actions">
               <button

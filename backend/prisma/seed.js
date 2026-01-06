@@ -78,7 +78,7 @@ async function main() {
         dateReception: new Date(d.dateReception),
         dateEnregistrement: d.dateEnregistrement
           ? new Date(d.dateEnregistrement)
-          : new Date(),
+          : new Date( ),
         description: d.description || null,
         priorite: d.priorite || null,
         statut: d.statut || null,
@@ -86,6 +86,7 @@ async function main() {
         dateModification: d.dateModification ? new Date(d.dateModification) : null,
         societeId: societeId || 1,
         interlocuteurNom: d.interlocuteur || null,
+        
       },
     });
   }

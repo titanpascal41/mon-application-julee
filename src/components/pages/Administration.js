@@ -336,10 +336,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
     let resultat;
     if (editingProfil) {
       // Mise à jour
-      resultat = mettreAJourProfil(
-        editingProfil.id,
-        formData.nom
-      );
+      resultat = mettreAJourProfil(editingProfil.id, formData.nom);
     } else {
       // Création
       resultat = creerProfil(formData.nom);
@@ -464,7 +461,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Identifiant</th>
                     <th>Nom</th>
                     <th>Nombre d'utilisateurs</th>
                     <th>Actions</th>
@@ -473,7 +469,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                 <tbody>
                   {profils.map((profil) => (
                     <tr key={profil.id}>
-                      <td>{profil.id}</td>
                       <td>{profil.nom}</td>
                       <td>
                         <span
@@ -487,7 +482,8 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                             fontSize: "14px",
                           }}
                         >
-                          {getNombreUtilisateursParProfil(profil.id)} utilisateur
+                          {getNombreUtilisateursParProfil(profil.id)}{" "}
+                          utilisateur
                           {getNombreUtilisateursParProfil(profil.id) !== 1
                             ? "s"
                             : ""}
@@ -553,7 +549,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                 cursor: profils.length === 0 ? "not-allowed" : "pointer",
               }}
             >
-              Ajouter un utilisateur
+              Créer un utilisateur
             </button>
           </div>
 
@@ -694,6 +690,64 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
               </div>
             </div>
           )}
+
+          <div className="table-container" style={{ marginTop: "24px" }}>
+            <h3>Liste des utilisateurs</h3>
+            {utilisateurs.length === 0 ? (
+              <p style={{ color: "#6b7280", marginTop: "16px" }}>
+                Aucun utilisateur créé pour le moment.
+              </p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Profil</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {utilisateurs.map((user) => (
+                    <tr key={user.id}>
+                      <td>
+                        {user.prenom} {user.nom}
+                      </td>
+                      <td>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            padding: "4px 12px",
+                            borderRadius: "12px",
+                            backgroundColor: "#dbeafe",
+                            color: "#1e40af",
+                            fontWeight: "500",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {getProfilName(user.profilId)}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="btn-secondary"
+                          onClick={() => handleEditUser(user)}
+                          style={{ marginRight: "5px" }}
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          className="btn-danger"
+                          onClick={() => handleDeleteUser(user)}
+                        >
+                          Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       ),
     },
@@ -718,10 +772,7 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
             <div className="confirm-modal-body">
               <p>
                 Êtes-vous sûr de vouloir supprimer le profil{" "}
-                <strong>
-                  "{profilToDelete.nom}"
-                </strong>{" "}
-                ?
+                <strong>"{profilToDelete.nom}"</strong> ?
               </p>
               <p className="confirm-warning">Cette action est irréversible.</p>
             </div>

@@ -1,6 +1,41 @@
 // Fichier pour gérer la base de données des profils
-import donneesInitiales from './profils.json';
-import { chargerUtilisateurs } from './baseDeDonnees';
+import donneesInitiales from "./profils.json";
+import { chargerUtilisateurs } from "./baseDeDonnees";
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+// Appels API en arrière-plan (comme pour les utilisateurs)
+const syncCreateProfil = async (profil) => {
+  try {
+    await fetch(`${API_BASE_URL}/profils`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nom: profil.nom }),
+    });
+  } catch (e) {
+    console.error("Erreur sync création profil API:", e);
+  }
+};
+
+const syncUpdateProfil = async (profil) => {
+  try {
+    await fetch(`${API_BASE_URL}/profils/${profil.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nom: profil.nom }),
+    });
+  } catch (e) {
+    console.error("Erreur sync mise à jour profil API:", e);
+  }
+};
+
+const syncDeleteProfil = async (id) => {
+  try {
+    await fetch(`${API_BASE_URL}/profils/${id}`, { method: "DELETE" });
+  } catch (e) {
+    console.error("Erreur sync suppression profil API:", e);
+  }
+};
 
 // Sauvegarder les profils dans localStorage
 const sauvegarderProfils = (profils) => {
@@ -84,7 +119,10 @@ const creerProfil = (nom) => {
   
   profils.push(nouveauProfil);
   sauvegarderProfils(profils);
-  
+
+  // synchronisation API (sans bloquer l'UI)
+  syncCreateProfil(nouveauProfil);
+
   return { succes: true, message: "Profil créé avec succès", profil: nouveauProfil };
 };
 
@@ -113,11 +151,14 @@ const mettreAJourProfil = (id, nom) => {
   // Mettre à jour le profil
   profils[index] = {
     ...profils[index],
-    nom: nomNormalise
+    nom: nomNormalise,
   };
-  
+
   sauvegarderProfils(profils);
-  
+
+  // sync API
+  syncUpdateProfil(profils[index]);
+
   return { succes: true, message: "Profil mis à jour avec succès", profil: profils[index] };
 };
 
@@ -136,9 +177,14 @@ const supprimerProfil = (id) => {
   }
   
   // Supprimer le profil
-  profils.splice(index, 1);
+  const [supprime] = profils.splice(index, 1);
   sauvegarderProfils(profils);
-  
+
+  // sync API
+  if (supprime?.id != null) {
+    syncDeleteProfil(supprime.id);
+  }
+
   return { succes: true, message: "Profil supprimé avec succès" };
 };
 

@@ -1,6 +1,71 @@
 // Fichier pour gérer la base de données des utilisateurs
 import donneesInitiales from "./utilisateurs.json";
 
+// URL de base de l'API backend (adaptable via variable d'environnement)
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+// Fonctions utilitaires pour synchroniser avec l'API backend (best effort, non bloquant)
+const syncCreateUserWithApi = (user) => {
+  // On ne bloque pas l'UI si l'API échoue : on log juste l'erreur
+  try {
+    fetch(`${API_BASE_URL}/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        // Le backend attend au minimum { name, email }
+        name: `${user.prenom || ""} ${user.nom || ""}`.trim() || user.nom || user.prenom,
+        email: user.email,
+        // On envoie aussi les champs étendus si un jour la table les contient
+        nom: user.nom,
+        prenom: user.prenom,
+        motDePasse: user.motDePasse,
+        profilId: user.profilId,
+        description: user.description,
+      }),
+    }).catch((err) => {
+      console.error("Erreur lors de la synchronisation de création utilisateur avec l'API:", err);
+    });
+  } catch (err) {
+    console.error("Erreur lors de l'appel API création utilisateur:", err);
+  }
+};
+
+const syncUpdateUserWithApi = (user) => {
+  if (!user?.id) return;
+  try {
+    fetch(`${API_BASE_URL}/users/${user.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: `${user.prenom || ""} ${user.nom || ""}`.trim() || user.nom || user.prenom,
+        email: user.email,
+        nom: user.nom,
+        prenom: user.prenom,
+        motDePasse: user.motDePasse,
+        profilId: user.profilId,
+        description: user.description,
+      }),
+    }).catch((err) => {
+      console.error("Erreur lors de la synchronisation de mise à jour utilisateur avec l'API:", err);
+    });
+  } catch (err) {
+    console.error("Erreur lors de l'appel API mise à jour utilisateur:", err);
+  }
+};
+
+const syncDeleteUserWithApi = (id) => {
+  if (!id) return;
+  try {
+    fetch(`${API_BASE_URL}/users/${id}`, {
+      method: "DELETE",
+    }).catch((err) => {
+      console.error("Erreur lors de la synchronisation de suppression utilisateur avec l'API:", err);
+    });
+  } catch (err) {
+    console.error("Erreur lors de l'appel API suppression utilisateur:", err);
+  }
+};
+
 // Charger les utilisateurs depuis localStorage ou le fichier JSON initial
 const chargerUtilisateurs = () => {
   // Vérifier si on a déjà des données dans localStorage
@@ -112,6 +177,9 @@ const creerUtilisateur = (
   utilisateurs.push(nouvelUtilisateur);
   sauvegarderUtilisateurs(utilisateurs);
 
+  // Synchroniser en arrière-plan avec la base MySQL via l'API backend
+  syncCreateUserWithApi(nouvelUtilisateur);
+
   return {
     succes: true,
     message: "Compte créé avec succès",
@@ -167,6 +235,9 @@ const mettreAJourUtilisateur = (
 
   sauvegarderUtilisateurs(utilisateurs);
 
+  // Synchroniser en arrière-plan avec l'API backend
+  syncUpdateUserWithApi(utilisateurs[index]);
+
   return {
     succes: true,
     message: "Utilisateur mis à jour avec succès",
@@ -198,6 +269,9 @@ const supprimerUtilisateur = (id) => {
   // Supprimer l'utilisateur
   utilisateurs.splice(index, 1);
   sauvegarderUtilisateurs(utilisateurs);
+
+  // Synchroniser en arrière-plan avec l'API backend
+  syncDeleteUserWithApi(id);
 
   return { succes: true, message: "Utilisateur supprimé avec succès" };
 };

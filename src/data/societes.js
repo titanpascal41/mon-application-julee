@@ -1,14 +1,60 @@
 // Fichier pour gérer la base de données des sociétés
-import donneesInitiales from './societes.json';
-import { chargerUtilisateurs } from './baseDeDonnees';
+import donneesInitiales from "./societes.json";
+import { chargerUtilisateurs } from "./baseDeDonnees";
 
 const CLE_STORAGE = "societesJulee";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
+// sync API helpers
+const syncCreateSociete = async (societe) => {
+  try {
+    await fetch(`${API_BASE_URL}/societes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nom: societe.nom,
+        adresse: societe.adresse,
+        email: societe.email,
+        telephone: societe.telephone,
+        description: societe.responsable, // si besoin, adapter le mapping
+      }),
+    });
+  } catch (e) {
+    console.error("Erreur sync création société API:", e);
+  }
+};
+
+const syncUpdateSociete = async (societe) => {
+  try {
+    await fetch(`${API_BASE_URL}/societes/${societe.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nom: societe.nom,
+        adresse: societe.adresse,
+        email: societe.email,
+        telephone: societe.telephone,
+        description: societe.responsable,
+      }),
+    });
+  } catch (e) {
+    console.error("Erreur sync mise à jour société API:", e);
+  }
+};
+
+const syncDeleteSociete = async (id) => {
+  try {
+    await fetch(`${API_BASE_URL}/societes/${id}`, { method: "DELETE" });
+  } catch (e) {
+    console.error("Erreur sync suppression société API:", e);
+  }
+};
 
 // Charger les sociétés depuis localStorage ou le fichier JSON initial
 const chargerSocietes = () => {
   // Vérifier si on a déjà des données dans localStorage
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
-  
+
   if (donneesStockees) {
     // Si oui, vérifier si le tableau n'est pas vide
     const societesStockees = JSON.parse(donneesStockees);
@@ -17,7 +63,7 @@ const chargerSocietes = () => {
       return societesStockees;
     }
   }
-  
+
   // Sinon, utiliser les données initiales du fichier JSON
   const societesInitiales = donneesInitiales.societes || [];
   // Sauvegarder dans localStorage pour la première fois
@@ -74,6 +120,9 @@ const creerSocieteSimple = (nom) => {
   societes.push(nouvelleSociete);
   sauvegarderSocietes(societes);
 
+  // sync API
+  syncCreateSociete(nouvelleSociete);
+
   return { succes: true, message: "Société créée avec succès", societe: nouvelleSociete };
 };
 
@@ -109,6 +158,9 @@ const creerSociete = ({ nom, adresse, email, telephone, responsable }) => {
 
   societes.push(nouvelleSociete);
   sauvegarderSocietes(societes);
+
+  // sync API
+  syncCreateSociete(nouvelleSociete);
 
   return { succes: true, message: "Société créée avec succès", societe: nouvelleSociete };
 };
@@ -147,6 +199,9 @@ const mettreAJourSociete = (id, { nom, adresse, email, telephone, responsable })
 
   sauvegarderSocietes(societes);
 
+  // sync API
+  syncUpdateSociete(societes[index]);
+
   return { succes: true, message: "Société mise à jour avec succès", societe: societes[index] };
 };
 
@@ -175,8 +230,12 @@ const supprimerSociete = (id) => {
   }
 
   // Supprimer la société
-  societes.splice(index, 1);
+  const [supprime] = societes.splice(index, 1);
   sauvegarderSocietes(societes);
+
+  if (supprime?.id != null) {
+    syncDeleteSociete(supprime.id);
+  }
 
   return { succes: true, message: "Société supprimée avec succès" };
 };

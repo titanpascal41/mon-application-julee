@@ -1,6 +1,7 @@
 // Gestion des collaborateurs
 
 const CLE_COLLAB = "collaborateurs";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const chargerDepuisStockage = () => {
   try {
@@ -17,6 +18,51 @@ const sauvegarderDansStockage = (collaborateurs) => {
     localStorage.setItem(CLE_COLLAB, JSON.stringify(collaborateurs));
   } catch (e) {
     console.error("Erreur sauvegarde collaborateurs:", e);
+  }
+};
+
+// sync API helpers
+const syncCreateCollaborateur = async (collab) => {
+  try {
+    await fetch(`${API_BASE_URL}/collaborateurs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nom: collab.nom,
+        email: collab.email,
+        poste: collab.poste,
+        telephone: collab.telephone,
+        actif: collab.actif,
+      }),
+    });
+  } catch (e) {
+    console.error("Erreur sync création collaborateur API:", e);
+  }
+};
+
+const syncUpdateCollaborateur = async (collab) => {
+  try {
+    await fetch(`${API_BASE_URL}/collaborateurs/${collab.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nom: collab.nom,
+        email: collab.email,
+        poste: collab.poste,
+        telephone: collab.telephone,
+        actif: collab.actif,
+      }),
+    });
+  } catch (e) {
+    console.error("Erreur sync mise à jour collaborateur API:", e);
+  }
+};
+
+const syncDeleteCollaborateur = async (id) => {
+  try {
+    await fetch(`${API_BASE_URL}/collaborateurs/${id}`, { method: "DELETE" });
+  } catch (e) {
+    console.error("Erreur sync suppression collaborateur API:", e);
   }
 };
 
@@ -42,6 +88,10 @@ export const creerCollaborateur = (data) => {
 
   collaborateurs.push(nouveau);
   sauvegarderDansStockage(collaborateurs);
+
+  // sync API
+  syncCreateCollaborateur(nouveau);
+
   return { succes: true, message: "Collaborateur créé avec succès.", collaborateur: nouveau };
 };
 
@@ -71,6 +121,10 @@ export const mettreAJourCollaborateur = (id, data) => {
 
   collaborateurs[idx] = maj;
   sauvegarderDansStockage(collaborateurs);
+
+  // sync API
+  syncUpdateCollaborateur(maj);
+
   return { succes: true, message: "Collaborateur mis à jour avec succès.", collaborateur: maj };
 };
 
@@ -80,8 +134,13 @@ export const supprimerCollaborateur = (id) => {
   if (idx === -1) {
     return { succes: false, message: "Collaborateur introuvable." };
   }
-  collaborateurs.splice(idx, 1);
+  const [supprime] = collaborateurs.splice(idx, 1);
   sauvegarderDansStockage(collaborateurs);
+
+  if (supprime?.id != null) {
+    syncDeleteCollaborateur(supprime.id);
+  }
+
   return { succes: true, message: "Collaborateur supprimé avec succès." };
 };
 
