@@ -4,6 +4,23 @@ import { chargerSocietes } from './societes';
 
 const CLE_STORAGE = "demandesJulee";
 
+// Normaliser le type de projet pour la comparaison
+const normalizeTypeProjet = (typeProjet) => {
+  if (!typeProjet) return "";
+  return String(typeProjet).trim().toLowerCase();
+};
+
+// Règles de champs obligatoires selon le type
+const getDemandeRequirements = (typeProjet) => {
+  const t = normalizeTypeProjet(typeProjet);
+  return {
+    // Pour "Prospecte" et "Evolution", pas de description de périmètre obligatoire
+    requiresDescriptionPerimetre: t !== "prospecte" && t !== "evolution",
+    // Pour "Prospecte", pas de périmètre obligatoire
+    requiresPerimetre: t !== "prospecte",
+  };
+};
+
 // Charger les demandes depuis localStorage ou le fichier JSON initial
 const chargerDemandes = () => {
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
@@ -40,17 +57,53 @@ const creerDemande = ({
 }) => {
   const demandes = chargerDemandes();
 
+  const { requiresDescriptionPerimetre, requiresPerimetre } =
+    getDemandeRequirements(typeProjet);
+
   // Vérifier que tous les champs obligatoires sont remplis
-  if (
-    !dateReception ||
-    !societesDemandeurs ||
-    societesDemandeurs.length === 0 ||
-    !interlocuteur ||
-    !typeProjet ||
-    !nomProjet ||
-    !descriptionPerimetre ||
-    !perimetre
-  ) {
+  if (!dateReception) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
+  }
+
+  if (!societesDemandeurs || societesDemandeurs.length === 0) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
+  }
+
+  if (!interlocuteur) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
+  }
+
+  if (!typeProjet) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
+  }
+
+  if (!nomProjet) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
+  }
+
+  if (requiresDescriptionPerimetre && !descriptionPerimetre) {
+    return {
+      succes: false,
+      message: "Tous les champs obligatoires doivent être remplis",
+    };
+  }
+
+  if (requiresPerimetre && !perimetre) {
     return {
       succes: false,
       message: "Tous les champs obligatoires doivent être remplis",
@@ -82,8 +135,10 @@ const creerDemande = ({
     interlocuteur: interlocuteur.trim(),
     typeProjet: typeProjet.trim(),
     nomProjet: nomProjet.trim(),
-    descriptionPerimetre: descriptionPerimetre.trim(),
-    perimetre,
+    descriptionPerimetre: descriptionPerimetre
+      ? String(descriptionPerimetre).trim()
+      : "",
+    perimetre: perimetre ? String(perimetre) : "",
   };
 
   demandes.push(nouvelleDemande);
@@ -129,6 +184,9 @@ const mettreAJourDemande = (id, {
     descriptionPerimetre !== undefined &&
     perimetre !== undefined
   ) {
+    const { requiresDescriptionPerimetre, requiresPerimetre } =
+      getDemandeRequirements(typeProjet);
+
     if (
       !dateReception ||
       !societesDemandeurs ||
@@ -136,8 +194,8 @@ const mettreAJourDemande = (id, {
       !interlocuteur ||
       !typeProjet ||
       !nomProjet ||
-      !descriptionPerimetre ||
-      !perimetre
+      (requiresDescriptionPerimetre && !descriptionPerimetre) ||
+      (requiresPerimetre && !perimetre)
     ) {
       return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
     }

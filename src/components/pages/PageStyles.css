@@ -1151,3 +1151,183 @@
     gap: 8px;
   }
 }
+
+/* Styles pour les cartes de sélection de type de demande */
+.demandes-selection-container {
+  margin-bottom: 48px;
+  padding: 32px;
+  background: linear-gradient(180deg, rgba(240, 249, 255, 0.5) 0%, rgba(255, 255, 255, 1) 100%);
+  border-radius: 16px;
+}
+
+.demandes-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.demande-selection-card {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover et sélection pour Nouvelle demande (bleu) */
+.demande-selection-card.demande-card-nouvelle:hover {
+  border-color: #4A90E2;
+  box-shadow: 0 8px 16px rgba(74, 144, 226, 0.15);
+  transform: translateY(-4px);
+}
+
+.demande-selection-card.demande-card-nouvelle.selected {
+  border-color: #4A90E2;
+  border-width: 3px;
+  box-shadow: 0 8px 24px rgba(74, 144, 226, 0.2);
+}
+
+/* Hover et sélection pour Demande prospecte (orange) */
+.demande-selection-card.demande-card-prospecte:hover {
+  border-color: #FF6B35;
+  box-shadow: 0 8px 16px rgba(255, 107, 53, 0.15);
+  transform: translateY(-4px);
+}
+
+.demande-selection-card.demande-card-prospecte.selected {
+  border-color: #FF6B35;
+  border-width: 3px;
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2);
+}
+
+/* Hover et sélection pour Demande d'évolution (vert) */
+.demande-selection-card.demande-card-evolution:hover {
+  border-color: #10B981;
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.15);
+  transform: translateY(-4px);
+}
+
+.demande-selection-card.demande-card-evolution.selected {
+  border-color: #10B981;
+  border-width: 3px;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+}
+
+.demande-selection-card .card-checkbox {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #9ca3af;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.demande-selection-card.selected .card-checkbox::after {
+  content: "✓";
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.demande-selection-card .card-icon {
+  width: 64px;
+  height: 64px;
+  margin: 24px 0 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+.demande-selection-card .card-icon i {
+  transition: transform 0.3s ease;
+}
+
+.demande-selection-card:hover .card-icon i {
+  transform: scale(1.1);
+}
+
+.demande-selection-card .card-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.demande-selection-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.demande-selection-button {
+  padding: 14px 32px;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demande-selection-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+}
+
+.demande-selection-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.demande-selection-button::after {
+  content: "→";
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.demande-selection-button:hover:not(:disabled)::after {
+  transform: translateX(4px);
+}
+
+.demande-selection-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+
+@media (max-width: 968px) {
+  .demandes-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .demandes-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .demandes-selection-container {
+    padding: 24px 16px;
+  }
+}
