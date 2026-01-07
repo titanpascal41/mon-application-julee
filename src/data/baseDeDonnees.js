@@ -3,6 +3,13 @@ import donneesInitiales from "./utilisateurs.json";
 
 // URL de base de l'API backend (adaptable via variable d'environnement)
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+// Mot de passe par défaut (unique et configurable)
+const DEFAULT_PASSWORD = process.env.REACT_APP_DEFAULT_PASSWORD || "Julee@2024!";
+
+// Creds admin (connexion exclusive)
+const ADMIN_EMAIL = process.env.REACT_APP_ADMIN_EMAIL || "admin@julee.local";
+const ADMIN_PASSWORD =
+  process.env.REACT_APP_ADMIN_PASSWORD || "JuleeAdmin@2024!";
 
 // Fonctions utilitaires pour synchroniser avec l'API backend (best effort, non bloquant)
 const syncCreateUserWithApi = (user) => {
@@ -153,7 +160,8 @@ const creerUtilisateur = (
   }
 
   // Valider le mot de passe
-  const validationMotDePasse = validerMotDePasse(motDePasse);
+  const motDePasseFinal = motDePasse || DEFAULT_PASSWORD;
+  const validationMotDePasse = validerMotDePasse(motDePasseFinal);
   if (!validationMotDePasse.valide) {
     return { succes: false, message: validationMotDePasse.message };
   }
@@ -169,7 +177,7 @@ const creerUtilisateur = (
     prenom: prenom,
     nom: nom,
     email: email,
-    motDePasse: motDePasse,
+    motDePasse: motDePasseFinal,
     profilId: profilId,
     description: description || "",
   };
@@ -278,21 +286,22 @@ const supprimerUtilisateur = (id) => {
 
 // Vérifier les identifiants de connexion
 const verifierConnexion = (email, motDePasse) => {
-  const utilisateur = trouverUtilisateurParEmail(email);
-
-  if (!utilisateur) {
-    return { succes: false, message: "Email ou mot de passe incorrect" };
+  // Connexion uniquement via le compte admin configuré
+  if (email === ADMIN_EMAIL && motDePasse === ADMIN_PASSWORD) {
+    return {
+      succes: true,
+      message: "Connexion réussie (admin)",
+      utilisateur: {
+        id: 0,
+        prenom: "Admin",
+        nom: "Julee",
+        email: ADMIN_EMAIL,
+        profilId: "admin",
+      },
+    };
   }
 
-  if (utilisateur.motDePasse !== motDePasse) {
-    return { succes: false, message: "Email ou mot de passe incorrect" };
-  }
-
-  return {
-    succes: true,
-    message: "Connexion réussie",
-    utilisateur: utilisateur,
-  };
+  return { succes: false, message: "Email ou mot de passe incorrect" };
 };
 
 // Exporter les fonctions

@@ -124,6 +124,38 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
     setDemandeMessage({ type: "", text: "" });
   };
 
+  // Création rapide d'une demande prospecte avec type pré-rempli
+  const handleCreateDemandeProspecte = () => {
+    setEditingDemande(null);
+    setDemandeFormData({
+      dateReception: "",
+      societesDemandeurs: [],
+      interlocuteur: "",
+      typeProjet: "Prospecte",
+      nomProjet: "",
+      descriptionPerimetre: "",
+      perimetre: "",
+    });
+    setShowDemandeForm(true);
+    setDemandeMessage({ type: "", text: "" });
+  };
+
+  // Création rapide d'une demande d'évolution avec type pré-rempli
+  const handleCreateDemandeEvolution = () => {
+    setEditingDemande(null);
+    setDemandeFormData({
+      dateReception: "",
+      societesDemandeurs: [],
+      interlocuteur: "",
+      typeProjet: "Evolution",
+      nomProjet: "",
+      descriptionPerimetre: "",
+      perimetre: "",
+    });
+    setShowDemandeForm(true);
+    setDemandeMessage({ type: "", text: "" });
+  };
+
   const handleEditDemande = (demande) => {
     setEditingDemande(demande);
     setDemandeFormData({
@@ -752,7 +784,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
           </div>
         </div>
 
-        {/* Rubrique 2: Soumission et Validation */}
+        {/* Rubrique 2: Demande prospecte */}
         <div className="section-rubrique">
           <h2
             style={{
@@ -761,422 +793,129 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
               borderBottom: "2px solid #e5e7eb",
             }}
           >
-            Soumission et Validation
+            Demande prospecte
           </h2>
 
           <div className="action-buttons">
-            <button className="btn-primary" onClick={handleCreateSoumission}>
-              Ajouter / Modifier Soumission
+            <button className="btn-primary" onClick={handleCreateDemandeProspecte}>
+              Ajouter une demande prospecte
             </button>
           </div>
 
-          {showSoumissionForm && (
-            <div className="modal-overlay" onClick={handleCancelSoumission}>
-              <div
-                className="modal-content"
-                onClick={(e) => e.stopPropagation()}
-                style={{ maxWidth: "700px" }}
-              >
-                <div className="modal-header">
-                  <h3>
-                    {editingSoumission
-                      ? "Modifier la soumission"
-                      : "Ajouter une soumission"}
-                  </h3>
-                  <button
-                    className="modal-close"
-                    onClick={handleCancelSoumission}
-                  >
-                    &times;
-                  </button>
-                </div>
-                {soumissionMessage.text && (
-                  <div
-                    className={`info-box ${
-                      soumissionMessage.type === "error"
-                        ? "error-box"
-                        : "success-box"
-                    }`}
-                    style={{
-                      margin: "16px 24px 0 24px",
-                      padding: "12px",
-                      borderRadius: "6px",
-                      backgroundColor:
-                        soumissionMessage.type === "error"
-                          ? "#fee2e2"
-                          : "#d1fae5",
-                      border: `1px solid ${
-                        soumissionMessage.type === "error"
-                          ? "#fecaca"
-                          : "#a7f3d0"
-                      }`,
-                      color:
-                        soumissionMessage.type === "error"
-                          ? "#991b1b"
-                          : "#065f46",
-                    }}
-                  >
-                    <p style={{ margin: 0 }}>{soumissionMessage.text}</p>
-                  </div>
-                )}
-                <form onSubmit={handleSoumissionSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="soumissionDemandeId">
-                      Demande associée <span className="required">*</span>
-                    </label>
-                    <select
-                      id="soumissionDemandeId"
-                      name="demandeId"
-                      value={soumissionFormData.demandeId}
-                      onChange={handleSoumissionInputChange}
-                    >
-                      {demandes.length === 0 && (
-                        <option value="" disabled>
-                          Aucune demande disponible
-                        </option>
-                      )}
-                      {demandes.map((demande) => (
-                        <option key={demande.id} value={demande.id}>
-                          {demande.nomProjet || "Demande"} — {demande.interlocuteur}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="dateSoumissionBacklog">
-                      Date soumission du backlog pour validation
-                    </label>
-                    <input
-                      type="date"
-                      id="dateSoumissionBacklog"
-                      name="dateSoumissionBacklog"
-                      value={soumissionFormData.dateSoumissionBacklog}
-                      onChange={handleSoumissionInputChange}
-                    />
-                    <small
-                      style={{
-                        display: "block",
-                        marginTop: "4px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      Le chef de projet peut soumettre son backlog produit sans
-                      le cahier de charge mais il doit contenir toutes les
-                      informations nécessaires
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="lienCompteRendu">
-                      Lien du compte rendu de comité
-                    </label>
-                    <input
-                      type="url"
-                      id="lienCompteRendu"
-                      name="lienCompteRendu"
-                      value={soumissionFormData.lienCompteRendu}
-                      onChange={handleSoumissionInputChange}
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="redacteurBacklog">
-                      Nom du rédacteur du backlog produit
-                    </label>
-                    <input
-                      type="text"
-                      id="redacteurBacklog"
-                      name="redacteurBacklog"
-                      value={soumissionFormData.redacteurBacklog}
-                      onChange={handleSoumissionInputChange}
-                      placeholder="Nom du rédacteur (ex: Chef de projet, GP)"
-                    />
-                    <small
-                      style={{
-                        display: "block",
-                        marginTop: "4px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      Si rédacteur = "Chef de projet", le backlog est d'office
-                      validé
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="dateValidationBacklog">
-                      Date de validation du backlog (une fois le mail reçu)
-                    </label>
-                    <input
-                      type="date"
-                      id="dateValidationBacklog"
-                      name="dateValidationBacklog"
-                      value={soumissionFormData.dateValidationBacklog}
-                      onChange={handleSoumissionInputChange}
-                      disabled={
-                        soumissionFormData.redacteurBacklog &&
-                        soumissionFormData.redacteurBacklog
-                          .toLowerCase()
-                          .includes("chef de projet")
-                      }
-                    />
-                    {soumissionFormData.redacteurBacklog &&
-                      soumissionFormData.redacteurBacklog
-                        .toLowerCase()
-                        .includes("chef de projet") && (
-                        <small
-                          style={{
-                            display: "block",
-                            marginTop: "4px",
-                            color: "#059669",
-                          }}
-                        >
-                          Date de validation automatique (rédacteur = Chef de
-                          projet)
-                        </small>
-                      )}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="dateElaborationDATFL">
-                      Date d'élaboration du DATFL
-                    </label>
-                    <input
-                      type="date"
-                      id="dateElaborationDATFL"
-                      name="dateElaborationDATFL"
-                      value={soumissionFormData.dateElaborationDATFL}
-                      onChange={handleSoumissionInputChange}
-                    />
-                    <small
-                      style={{
-                        display: "block",
-                        marginTop: "4px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      Le chef de projet DDI doit élaborer et mettre à jour le
-                      DATFL
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="dateValidationDATFL">
-                      Date de validation du DATFL
-                    </label>
-                    <input
-                      type="date"
-                      id="dateValidationDATFL"
-                      name="dateValidationDATFL"
-                      value={soumissionFormData.dateValidationDATFL}
-                      onChange={handleSoumissionInputChange}
-                    />
-                    <small
-                      style={{
-                        display: "block",
-                        marginTop: "4px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      Le DATFL doit être validé par le CVATL
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="dateElaborationPlanningDEV">
-                      Date d'élaboration du planning DEV
-                    </label>
-                    <input
-                      type="date"
-                      id="dateElaborationPlanningDEV"
-                      name="dateElaborationPlanningDEV"
-                      value={soumissionFormData.dateElaborationPlanningDEV}
-                      onChange={handleSoumissionInputChange}
-                    />
-                    <small
-                      style={{
-                        display: "block",
-                        marginTop: "4px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      Le chef de projet DDI doit élaborer et mettre à jour le
-                      planning de développement
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="dateValidationPlanningDEV">
-                      Date de validation de planning DEV
-                    </label>
-                    <input
-                      type="date"
-                      id="dateValidationPlanningDEV"
-                      name="dateValidationPlanningDEV"
-                      value={soumissionFormData.dateValidationPlanningDEV}
-                      onChange={handleSoumissionInputChange}
-                    />
-                    <small
-                      style={{
-                        display: "block",
-                        marginTop: "4px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      Le sous-directeur doit valider le planning DEV
-                    </small>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="statutSoumission">
-                      Statut de soumission
-                    </label>
-                    <select
-                      id="statutSoumission"
-                      name="statutSoumission"
-                      value={soumissionFormData.statutSoumission}
-                      onChange={handleSoumissionInputChange}
-                      disabled={
-                        soumissionFormData.redacteurBacklog &&
-                        soumissionFormData.redacteurBacklog
-                          .toLowerCase()
-                          .includes("chef de projet")
-                      }
-                    >
-                      <option value="attente reception mail de validation">
-                        Attente réception mail de validation
-                      </option>
-                      <option value="validé">Validé</option>
-                      <option value="en attente">En attente</option>
-                    </select>
-                    {soumissionFormData.redacteurBacklog &&
-                      soumissionFormData.redacteurBacklog
-                        .toLowerCase()
-                        .includes("chef de projet") && (
-                        <small
-                          style={{
-                            display: "block",
-                            marginTop: "4px",
-                            color: "#059669",
-                          }}
-                        >
-                          Statut auto-validé (rédacteur = Chef de projet)
-                        </small>
-                      )}
-                  </div>
-
-                  <div className="modal-actions">
-                    <button type="submit" className="btn-primary">
-                      {editingSoumission ? "Mettre à jour" : "Enregistrer"}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={handleCancelSoumission}
-                    >
-                      Annuler
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
           <div className="table-container" style={{ marginTop: "24px" }}>
-            <h3>Liste des soumissions et validations</h3>
-            {demandes.length === 0 ? (
+            <h3>Liste des demandes prospectes</h3>
+            {demandes.filter((d) => (d.typeProjet || "").toLowerCase() === "prospecte")
+              .length === 0 ? (
               <p style={{ color: "#6b7280", marginTop: "16px" }}>
-                Aucune demande enregistrée pour le moment.
+                Aucune demande prospecte pour le moment.
               </p>
             ) : (
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Date de réception de la demande</th>
-                    <th>Date soumission du backlog</th>
-                    <th>Date validation du backlog</th>
-                    <th>Lien compte rendu de comité</th>
-                    <th>Rédacteur backlog</th>
-                    <th>Date élaboration DATFL</th>
-                    <th>Date validation DATFL</th>
-                    <th>Date élaboration Planning DEV</th>
-                    <th>Date validation Planning DEV</th>
-                    <th>Statut</th>
+                    <th>Date de réception</th>
+                    <th>Nom projet</th>
+                    <th>Sociétés demandeurs</th>
+                    <th>Interlocuteur</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {demandes
-                    .filter(
-                      (d) =>
-                        d.dateSoumissionBacklog ||
-                        d.redacteurBacklog ||
-                        d.dateElaborationDATFL ||
-                        d.dateValidationBacklog
-                    )
+                    .filter((d) => (d.typeProjet || "").toLowerCase() === "prospecte")
                     .map((demande) => (
                       <tr key={demande.id}>
                         <td>{demande.dateReception || "-"}</td>
-                        <td>{demande.dateSoumissionBacklog || "-"}</td>
-                        <td>{demande.dateValidationBacklog || "-"}</td>
-                        <td>
-                          {demande.lienCompteRendu ? (
-                            <a
-                              href={demande.lienCompteRendu}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ color: "#4A90E2" }}
-                            >
-                              Lien
-                            </a>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                        <td>{demande.redacteurBacklog || "-"}</td>
-                        <td>{demande.dateElaborationDATFL || "-"}</td>
-                        <td>{demande.dateValidationDATFL || "-"}</td>
-                        <td>{demande.dateElaborationPlanningDEV || "-"}</td>
-                        <td>{demande.dateValidationPlanningDEV || "-"}</td>
-                        <td>
-                          <span
-                            className={`badge ${
-                              demande.statutSoumission === "validé"
-                                ? "badge-success"
-                                : "badge-pending"
-                            }`}
-                          >
-                            {demande.statutSoumission || "Non défini"}
-                          </span>
-                        </td>
+                        <td>{demande.nomProjet || "-"}</td>
+                        <td>{getSocietesNames(demande.societesDemandeurs)}</td>
+                        <td>{demande.interlocuteur || "-"}</td>
                         <td>
                           <button
                             className="btn-secondary"
-                            onClick={() => handleEditSoumission(demande)}
+                            onClick={() => handleEditDemande(demande)}
+                            style={{ marginRight: "5px" }}
                           >
                             Modifier
+                          </button>
+                          <button
+                            className="btn-danger"
+                            onClick={() => handleDeleteDemande(demande)}
+                          >
+                            Supprimer
                           </button>
                         </td>
                       </tr>
                     ))}
-                  {demandes.filter(
-                    (d) =>
-                      d.dateSoumissionBacklog ||
-                      d.redacteurBacklog ||
-                      d.dateElaborationDATFL ||
-                      d.dateValidationBacklog
-                  ).length === 0 && (
-                    <tr>
-                      <td
-                        colSpan="11"
-                        style={{ textAlign: "center", padding: "24px" }}
-                      >
-                        Aucune soumission enregistrée pour le moment.
-                      </td>
-                    </tr>
-                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        {/* Rubrique 3: Demande d'évolution */}
+        <div className="section-rubrique">
+          <h2
+            style={{
+              marginBottom: "24px",
+              paddingBottom: "12px",
+              borderBottom: "2px solid #e5e7eb",
+            }}
+          >
+            Demande d'évolution
+          </h2>
+
+          <div className="action-buttons">
+            <button className="btn-primary" onClick={handleCreateDemandeEvolution}>
+              Ajouter une demande d'évolution
+            </button>
+          </div>
+
+          <div className="table-container" style={{ marginTop: "24px" }}>
+            <h3>Liste des demandes d'évolution</h3>
+            {demandes.filter((d) => (d.typeProjet || "").toLowerCase() === "evolution")
+              .length === 0 ? (
+              <p style={{ color: "#6b7280", marginTop: "16px" }}>
+                Aucune demande d'évolution pour le moment.
+              </p>
+            ) : (
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Date de réception</th>
+                    <th>Nom projet</th>
+                    <th>Sociétés demandeurs</th>
+                    <th>Interlocuteur</th>
+                    <th>Périmètre</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {demandes
+                    .filter((d) => (d.typeProjet || "").toLowerCase() === "evolution")
+                    .map((demande) => (
+                      <tr key={demande.id}>
+                        <td>{demande.dateReception || "-"}</td>
+                        <td>{demande.nomProjet || "-"}</td>
+                        <td>{getSocietesNames(demande.societesDemandeurs)}</td>
+                        <td>{demande.interlocuteur || "-"}</td>
+                        <td>{demande.perimetre || "-"}</td>
+                        <td>
+                          <button
+                            className="btn-secondary"
+                            onClick={() => handleEditDemande(demande)}
+                            style={{ marginRight: "5px" }}
+                          >
+                            Modifier
+                          </button>
+                          <button
+                            className="btn-danger"
+                            onClick={() => handleDeleteDemande(demande)}
+                          >
+                            Supprimer
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             )}

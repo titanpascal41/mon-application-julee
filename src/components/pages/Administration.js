@@ -41,6 +41,9 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
   const [userMessage, setUserMessage] = useState({ type: "", text: "" });
   const [showUserDeleteConfirm, setShowUserDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [usersModalData, setUsersModalData] = useState([]);
+  const [usersModalProfil, setUsersModalProfil] = useState("");
 
   useEffect(() => {
     if (activeSubPageProp) {
@@ -312,6 +315,19 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
     return utilisateurs.filter((user) => user.profilId === profilId).length;
   };
 
+  const openUsersModal = (profil) => {
+    const usersForProfil = utilisateurs.filter((user) => user.profilId === profil.id);
+    setUsersModalData(usersForProfil);
+    setUsersModalProfil(profil.nom);
+    setShowUsersModal(true);
+  };
+
+  const closeUsersModal = () => {
+    setShowUsersModal(false);
+    setUsersModalData([]);
+    setUsersModalProfil("");
+  };
+
   const validateProfilForm = () => {
     if (!formData.nom.trim()) {
       setMessage({
@@ -471,23 +487,23 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                     <tr key={profil.id}>
                       <td>{profil.nom}</td>
                       <td>
-                        <span
+                        <button
+                          className="btn-secondary"
                           style={{
-                            display: "inline-block",
                             padding: "4px 12px",
                             borderRadius: "12px",
                             backgroundColor: "#dbeafe",
                             color: "#1e40af",
                             fontWeight: "500",
                             fontSize: "14px",
+                            border: "1px solid #bfdbfe",
                           }}
+                          onClick={() => openUsersModal(profil)}
                         >
                           {getNombreUtilisateursParProfil(profil.id)}{" "}
                           utilisateur
-                          {getNombreUtilisateursParProfil(profil.id) !== 1
-                            ? "s"
-                            : ""}
-                        </span>
+                          {getNombreUtilisateursParProfil(profil.id) !== 1 ? "s" : ""}
+                        </button>
                       </td>
                       <td>
                         <button
@@ -830,6 +846,60 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                 onClick={cancelDeleteUser}
               >
                 Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup liste des utilisateurs d'un profil */}
+      {showUsersModal && (
+        <div className="modal-overlay" onClick={closeUsersModal}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "720px",
+              width: "90%",
+              maxHeight: "70vh",
+              overflowY: "auto",
+              marginTop: "40px",
+              marginBottom: "40px",
+              padding: "50px"
+            }}
+          >
+            <div className="modal-header">
+              <h3>Utilisateurs du profil « {usersModalProfil} »</h3>
+            </div>
+            <div style={{ padding: "8px 0" }}>
+              {usersModalData.length === 0 ? (
+                <p style={{ color: "#6b7280", margin: "8px 0 0 0" }}>
+                  Aucun utilisateur pour ce profil.
+                </p>
+              ) : (
+                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                  {usersModalData.map((user) => (
+                    <li
+                      key={user.id}
+                      style={{
+                        padding: "8px 0",
+                        borderBottom: "1px solid #e5e7eb",
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <span style={{ fontWeight: 600 }}>
+                        {user.prenom ? `${user.prenom} ${user.nom || ""}`.trim() : user.nom}
+                      </span>
+                      <span style={{ color: "#6b7280", fontSize: "13px" }}>{user.email}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="modal-actions" style={{ marginTop: "12px" }}>
+              <button type="button" className="btn-secondary" onClick={closeUsersModal}>
+                Fermer
               </button>
             </div>
           </div>

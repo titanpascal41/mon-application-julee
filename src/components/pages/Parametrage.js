@@ -118,8 +118,8 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setUOList(uoChargees);
   }, []);
 
-  const chargerLesStatuts = useCallback(() => {
-    const statutsCharges = chargerStatuts();
+  const chargerLesStatuts = useCallback(async () => {
+    const statutsCharges = await chargerStatuts();
     setStatuts(statutsCharges);
   }, []);
 
@@ -530,19 +530,28 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
     setStatutToDelete(null);
   };
 
-  const handleStatutSubmit = (e) => {
+  const handleStatutSubmit = async (e) => {
     e.preventDefault();
     setStatutMessage({ type: "", text: "" });
 
     let resultat;
     if (editingStatut) {
-      resultat = mettreAJourStatut(editingStatut.id, statutFormData);
+      resultat = await mettreAJourStatut(editingStatut.id, statutFormData);
     } else {
-      resultat = creerStatut(statutFormData);
+      resultat = await creerStatut(statutFormData);
     }
 
     if (resultat.succes) {
       setStatutMessage({ type: "success", text: resultat.message });
+      // Mettre à jour l'état local immédiatement pour refléter la création/mise à jour
+      if (editingStatut) {
+        setStatuts((prev) =>
+          prev.map((s) => (s.id === editingStatut.id ? resultat.statut : s))
+        );
+      } else {
+        setStatuts((prev) => [...prev, resultat.statut]);
+      }
+      // Puis recharger depuis la source (API/localStorage) pour rester synchro
       chargerLesStatuts();
       setShowStatutForm(false);
       setStatutFormData({
@@ -749,19 +758,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleSocieteSubmit}>
                   <div className="form-group">
-                    <label htmlFor="societeId">Identifiant de la société</label>
-                    <input
-                      type="text"
-                      id="societeId"
-                      value={
-                        editingSociete
-                          ? editingSociete.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="societeNom">
                       Nom <span className="required">*</span>
                     </label>
@@ -937,17 +933,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleUOSubmit}>
                   <div className="form-group">
-                    <label htmlFor="uoId">Identifiant de l'UO</label>
-                    <input
-                      type="text"
-                      id="uoId"
-                      value={
-                        editingUO ? editingUO.id : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="uoNom">
                       Nom de l'UO <span className="required">*</span>
                       <span className="hint">(max 100 caractères)</span>
@@ -963,20 +948,17 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                   </div>
                   <div className="form-group">
                     <label htmlFor="uoType">
-                      Type de l'UO <span className="required">*</span>
+                      Chef de l'UO <span className="required">*</span>
                     </label>
-                    <select
+                    <input
+                      type="text"
                       id="uoType"
                       name="type"
                       value={uoFormData.type}
                       onChange={handleUOInputChange}
-                    >
-                      {getTypesUO().map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
+                      placeholder="Nom du chef de l'UO"
+                      required
+                    />
                   </div>
                   <SocieteInput
                     label="Société"
@@ -995,6 +977,17 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                     multiple={false}
                     required={true}
                   />
+                  <div className="form-group">
+                    <label htmlFor="uoProjetSoumis">Projet soumis</label>
+                    <textarea
+                      id="uoProjetSoumis"
+                      name="projetSoumis"
+                      value={uoFormData.projetSoumis || ""}
+                      onChange={handleUOInputChange}
+                      rows={3}
+                      placeholder="Décrire brièvement le projet soumis"
+                    />
+                  </div>
                   <div className="form-group">
                     <label className="toggle-switch">
                       <input
