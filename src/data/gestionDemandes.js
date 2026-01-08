@@ -1,6 +1,6 @@
 // Fichier pour gérer la base de données des demandes
-import donneesInitiales from './demandes.json';
-import { chargerSocietes } from './societes';
+import donneesInitiales from "./demandes.json";
+import { chargerSocietes } from "./societes";
 
 const CLE_STORAGE = "demandesJulee";
 
@@ -24,7 +24,7 @@ const getDemandeRequirements = (typeProjet) => {
 // Charger les demandes depuis localStorage ou le fichier JSON initial
 const chargerDemandes = () => {
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
-  
+
   if (donneesStockees) {
     // Vérifier si le tableau n'est pas vide
     const demandesStockees = JSON.parse(donneesStockees);
@@ -33,7 +33,7 @@ const chargerDemandes = () => {
       return demandesStockees;
     }
   }
-  
+
   // Sinon, utiliser les données initiales du fichier JSON
   const demandesInitiales = donneesInitiales.demandes || [];
   sauvegarderDemandes(demandesInitiales);
@@ -112,20 +112,26 @@ const creerDemande = ({
 
   // Vérifier que les sociétés existent
   const societes = chargerSocietes();
-  const societesIds = Array.isArray(societesDemandeurs) ? societesDemandeurs : [societesDemandeurs];
-  const toutesSocietesExistantes = societesIds.every((id) => 
+  const societesIds = Array.isArray(societesDemandeurs)
+    ? societesDemandeurs
+    : [societesDemandeurs];
+  const toutesSocietesExistantes = societesIds.every((id) =>
     societes.some((s) => s.id === parseInt(id))
   );
-  
+
   if (!toutesSocietesExistantes) {
-    return { succes: false, message: "Une ou plusieurs sociétés sélectionnées n'existent pas" };
+    return {
+      succes: false,
+      message: "Une ou plusieurs sociétés sélectionnées n'existent pas",
+    };
   }
 
   // Générer un nouvel ID
-  const nouvelId = demandes.length > 0 ? Math.max(...demandes.map((d) => d.id)) + 1 : 1;
+  const nouvelId =
+    demandes.length > 0 ? Math.max(...demandes.map((d) => d.id)) + 1 : 1;
 
   // Date d'enregistrement automatique
-  const dateEnregistrement = new Date().toISOString().split('T')[0];
+  const dateEnregistrement = new Date().toISOString().split("T")[0];
 
   const nouvelleDemande = {
     id: nouvelId,
@@ -144,29 +150,36 @@ const creerDemande = ({
   demandes.push(nouvelleDemande);
   sauvegarderDemandes(demandes);
 
-  return { succes: true, message: "Demande créée avec succès", demande: nouvelleDemande };
+  return {
+    succes: true,
+    message: "Demande créée avec succès",
+    demande: nouvelleDemande,
+  };
 };
 
 // Mettre à jour une demande
-const mettreAJourDemande = (id, { 
-  dateReception, 
-  societesDemandeurs, 
-  interlocuteur,
-  typeProjet,
-  nomProjet,
-  descriptionPerimetre,
-  perimetre,
-  // Champs de soumission et validation
-  dateSoumissionBacklog,
-  lienCompteRendu,
-  redacteurBacklog,
-  dateValidationBacklog,
-  dateElaborationDATFL,
-  dateValidationDATFL,
-  dateElaborationPlanningDEV,
-  dateValidationPlanningDEV,
-  statutSoumission
-}) => {
+const mettreAJourDemande = (
+  id,
+  {
+    dateReception,
+    societesDemandeurs,
+    interlocuteur,
+    typeProjet,
+    nomProjet,
+    descriptionPerimetre,
+    perimetre,
+    // Champs de soumission et validation
+    dateSoumissionBacklog,
+    lienCompteRendu,
+    redacteurBacklog,
+    dateValidationBacklog,
+    dateElaborationDATFL,
+    dateValidationDATFL,
+    dateElaborationPlanningDEV,
+    dateValidationPlanningDEV,
+    statutSoumission,
+  }
+) => {
   const demandes = chargerDemandes();
   const index = demandes.findIndex((d) => d.id === id);
 
@@ -197,18 +210,26 @@ const mettreAJourDemande = (id, {
       (requiresDescriptionPerimetre && !descriptionPerimetre) ||
       (requiresPerimetre && !perimetre)
     ) {
-      return { succes: false, message: "Tous les champs obligatoires doivent être remplis" };
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
     }
 
     // Vérifier que les sociétés existent
     const societes = chargerSocietes();
-    const societesIds = Array.isArray(societesDemandeurs) ? societesDemandeurs : [societesDemandeurs];
-    const toutesSocietesExistantes = societesIds.every((id) => 
+    const societesIds = Array.isArray(societesDemandeurs)
+      ? societesDemandeurs
+      : [societesDemandeurs];
+    const toutesSocietesExistantes = societesIds.every((id) =>
       societes.some((s) => s.id === parseInt(id))
     );
-    
+
     if (!toutesSocietesExistantes) {
-      return { succes: false, message: "Une ou plusieurs sociétés sélectionnées n'existent pas" };
+      return {
+        succes: false,
+        message: "Une ou plusieurs sociétés sélectionnées n'existent pas",
+      };
     }
   }
 
@@ -218,15 +239,17 @@ const mettreAJourDemande = (id, {
     ...demandeExistante,
     // Mettre à jour seulement les champs fournis
     ...(dateReception !== undefined && { dateReception: dateReception }),
-    ...(societesDemandeurs !== undefined && { 
-      societesDemandeurs: Array.isArray(societesDemandeurs) 
+    ...(societesDemandeurs !== undefined && {
+      societesDemandeurs: Array.isArray(societesDemandeurs)
         ? societesDemandeurs.map((id) => parseInt(id))
-        : [parseInt(societesDemandeurs)]
+        : [parseInt(societesDemandeurs)],
     }),
     ...(interlocuteur !== undefined && { interlocuteur: interlocuteur.trim() }),
     ...(typeProjet !== undefined && { typeProjet: typeProjet.trim() }),
     ...(nomProjet !== undefined && { nomProjet: nomProjet.trim() }),
-    ...(descriptionPerimetre !== undefined && { descriptionPerimetre: descriptionPerimetre.trim() }),
+    ...(descriptionPerimetre !== undefined && {
+      descriptionPerimetre: descriptionPerimetre.trim(),
+    }),
     ...(perimetre !== undefined && { perimetre }),
     // Champs de soumission et validation
     ...(dateSoumissionBacklog !== undefined && { dateSoumissionBacklog }),
@@ -235,14 +258,22 @@ const mettreAJourDemande = (id, {
     ...(dateValidationBacklog !== undefined && { dateValidationBacklog }),
     ...(dateElaborationDATFL !== undefined && { dateElaborationDATFL }),
     ...(dateValidationDATFL !== undefined && { dateValidationDATFL }),
-    ...(dateElaborationPlanningDEV !== undefined && { dateElaborationPlanningDEV }),
-    ...(dateValidationPlanningDEV !== undefined && { dateValidationPlanningDEV }),
+    ...(dateElaborationPlanningDEV !== undefined && {
+      dateElaborationPlanningDEV,
+    }),
+    ...(dateValidationPlanningDEV !== undefined && {
+      dateValidationPlanningDEV,
+    }),
     ...(statutSoumission !== undefined && { statutSoumission }),
   };
 
   sauvegarderDemandes(demandes);
 
-  return { succes: true, message: "Demande mise à jour avec succès", demande: demandes[index] };
+  return {
+    succes: true,
+    message: "Demande mise à jour avec succès",
+    demande: demandes[index],
+  };
 };
 
 // Supprimer une demande
@@ -269,4 +300,3 @@ export {
   mettreAJourDemande,
   supprimerDemande,
 };
-
