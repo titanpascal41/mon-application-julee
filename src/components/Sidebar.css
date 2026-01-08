@@ -1,7 +1,7 @@
 .sidebar {
   position: fixed;
-  left: 0;
-  top: 0;
+  left: 10px;
+  top: 10px;
   width: 300px;
   height: 100vh;
   background: linear-gradient(180deg, #F0F4F8 0%, #E8F0F7 100%);
@@ -13,6 +13,7 @@
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   overflow-x: hidden;
+  border-radius: 24px 24px 24px 24px;
 }
 
 /* Masquer la scrollbar horizontale */

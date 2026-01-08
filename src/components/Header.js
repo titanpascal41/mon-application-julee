@@ -11,6 +11,7 @@ const Header = ({ utilisateur, deconnecter, onNotificationClick }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [delaisEnRetard, setDelaisEnRetard] = useState([]);
+  const [userAvatar, setUserAvatar] = useState(null);
 
   // Charger les délais en retard au montage et mettre à jour périodiquement
   useEffect(() => {
@@ -27,6 +28,56 @@ const Header = ({ utilisateur, deconnecter, onNotificationClick }) => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Charger l'avatar depuis localStorage
+  useEffect(() => {
+    const chargerAvatar = () => {
+      // Essayer d'abord depuis userAvatar
+      const avatarStocke = localStorage.getItem("userAvatar");
+      if (avatarStocke) {
+        setUserAvatar(avatarStocke);
+        return;
+      }
+      
+      // Sinon, essayer depuis utilisateurConnecte
+      const utilisateurStocke = localStorage.getItem("utilisateurConnecte");
+      if (utilisateurStocke) {
+        try {
+          const utilisateurParsed = JSON.parse(utilisateurStocke);
+          if (utilisateurParsed.avatar) {
+            setUserAvatar(utilisateurParsed.avatar);
+            return;
+          }
+        } catch (e) {
+          console.error("Erreur lors du parsing de utilisateurConnecte:", e);
+        }
+      }
+      
+      // Si l'utilisateur a un avatar dans les props
+      if (utilisateur?.avatar) {
+        setUserAvatar(utilisateur.avatar);
+      }
+    };
+
+    chargerAvatar();
+
+    // Écouter les changements dans localStorage pour mettre à jour l'avatar en temps réel
+    const handleStorageChange = (e) => {
+      if (e.key === "userAvatar" || e.key === "utilisateurConnecte") {
+        chargerAvatar();
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Vérifier périodiquement pour les changements dans le même onglet
+    const interval = setInterval(chargerAvatar, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [utilisateur]);
 
   return (
     <header className="dashboard-header">
@@ -135,8 +186,23 @@ const Header = ({ utilisateur, deconnecter, onNotificationClick }) => {
             onClick={() => setShowUserMenu(!showUserMenu)}
           >
             <div className="user-avatar">
-              {utilisateur.prenom.charAt(0)}
-              {utilisateur.nom.charAt(0)}
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt={`${utilisateur.prenom} ${utilisateur.nom}`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <>
+                  {utilisateur.prenom.charAt(0)}
+                  {utilisateur.nom.charAt(0)}
+                </>
+              )}
             </div>
             <div className="user-info">
               <span className="user-name">
@@ -150,7 +216,10 @@ const Header = ({ utilisateur, deconnecter, onNotificationClick }) => {
             <div className="user-dropdown">
               <div
                 className="dropdown-item"
-                onClick={() => setShowUserMenu(false)}
+                onClick={() => {
+                  setShowUserMenu(false);
+                  navigate("/profile");
+                }}
               >
                 👤 Profil
               </div>

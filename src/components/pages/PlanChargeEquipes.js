@@ -492,21 +492,6 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                 </div>
                 <form onSubmit={handleRessourceSubmit}>
                   <div className="form-group">
-                    <label htmlFor="ressourceId">
-                      Identifiant de la ressource
-                    </label>
-                    <input
-                      type="text"
-                      id="ressourceId"
-                      value={
-                        editingRessource
-                          ? editingRessource.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="ressourceNom">
                       Nom de la ressource <span className="required">*</span>
                     </label>
@@ -731,21 +716,6 @@ const PlanChargeEquipes = ({ activeSubPage: activeSubPageProp, selectedDelaiId }
                   </button>
                 </div>
                 <form onSubmit={handleDelaiSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="delaiId">
-                      Identifiant du suivi
-                    </label>
-                    <input
-                      type="text"
-                      id="delaiId"
-                      value={
-                        editingDelai
-                          ? editingDelai.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
                   <div className="form-group">
                     <label htmlFor="dateValidationSI">
                       Date de validation SI <span className="required">*</span>

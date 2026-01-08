@@ -1120,19 +1120,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleStatutSubmit}>
                   <div className="form-group">
-                    <label htmlFor="statutId">Identifiant du statut</label>
-                    <input
-                      type="text"
-                      id="statutId"
-                      value={
-                        editingStatut
-                          ? editingStatut.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="statutNom">
                       Nom du statut <span className="required">*</span>
                     </label>
@@ -1281,19 +1268,6 @@ const Parametrage = ({ activeSubPage: activeSubPageProp }) => {
                   </button>
                 </div>
                 <form onSubmit={handleCollaborateurSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="collabId">Identifiant</label>
-                    <input
-                      type="text"
-                      id="collabId"
-                      value={
-                        editingCollaborateur
-                          ? editingCollaborateur.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
                   <div className="form-group">
                     <label htmlFor="collabNom">
                       Nom <span className="required">*</span>

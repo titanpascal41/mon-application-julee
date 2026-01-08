@@ -10,6 +10,7 @@ import PlanningProjet from "./pages/PlanningProjet";
 import SuiviFinancier from "./pages/SuiviFinancier";
 import RecetteLivraison from "./pages/RecetteLivraison";
 import PlanChargeEquipes from "./pages/PlanChargeEquipes";
+import Profil from "./pages/Profil";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -119,6 +120,11 @@ const Dashboard = () => {
     // Pages Suivi Financier
     if (activePage === "suivi-financier") {
       return <SuiviFinancier />;
+    }
+
+    // Page Profil
+    if (activePage === "profile") {
+      return <Profil />;
     }
 
     return <div className="page-container">Page non trouvée</div>;

@@ -145,12 +145,14 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
 
   const handleCreateUser = () => {
     setEditingUser(null);
+    // Initialiser avec le premier profil disponible si des profils existent
+    const premierProfil = profils.length > 0 ? profils[0].id.toString() : "";
     setUserFormData({
       nom: "",
       prenom: "",
       email: "",
       motDePasse: "",
-      profilId: "",
+      profilId: premierProfil,
     });
     setShowUserForm(true);
     setUserMessage({ type: "", text: "" });
@@ -228,10 +230,23 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
       return false;
     }
 
-    if (!userFormData.profilId) {
+    // Vérifier que profilId est défini et n'est pas une chaîne vide
+    if (!userFormData.profilId || userFormData.profilId === "" || userFormData.profilId === "0") {
       setUserMessage({
         type: "error",
         text: "Le profil est obligatoire.",
+      });
+      return false;
+    }
+    
+    // Vérifier que le profilId correspond à un profil existant
+    const profilExiste = profils.some(
+      (profil) => profil.id.toString() === userFormData.profilId.toString()
+    );
+    if (!profilExiste) {
+      setUserMessage({
+        type: "error",
+        text: "Le profil sélectionné n'est pas valide.",
       });
       return false;
     }
@@ -426,19 +441,6 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleSubmit}>
                   <div className="form-group">
-                    <label htmlFor="idProfil">Identifiant du profil</label>
-                    <input
-                      type="text"
-                      id="idProfil"
-                      value={
-                        editingProfil
-                          ? editingProfil.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="nom">
                       Nom <span className="required">*</span>
                     </label>
@@ -608,27 +610,17 @@ const Administration = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleUserSubmit}>
                   <div className="form-group">
-                    <label htmlFor="userId">Identifiant de l'utilisateur</label>
-                    <input
-                      type="text"
-                      id="userId"
-                      value={
-                        editingUser ? editingUser.id : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="userProfilId">
                       Profil <span className="required">*</span>
                     </label>
                     <select
                       id="userProfilId"
                       name="profilId"
-                      value={userFormData.profilId}
+                      value={userFormData.profilId || ""}
                       onChange={handleUserInputChange}
                       required
                     >
+                      <option value="">-- Sélectionner un profil --</option>
                       {profils.map((profil) => (
                         <option key={profil.id} value={profil.id}>
                           {profil.nom}

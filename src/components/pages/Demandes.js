@@ -9,6 +9,48 @@ import {
 import { chargerSocietes } from "../../data/societes";
 import { chargerCollaborateurs } from "../../data/gestionCollaborateurs";
 
+const NOUVELLE_DEMANDE_DRAFT_KEY = "nouvelleDemandeDraft";
+
+const getNouvelleDemandeInitialState = () => ({
+  // Étape 1: Enregistrement de la demande
+  dateEnregistrement: new Date().toISOString().split("T")[0],
+  demandeur: "",
+  interlocuteurClient: "",
+  typeProjet: "",
+  nomProjet: "",
+  descriptionProjet: "",
+  descriptionPerimetre: "",
+  statutDemande: "",
+  dateReception: "",
+  lienIngridCDC: "",
+  // Étape 2: Clarification de la demande
+  dateTransmissionBacklog: "",
+  dateConfirmationValidation: "",
+  // Étape 3: Planification du périmètre
+  dateDemandePlanificationDevTif: "",
+  dateRetourEquipes: "",
+  dateCommunicationPlanningClient: "",
+  nombreSprint: "",
+  chargePrevisionnelleParSprint: [],
+  dateLivraisonPrevisionnelleTIFParSprint: [],
+  dateLivraisonPrevisionnelleClientParSprint: [],
+  roadmap: "",
+  dateEffectiveLivraisonTIF: "",
+  motifsRetardTIF: "",
+  dateEffectiveLivraisonClient: "",
+  motifsRetardClient: "",
+  // Étape 4: Codage de l'application
+  statutCodage: "en attente",
+  // Étape 5: Présentation des documents
+  lienIngridKickoff: "",
+  lienIngridPointsControleTIF: "",
+  lienIngridSignoff: "",
+  // Étape 6: Réalisation des TIF
+  statutTIF: "en attente",
+  // Étape 7: Livraison effective au client
+  statutLivraisonClient: "en attente",
+});
+
 const Demandes = ({ activeSubPage: activeSubPageProp }) => {
   // États pour la sélection de type de demande
   const [selectedDemandeType, setSelectedDemandeType] = useState(null);
@@ -35,7 +77,202 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
     nomProjet: "",
     descriptionPerimetre: "",
     perimetre: "",
+    // Nouveaux champs pour demande d'évolution
+    dateDemandeMiseAJourDATFL: "",
+    dateReponseMiseAJourDATFL: "",
+    charge: "",
+    planningDateDebut: "",
+    planningDateFin: "",
+    dateDemandeDevolution: "",
+    dateReponseDevolution: "",
+    slt: "",
+    aleasNormeParJour: "",
   });
+  const [evolutionFormStep, setEvolutionFormStep] = useState(1); // Étape du formulaire d'évolution (1, 2, ou 3)
+
+  // États pour le formulaire multi-étapes "Nouvelle demande"
+  const [showNouvelleDemandeForm, setShowNouvelleDemandeForm] = useState(false);
+  const [nouvelleDemandeStep, setNouvelleDemandeStep] = useState(1); // 1 à 7
+  const [nouvelleDemandeFormData, setNouvelleDemandeFormData] = useState(() =>
+    getNouvelleDemandeInitialState()
+  );
+
+  // Fonction pour formater une date en français (ex: "lundi 15 janvier 2025")
+  const formatDateEnFrancais = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString + "T00:00:00");
+    const jours = [
+      "dimanche",
+      "lundi",
+      "mardi",
+      "mercredi",
+      "jeudi",
+      "vendredi",
+      "samedi",
+    ];
+    const mois = [
+      "janvier",
+      "février",
+      "mars",
+      "avril",
+      "mai",
+      "juin",
+      "juillet",
+      "août",
+      "septembre",
+      "octobre",
+      "novembre",
+      "décembre",
+    ];
+    const jourSemaine = jours[date.getDay()];
+    const jour = date.getDate();
+    const moisNom = mois[date.getMonth()];
+    const annee = date.getFullYear();
+    return `${jourSemaine} ${jour} ${moisNom} ${annee}`;
+  };
+
+  // Fonction pour valider et passer à l'étape suivante du formulaire d'évolution
+  const handleEvolutionNextStep = () => {
+    if (evolutionFormStep === 1) {
+      // Valider l'étape 1
+      if (!demandeFormData.dateDemandeMiseAJourDATFL) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de demande de la mise à jour du DATFL est obligatoire.",
+        });
+        return;
+      }
+      if (!demandeFormData.dateReponseMiseAJourDATFL) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de réponse de la mise à jour du DATFL est obligatoire.",
+        });
+        return;
+      }
+      setEvolutionFormStep(2);
+      setDemandeMessage({ type: "", text: "" });
+    } else if (evolutionFormStep === 2) {
+      // Valider l'étape 2
+      if (!demandeFormData.charge || demandeFormData.charge.trim() === "") {
+        setDemandeMessage({
+          type: "error",
+          text: "La charge (nombre de jours) est obligatoire.",
+        });
+        return;
+      }
+      if (!demandeFormData.planningDateDebut) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de début du planning est obligatoire.",
+        });
+        return;
+      }
+      if (!demandeFormData.planningDateFin) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de fin du planning est obligatoire.",
+        });
+        return;
+      }
+      setEvolutionFormStep(3);
+      setDemandeMessage({ type: "", text: "" });
+    }
+  };
+
+  // Fonction pour revenir à l'étape précédente
+  const handleEvolutionPreviousStep = () => {
+    if (evolutionFormStep > 1) {
+      setEvolutionFormStep(evolutionFormStep - 1);
+      setDemandeMessage({ type: "", text: "" });
+    }
+  };
+
+  // Fonctions de navigation pour le formulaire "Nouvelle demande" multi-étapes
+  const handleNouvelleDemandeNext = () => {
+    if (nouvelleDemandeStep < 7) {
+      setNouvelleDemandeStep(nouvelleDemandeStep + 1);
+      setDemandeMessage({ type: "", text: "" });
+    }
+  };
+
+  const handleNouvelleDemandePrevious = () => {
+    if (nouvelleDemandeStep > 1) {
+      setNouvelleDemandeStep(nouvelleDemandeStep - 1);
+      setDemandeMessage({ type: "", text: "" });
+    }
+  };
+
+  const handleNouvelleDemandeCancel = () => {
+    setShowNouvelleDemandeForm(false);
+    setShowSelectionCards(true);
+    setNouvelleDemandeStep(1);
+    setDemandeMessage({ type: "", text: "" });
+  };
+
+  const handleNouvelleDemandeSubmit = async (e) => {
+    e.preventDefault();
+    setDemandeMessage({ type: "", text: "" });
+
+    // Validation de l'étape actuelle avant de terminer
+    if (nouvelleDemandeStep === 1) {
+      if (
+        !nouvelleDemandeFormData.demandeur ||
+        !nouvelleDemandeFormData.nomProjet
+      ) {
+        setDemandeMessage({
+          type: "error",
+          text: "Veuillez remplir tous les champs obligatoires de l'étape 1.",
+        });
+        return;
+      }
+    }
+
+    // Créer la demande avec toutes les données
+    const dataToSave = {
+      dateReception:
+        nouvelleDemandeFormData.dateReception ||
+        nouvelleDemandeFormData.dateEnregistrement,
+      societesDemandeurs:
+        societes.length > 0 ? [societes[0].id.toString()] : [],
+      interlocuteur:
+        nouvelleDemandeFormData.interlocuteurClient ||
+        nouvelleDemandeFormData.demandeur,
+      typeProjet: nouvelleDemandeFormData.typeProjet,
+      nomProjet: nouvelleDemandeFormData.nomProjet,
+      descriptionPerimetre: nouvelleDemandeFormData.descriptionPerimetre,
+      perimetre: "",
+      // Ajouter tous les nouveaux champs
+      ...nouvelleDemandeFormData,
+    };
+
+    const resultat = creerDemande(dataToSave);
+
+    if (resultat.succes) {
+      localStorage.removeItem(NOUVELLE_DEMANDE_DRAFT_KEY);
+      setDemandeMessage({
+        type: "success",
+        text: "Demande créée avec succès !",
+      });
+      chargerLesDemandes();
+      setShowNouvelleDemandeForm(false);
+      setShowSelectionCards(true);
+      setNouvelleDemandeStep(1);
+      setTimeout(() => setDemandeMessage({ type: "", text: "" }), 3000);
+    } else {
+      setDemandeMessage({ type: "error", text: resultat.message });
+    }
+  };
+
+  const handleNouvelleDemandeInputChange = (e) => {
+    const { name, value } = e.target;
+    setNouvelleDemandeFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (demandeMessage.text) {
+      setDemandeMessage({ type: "", text: "" });
+    }
+  };
   const perimetreOptions = [
     "ND",
     "ANL",
@@ -75,6 +312,60 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
   const [showDemandeDeleteConfirm, setShowDemandeDeleteConfirm] =
     useState(false);
   const [demandeToDelete, setDemandeToDelete] = useState(null);
+
+  const sauvegarderNouvelleDemandeBrouillon = (stepOverride) => {
+    const stepToStore = stepOverride || nouvelleDemandeStep;
+    try {
+      localStorage.setItem(
+        NOUVELLE_DEMANDE_DRAFT_KEY,
+        JSON.stringify({
+          step: stepToStore,
+          data: nouvelleDemandeFormData,
+          savedAt: new Date().toISOString(),
+        })
+      );
+      setDemandeMessage({
+        type: "success",
+        text: `Brouillon enregistré. Vous étiez à l'étape ${stepToStore}.`,
+      });
+    } catch (error) {
+      setDemandeMessage({
+        type: "error",
+        text: "Impossible d'enregistrer le brouillon. Vérifiez l'espace disponible.",
+      });
+    }
+  };
+
+  const chargerBrouillonNouvelleDemande = () => {
+    const brouillonBrut = localStorage.getItem(NOUVELLE_DEMANDE_DRAFT_KEY);
+    if (!brouillonBrut) return false;
+    try {
+      const brouillon = JSON.parse(brouillonBrut);
+      setNouvelleDemandeFormData({
+        ...getNouvelleDemandeInitialState(),
+        ...(brouillon.data || {}),
+      });
+      setNouvelleDemandeStep(brouillon.step || 1);
+      setDemandeMessage({
+        type: "success",
+        text: `Brouillon repris. Vous étiez à l'étape ${brouillon.step || 1}.`,
+      });
+      return true;
+    } catch (error) {
+      localStorage.removeItem(NOUVELLE_DEMANDE_DRAFT_KEY);
+      return false;
+    }
+  };
+
+  const supprimerBrouillonNouvelleDemande = () => {
+    localStorage.removeItem(NOUVELLE_DEMANDE_DRAFT_KEY);
+    setNouvelleDemandeFormData(getNouvelleDemandeInitialState());
+    setNouvelleDemandeStep(1);
+    setDemandeMessage({
+      type: "success",
+      text: "Brouillon supprimé. Le formulaire repart à l'étape 1.",
+    });
+  };
 
   const chargerLesDemandes = useCallback(() => {
     const demandesChargees = chargerDemandes();
@@ -148,18 +439,14 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
   const handleCreateDemande = () => {
     setEditingDemande(null);
     setDemandeFormType("nouvelle");
-    setDemandeFormData({
-      dateReception: "",
-      societesDemandeurs: [],
-      interlocuteur: "",
-      typeProjet: "",
-      nomProjet: "",
-      descriptionPerimetre: "",
-      perimetre: "",
-    });
-    setShowDemandeForm(true);
+    const brouillonCharge = chargerBrouillonNouvelleDemande();
+    if (!brouillonCharge) {
+      setNouvelleDemandeStep(1);
+      setNouvelleDemandeFormData(getNouvelleDemandeInitialState());
+      setDemandeMessage({ type: "", text: "" });
+    }
+    setShowNouvelleDemandeForm(true);
     setShowSelectionCards(false);
-    setDemandeMessage({ type: "", text: "" });
   };
 
   // Création d'une demande prospecte avec formulaire dédié
@@ -184,14 +471,26 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
   const handleCreateDemandeEvolution = () => {
     setEditingDemande(null);
     setDemandeFormType("evolution");
+    setEvolutionFormStep(1); // Réinitialiser à l'étape 1
     setDemandeFormData({
       dateReception: "",
-      societesDemandeurs: [],
+      societesDemandeurs:
+        societes.length > 0 ? [societes[0].id.toString()] : [],
       interlocuteur: "",
       typeProjet: "Evolution",
       nomProjet: "",
       descriptionPerimetre: "",
       perimetre: "",
+      // Nouveaux champs pour demande d'évolution
+      dateDemandeMiseAJourDATFL: "",
+      dateReponseMiseAJourDATFL: "",
+      charge: "",
+      planningDateDebut: "",
+      planningDateFin: "",
+      dateDemandeDevolution: "",
+      dateReponseDevolution: "",
+      slt: "",
+      aleasNormeParJour: "",
     });
     setShowDemandeForm(true);
     setShowSelectionCards(false);
@@ -295,11 +594,70 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       // Pour prospecte : pas besoin de descriptionPerimetre ni perimetre
       return true;
     } else if (demandeFormType === "evolution") {
-      // Pour evolution : besoin de perimetre mais pas de descriptionPerimetre
-      if (!demandeFormData.perimetre) {
+      // Pour evolution : valider tous les champs spécifiques
+      if (!demandeFormData.dateDemandeMiseAJourDATFL) {
         setDemandeMessage({
           type: "error",
-          text: "Le périmètre est obligatoire.",
+          text: "La date de demande de la mise à jour du DATFL est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.dateReponseMiseAJourDATFL) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de réponse de la mise à jour du DATFL est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.charge || demandeFormData.charge.trim() === "") {
+        setDemandeMessage({
+          type: "error",
+          text: "La charge (nombre de jours) est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.planningDateDebut) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de début du planning est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.planningDateFin) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de fin du planning est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.dateDemandeDevolution) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de demande devolution est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.dateReponseDevolution) {
+        setDemandeMessage({
+          type: "error",
+          text: "La date de réponse devolution est obligatoire.",
+        });
+        return false;
+      }
+      if (!demandeFormData.slt || demandeFormData.slt.trim() === "") {
+        setDemandeMessage({
+          type: "error",
+          text: "Le renseignement des SLT est obligatoire.",
+        });
+        return false;
+      }
+      if (
+        !demandeFormData.aleasNormeParJour ||
+        demandeFormData.aleasNormeParJour.trim() === ""
+      ) {
+        setDemandeMessage({
+          type: "error",
+          text: "Le renseignement d'un aléas en norme par jour est obligatoire.",
         });
         return false;
       }
@@ -382,8 +740,19 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
         nomProjet: "",
         descriptionPerimetre: "",
         perimetre: "",
+        // Réinitialiser les champs d'évolution
+        dateDemandeMiseAJourDATFL: "",
+        dateReponseMiseAJourDATFL: "",
+        charge: "",
+        planningDateDebut: "",
+        planningDateFin: "",
+        dateDemandeDevolution: "",
+        dateReponseDevolution: "",
+        slt: "",
+        aleasNormeParJour: "",
       });
       setDemandeFormType("nouvelle");
+      setEvolutionFormStep(1);
       setEditingDemande(null);
       setShowSelectionCards(true);
       setSelectedDemandeType(null);
@@ -403,7 +772,18 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
       nomProjet: "",
       descriptionPerimetre: "",
       perimetre: "",
+      // Réinitialiser les champs d'évolution
+      dateDemandeMiseAJourDATFL: "",
+      dateReponseMiseAJourDATFL: "",
+      charge: "",
+      planningDateDebut: "",
+      planningDateFin: "",
+      dateDemandeDevolution: "",
+      dateReponseDevolution: "",
+      slt: "",
+      aleasNormeParJour: "",
     });
+    setEvolutionFormStep(1);
     setEditingDemande(null);
     setDemandeMessage({ type: "", text: "" });
     // Revenir à la sélection si on annule une nouvelle création
@@ -625,6 +1005,12 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
   const handleStartDemande = () => {
     if (!selectedDemandeType) return;
 
+    // Si c'est "nouvelle demande", utiliser le formulaire multi-étapes
+    if (selectedDemandeType === "nouvelle") {
+      handleCreateDemande();
+      return;
+    }
+
     setShowSelectionCards(false);
     setEditingDemande(null);
     // Important : piloter le formulaire (champs + validation) selon le type choisi
@@ -765,6 +1151,763 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
           </div>
         )}
 
+        {/* Formulaire multi-étapes "Nouvelle demande" */}
+        {showNouvelleDemandeForm && (
+          <div
+            className="nouvelle-demande-form-container"
+            style={{
+              maxWidth: "1200px",
+              margin: "0 auto 32px auto",
+              padding: "32px",
+              backgroundColor: "#f8fafc",
+              borderRadius: "16px",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {/* Indicateur de progression des étapes */}
+            <div
+              className="steps-indicator"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "40px",
+                padding: "0 20px",
+                position: "relative",
+              }}
+            >
+              {[
+                { num: 1, label: "Enregistrement" },
+                { num: 2, label: "Clarification" },
+                { num: 3, label: "Planification" },
+                { num: 4, label: "Codage" },
+                { num: 5, label: "Documents" },
+                { num: 6, label: "TIF" },
+                { num: 7, label: "Livraison" },
+              ].map((step, index) => (
+                <div
+                  key={step.num}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "50%",
+                      backgroundColor:
+                        nouvelleDemandeStep >= step.num ? "#4A90E2" : "#e5e7eb",
+                      color:
+                        nouvelleDemandeStep >= step.num ? "white" : "#6b7280",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                      marginBottom: "8px",
+                      transition: "all 0.3s ease",
+                      border:
+                        nouvelleDemandeStep === step.num
+                          ? "3px solid #357ABD"
+                          : "none",
+                      boxShadow:
+                        nouvelleDemandeStep === step.num
+                          ? "0 0 0 4px rgba(74, 144, 226, 0.2)"
+                          : "none",
+                    }}
+                  >
+                    {step.num}
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      color:
+                        nouvelleDemandeStep >= step.num ? "#4A90E2" : "#6b7280",
+                      fontWeight:
+                        nouvelleDemandeStep >= step.num ? "600" : "400",
+                      textAlign: "center",
+                    }}
+                  >
+                    {step.label}
+                  </span>
+                  {index < 6 && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "24px",
+                        left: "calc(50% + 24px)",
+                        width: "calc(100% - 96px)",
+                        height: "3px",
+                        backgroundColor:
+                          nouvelleDemandeStep > step.num
+                            ? "#4A90E2"
+                            : "#e5e7eb",
+                        zIndex: 0,
+                        transition: "all 0.3s ease",
+                      }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Formulaire selon l'étape */}
+            <form onSubmit={handleNouvelleDemandeSubmit}>
+              {demandeMessage.text && (
+                <div
+                  className={`info-box ${
+                    demandeMessage.type === "error"
+                      ? "error-box"
+                      : "success-box"
+                  }`}
+                  style={{
+                    marginBottom: "24px",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    backgroundColor:
+                      demandeMessage.type === "error" ? "#fee2e2" : "#d1fae5",
+                    border: `1px solid ${
+                      demandeMessage.type === "error" ? "#fecaca" : "#a7f3d0"
+                    }`,
+                    color:
+                      demandeMessage.type === "error" ? "#991b1b" : "#065f46",
+                  }}
+                >
+                  <p style={{ margin: 0 }}>{demandeMessage.text}</p>
+                </div>
+              )}
+
+              <div
+                className="form-step-content"
+                style={{
+                  backgroundColor: "white",
+                  padding: "40px",
+                  borderRadius: "12px",
+                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+                  minHeight: "500px",
+                }}
+              >
+                {/* Étape 1: Enregistrement de la demande */}
+                {nouvelleDemandeStep === 1 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      1. Enregistrement de la demande
+                    </h3>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "24px",
+                      }}
+                    >
+                      <div className="form-group">
+                        <label>
+                          Date d'enregistrement{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateEnregistrement"
+                          value={nouvelleDemandeFormData.dateEnregistrement}
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Le demandeur <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="demandeur"
+                          value={nouvelleDemandeFormData.demandeur}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="Nom du demandeur"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          L'interlocuteur client (DPASI - Nominatif){" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="interlocuteurClient"
+                          value={nouvelleDemandeFormData.interlocuteurClient}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="Nom de l'interlocuteur"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Type de projet <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="typeProjet"
+                          value={nouvelleDemandeFormData.typeProjet}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="Ex: Refonte, Nouvelle feature..."
+                          required
+                        />
+                      </div>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label>
+                          Nom du projet / Applicatif{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="nomProjet"
+                          value={nouvelleDemandeFormData.nomProjet}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="Nom du projet"
+                          required
+                        />
+                      </div>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label>
+                          Description du projet{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <textarea
+                          name="descriptionProjet"
+                          value={nouvelleDemandeFormData.descriptionProjet}
+                          onChange={handleNouvelleDemandeInputChange}
+                          rows={4}
+                          placeholder="Décrivez le projet..."
+                          required
+                        />
+                      </div>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label>
+                          Description du périmètre{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <textarea
+                          name="descriptionPerimetre"
+                          value={nouvelleDemandeFormData.descriptionPerimetre}
+                          onChange={handleNouvelleDemandeInputChange}
+                          rows={4}
+                          placeholder="Décrivez le périmètre..."
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Statut de la demande{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <select
+                          name="statutDemande"
+                          value={nouvelleDemandeFormData.statutDemande}
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        >
+                          <option value="">Sélectionnez un statut</option>
+                          <option value="en attente">En attente</option>
+                          <option value="en cours">En cours</option>
+                          <option value="terminé">Terminé</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Date de réception de la demande{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateReception"
+                          value={nouvelleDemandeFormData.dateReception}
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label>
+                          Enregistrement du lien INGRID du CDC{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          name="lienIngridCDC"
+                          value={nouvelleDemandeFormData.lienIngridCDC}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="https://ingrid.example.com/..."
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 2: Clarification de la demande */}
+                {nouvelleDemandeStep === 2 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      2. Clarification de la demande
+                    </h3>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "24px",
+                      }}
+                    >
+                      <div className="form-group">
+                        <label>
+                          Date de transmission du backlog{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateTransmissionBacklog"
+                          value={
+                            nouvelleDemandeFormData.dateTransmissionBacklog
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Date de confirmation de validation{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateConfirmationValidation"
+                          value={
+                            nouvelleDemandeFormData.dateConfirmationValidation
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 3: Planification du périmètre */}
+                {nouvelleDemandeStep === 3 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      3. Planification du périmètre
+                    </h3>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "24px",
+                      }}
+                    >
+                      <div className="form-group">
+                        <label>
+                          Date de demande de planification DEV+TIF{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateDemandePlanificationDevTif"
+                          value={
+                            nouvelleDemandeFormData.dateDemandePlanificationDevTif
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Date du retour des équipes{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateRetourEquipes"
+                          value={nouvelleDemandeFormData.dateRetourEquipes}
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Date de communication du planning au client{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="dateCommunicationPlanningClient"
+                          value={
+                            nouvelleDemandeFormData.dateCommunicationPlanningClient
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Nombre de sprint pour le périmètre{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="number"
+                          name="nombreSprint"
+                          value={nouvelleDemandeFormData.nombreSprint}
+                          onChange={handleNouvelleDemandeInputChange}
+                          min="1"
+                          placeholder="Ex: 3"
+                          required
+                        />
+                      </div>
+                      <div
+                        className="form-group"
+                        style={{ gridColumn: "1 / -1" }}
+                      >
+                        <label>Proposer une roadmap</label>
+                        <textarea
+                          name="roadmap"
+                          value={nouvelleDemandeFormData.roadmap}
+                          onChange={handleNouvelleDemandeInputChange}
+                          rows={4}
+                          placeholder="Décrivez la roadmap..."
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Date effective de livraison au TIF</label>
+                        <input
+                          type="date"
+                          name="dateEffectiveLivraisonTIF"
+                          value={
+                            nouvelleDemandeFormData.dateEffectiveLivraisonTIF
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Date effective de livraison au client</label>
+                        <input
+                          type="date"
+                          name="dateEffectiveLivraisonClient"
+                          value={
+                            nouvelleDemandeFormData.dateEffectiveLivraisonClient
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                        />
+                      </div>
+                      {nouvelleDemandeFormData.dateEffectiveLivraisonTIF && (
+                        <div
+                          className="form-group"
+                          style={{ gridColumn: "1 / -1" }}
+                        >
+                          <label>
+                            En cas de retard, renseigner les motifs du retard
+                            (TIF)
+                          </label>
+                          <textarea
+                            name="motifsRetardTIF"
+                            value={nouvelleDemandeFormData.motifsRetardTIF}
+                            onChange={handleNouvelleDemandeInputChange}
+                            rows={3}
+                            placeholder="Décrivez les motifs du retard..."
+                          />
+                        </div>
+                      )}
+                      {nouvelleDemandeFormData.dateEffectiveLivraisonClient && (
+                        <div
+                          className="form-group"
+                          style={{ gridColumn: "1 / -1" }}
+                        >
+                          <label>
+                            En cas de retard, renseigner les motifs du retard
+                            (Client)
+                          </label>
+                          <textarea
+                            name="motifsRetardClient"
+                            value={nouvelleDemandeFormData.motifsRetardClient}
+                            onChange={handleNouvelleDemandeInputChange}
+                            rows={3}
+                            placeholder="Décrivez les motifs du retard..."
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 4: Codage de l'application */}
+                {nouvelleDemandeStep === 4 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      4. Codage de l'application
+                    </h3>
+                    <div className="form-group" style={{ maxWidth: "400px" }}>
+                      <label>
+                        Statut <span className="required">*</span>
+                      </label>
+                      <select
+                        name="statutCodage"
+                        value={nouvelleDemandeFormData.statutCodage}
+                        onChange={handleNouvelleDemandeInputChange}
+                        required
+                      >
+                        <option value="en attente">En attente</option>
+                        <option value="en cours">En cours</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 5: Présentation des documents */}
+                {nouvelleDemandeStep === 5 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      5. Présentation des documents
+                    </h3>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr",
+                        gap: "24px",
+                      }}
+                    >
+                      <div className="form-group">
+                        <label>
+                          Présentation de kickoff - Lien INGRID{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          name="lienIngridKickoff"
+                          value={nouvelleDemandeFormData.lienIngridKickoff}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="https://ingrid.example.com/..."
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Rédaction des points de contrôles (TIF) - Lien INGRID{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          name="lienIngridPointsControleTIF"
+                          value={
+                            nouvelleDemandeFormData.lienIngridPointsControleTIF
+                          }
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="https://ingrid.example.com/..."
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>
+                          Rédaction du signoff document - Lien INGRID{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          name="lienIngridSignoff"
+                          value={nouvelleDemandeFormData.lienIngridSignoff}
+                          onChange={handleNouvelleDemandeInputChange}
+                          placeholder="https://ingrid.example.com/..."
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 6: Réalisation des TIF */}
+                {nouvelleDemandeStep === 6 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      6. Réalisation des TIF
+                    </h3>
+                    <div className="form-group" style={{ maxWidth: "400px" }}>
+                      <label>
+                        Statut <span className="required">*</span>
+                      </label>
+                      <select
+                        name="statutTIF"
+                        value={nouvelleDemandeFormData.statutTIF}
+                        onChange={handleNouvelleDemandeInputChange}
+                        required
+                      >
+                        <option value="en attente">En attente</option>
+                        <option value="en cours">En cours</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Étape 7: Livraison effective au client */}
+                {nouvelleDemandeStep === 7 && (
+                  <div>
+                    <h3
+                      style={{
+                        marginBottom: "32px",
+                        color: "#1a1a1a",
+                        fontSize: "24px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      7. Livraison effective au client
+                    </h3>
+                    <div className="form-group" style={{ maxWidth: "400px" }}>
+                      <label>
+                        Statut <span className="required">*</span>
+                      </label>
+                      <select
+                        name="statutLivraisonClient"
+                        value={nouvelleDemandeFormData.statutLivraisonClient}
+                        onChange={handleNouvelleDemandeInputChange}
+                        required
+                      >
+                        <option value="en attente">En attente</option>
+                        <option value="effectué">Effectué</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Boutons de navigation */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "32px",
+                  paddingTop: "24px",
+                  borderTop: "2px solid #e5e7eb",
+                }}
+              >
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleNouvelleDemandeCancel}
+                  >
+                    ← Retour à la page principale
+                  </button>
+                  {nouvelleDemandeStep > 1 && (
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handleNouvelleDemandePrevious}
+                    >
+                      ← Retour
+                    </button>
+                  )}
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "center",
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => sauvegarderNouvelleDemandeBrouillon()}
+                  >
+                    Enregistrer le brouillon
+                  </button>
+                  <button
+                    type="button"
+                    onClick={supprimerBrouillonNouvelleDemande}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#6b7280",
+                      textDecoration: "underline",
+                      padding: "8px 4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Supprimer le brouillon
+                  </button>
+                  {nouvelleDemandeStep < 7 ? (
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={handleNouvelleDemandeNext}
+                    >
+                      Suivant →
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn-primary">
+                      Terminer
+                    </button>
+                  )}
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
         {/* Bouton "Retour à la sélection" supprimé à la demande */}
         <div
           className="section-rubrique"
@@ -824,7 +1967,7 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                       : demandeFormType === "prospecte"
                       ? "Créer une demande prospecte"
                       : demandeFormType === "evolution"
-                      ? "Créer une demande d'évolution"
+                      ? `Créer une demande d'évolution - Étape ${evolutionFormStep}/3`
                       : "Créer une nouvelle demande"}
                   </h3>
                   <button className="modal-close" onClick={handleCancelDemande}>
@@ -864,94 +2007,104 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                       value={demandeFormData.typeProjet}
                     />
                   )}
-                  {/* Champs communs à tous les formulaires */}
-                  <div className="form-group">
-                    <label htmlFor="demandeDateEnregistrement">
-                      Date d'enregistrement
-                    </label>
-                    <input
-                      type="text"
-                      id="demandeDateEnregistrement"
-                      value={
-                        editingDemande
-                          ? editingDemande.dateEnregistrement
-                          : new Date().toISOString().split("T")[0]
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="demandeDateReception">
-                      Date de réception <span className="required">*</span>
-                    </label>
-                    <input
-                      type="date"
-                      id="demandeDateReception"
-                      name="dateReception"
-                      value={demandeFormData.dateReception}
-                      onChange={handleDemandeInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="demandeNomProjet">
-                      Nom du projet <span className="required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="demandeNomProjet"
-                      name="nomProjet"
-                      value={demandeFormData.nomProjet}
-                      onChange={handleDemandeInputChange}
-                      placeholder="Nom du projet"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="demandeSocietesDemandeurs">
-                      Sociétés demandeurs <span className="required">*</span>
-                    </label>
-                    <select
-                      id="demandeSocietesDemandeurs"
-                      name="societesDemandeurs"
-                      value={demandeFormData.societesDemandeurs[0] || ""}
-                      onChange={handleDemandeInputChange}
-                      required
-                    >
-                      {societes.length === 0 && (
-                        <option value="" disabled>
-                          Aucune société disponible (ajoutez-en dans
-                          Paramétrage)
-                        </option>
-                      )}
-                      {societes.map((societe) => (
-                        <option key={societe.id} value={societe.id.toString()}>
-                          {societe.nom}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="demandeInterlocuteur">
-                      Collaborateur <span className="required">*</span>
-                    </label>
-                    <select
-                      id="demandeInterlocuteur"
-                      name="interlocuteur"
-                      value={demandeFormData.interlocuteur || ""}
-                      onChange={handleDemandeInputChange}
-                    >
-                      <option value="" disabled>
-                        {collaborateurs.length === 0
-                          ? "Aucun collaborateur trouvé (ajoutez-en dans Paramétrage)"
-                          : "Sélectionnez un collaborateur"}
-                      </option>
-                      {collaborateurs.map((collab) => (
-                        <option key={collab.id} value={collab.nom}>
-                          {collab.nom} {collab.email ? `- ${collab.email}` : ""}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
+                  {/* Champs communs - affichés uniquement si ce n'est pas une demande d'évolution ou si on est en mode édition */}
+                  {!(demandeFormType === "evolution" && !editingDemande) && (
+                    <>
+                      <div className="form-group">
+                        <label htmlFor="demandeDateEnregistrement">
+                          Date d'enregistrement
+                        </label>
+                        <input
+                          type="text"
+                          id="demandeDateEnregistrement"
+                          value={
+                            editingDemande
+                              ? editingDemande.dateEnregistrement
+                              : new Date().toISOString().split("T")[0]
+                          }
+                          disabled
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="demandeDateReception">
+                          Date de réception <span className="required">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          id="demandeDateReception"
+                          name="dateReception"
+                          value={demandeFormData.dateReception}
+                          onChange={handleDemandeInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="demandeNomProjet">
+                          Nom du projet <span className="required">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="demandeNomProjet"
+                          name="nomProjet"
+                          value={demandeFormData.nomProjet}
+                          onChange={handleDemandeInputChange}
+                          placeholder="Nom du projet"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="demandeSocietesDemandeurs">
+                          Sociétés demandeurs{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <select
+                          id="demandeSocietesDemandeurs"
+                          name="societesDemandeurs"
+                          value={demandeFormData.societesDemandeurs[0] || ""}
+                          onChange={handleDemandeInputChange}
+                          required
+                        >
+                          {societes.length === 0 && (
+                            <option value="" disabled>
+                              Aucune société disponible (ajoutez-en dans
+                              Paramétrage)
+                            </option>
+                          )}
+                          {societes.map((societe) => (
+                            <option
+                              key={societe.id}
+                              value={societe.id.toString()}
+                            >
+                              {societe.nom}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="demandeInterlocuteur">
+                          Collaborateur <span className="required">*</span>
+                        </label>
+                        <select
+                          id="demandeInterlocuteur"
+                          name="interlocuteur"
+                          value={demandeFormData.interlocuteur || ""}
+                          onChange={handleDemandeInputChange}
+                        >
+                          <option value="" disabled>
+                            {collaborateurs.length === 0
+                              ? "Aucun collaborateur trouvé (ajoutez-en dans Paramétrage)"
+                              : "Sélectionnez un collaborateur"}
+                          </option>
+                          {collaborateurs.map((collab) => (
+                            <option key={collab.id} value={collab.nom}>
+                              {collab.nom}{" "}
+                              {collab.email ? `- ${collab.email}` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
 
                   {/* Champs spécifiques selon le type de formulaire */}
                   {demandeFormType === "nouvelle" && (
@@ -1010,42 +2163,229 @@ const Demandes = ({ activeSubPage: activeSubPageProp }) => {
                   )}
 
                   {demandeFormType === "evolution" && (
-                    <div className="form-group">
-                      <label htmlFor="demandePerimetre">
-                        Périmètre <span className="required">*</span>
-                      </label>
-                      <select
-                        id="demandePerimetre"
-                        name="perimetre"
-                        value={demandeFormData.perimetre}
-                        onChange={handleDemandeInputChange}
-                        required
-                      >
-                        <option value="" disabled>
-                          Sélectionnez un périmètre
-                        </option>
-                        {perimetreOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <>
+                      {/* Étape 1 : Dates de mise à jour DATFL */}
+                      {evolutionFormStep === 1 && (
+                        <>
+                          <div className="form-group">
+                            <label htmlFor="dateDemandeMiseAJourDATFL">
+                              Date de demande de la mise à jour du DATFL{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              id="dateDemandeMiseAJourDATFL"
+                              name="dateDemandeMiseAJourDATFL"
+                              value={demandeFormData.dateDemandeMiseAJourDATFL}
+                              onChange={handleDemandeInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="dateReponseMiseAJourDATFL">
+                              Date de réponse de la mise à jour du DATFL{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              id="dateReponseMiseAJourDATFL"
+                              name="dateReponseMiseAJourDATFL"
+                              value={demandeFormData.dateReponseMiseAJourDATFL}
+                              onChange={handleDemandeInputChange}
+                              required
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* Étape 2 : Charge et Planning */}
+                      {evolutionFormStep === 2 && (
+                        <>
+                          <div className="form-group">
+                            <label htmlFor="charge">
+                              Charge (nombre de jours){" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              id="charge"
+                              name="charge"
+                              value={demandeFormData.charge}
+                              onChange={handleDemandeInputChange}
+                              placeholder="Ex: 5"
+                              min="0"
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="planningDateDebut">
+                              Date de début du planning{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              id="planningDateDebut"
+                              name="planningDateDebut"
+                              value={demandeFormData.planningDateDebut}
+                              onChange={handleDemandeInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="planningDateFin">
+                              Date de fin du planning{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              id="planningDateFin"
+                              name="planningDateFin"
+                              value={demandeFormData.planningDateFin}
+                              onChange={handleDemandeInputChange}
+                              required
+                            />
+                          </div>
+                          {demandeFormData.planningDateDebut &&
+                            demandeFormData.planningDateFin && (
+                              <div
+                                style={{
+                                  padding: "12px",
+                                  backgroundColor: "#f0f9ff",
+                                  borderRadius: "6px",
+                                  marginTop: "8px",
+                                  color: "#1e40af",
+                                }}
+                              >
+                                <strong>Planning :</strong>{" "}
+                                {formatDateEnFrancais(
+                                  demandeFormData.planningDateDebut
+                                )}{" "}
+                                au{" "}
+                                {formatDateEnFrancais(
+                                  demandeFormData.planningDateFin
+                                )}
+                              </div>
+                            )}
+                        </>
+                      )}
+
+                      {/* Étape 3 : Dévolution */}
+                      {evolutionFormStep === 3 && (
+                        <>
+                          <div className="form-group">
+                            <label htmlFor="dateDemandeDevolution">
+                              Date de demande devolution{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              id="dateDemandeDevolution"
+                              name="dateDemandeDevolution"
+                              value={demandeFormData.dateDemandeDevolution}
+                              onChange={handleDemandeInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="dateReponseDevolution">
+                              Date de réponse devolution{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              id="dateReponseDevolution"
+                              name="dateReponseDevolution"
+                              value={demandeFormData.dateReponseDevolution}
+                              onChange={handleDemandeInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="slt">
+                              Renseigner les SLT{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <textarea
+                              id="slt"
+                              name="slt"
+                              value={demandeFormData.slt}
+                              onChange={handleDemandeInputChange}
+                              rows={4}
+                              placeholder="Saisissez les SLT..."
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="aleasNormeParJour">
+                              Renseigner un aléas en norme par jour{" "}
+                              <span className="required">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              id="aleasNormeParJour"
+                              name="aleasNormeParJour"
+                              value={demandeFormData.aleasNormeParJour}
+                              onChange={handleDemandeInputChange}
+                              placeholder="Ex: 0.5"
+                              required
+                            />
+                          </div>
+                        </>
+                      )}
+                    </>
                   )}
 
                   {/* Pour prospecte : pas de champs supplémentaires */}
 
-                  <div className="modal-actions">
-                    <button type="submit" className="btn-primary">
-                      {editingDemande ? "Mettre à jour" : "Créer"}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      onClick={handleCancelDemande}
-                    >
-                      Annuler
-                    </button>
+                  <div
+                    className="modal-actions"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      {demandeFormType === "evolution" &&
+                        evolutionFormStep > 1 && (
+                          <button
+                            type="button"
+                            className="btn-secondary"
+                            onClick={handleEvolutionPreviousStep}
+                            style={{ marginRight: "8px" }}
+                          >
+                            ← Précédent
+                          </button>
+                        )}
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={handleCancelDemande}
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                    <div>
+                      {demandeFormType === "evolution" ? (
+                        evolutionFormStep < 3 ? (
+                          <button
+                            type="button"
+                            className="btn-primary"
+                            onClick={handleEvolutionNextStep}
+                          >
+                            Suivant →
+                          </button>
+                        ) : (
+                          <button type="submit" className="btn-primary">
+                            Terminer
+                          </button>
+                        )
+                      ) : (
+                        <button type="submit" className="btn-primary">
+                          {editingDemande ? "Mettre à jour" : "Créer"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </form>
               </div>

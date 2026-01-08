@@ -645,19 +645,6 @@ const RecetteLivraison = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleRecetteSubmit}>
                   <div className="form-group">
-                    <label htmlFor="recetteId">Identifiant de la recette</label>
-                    <input
-                      type="text"
-                      id="recetteId"
-                      value={
-                        editingRecette
-                          ? editingRecette.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="dateDebut">
                       Date effective de début <span className="required">*</span>
                     </label>
@@ -1002,19 +989,6 @@ const RecetteLivraison = ({ activeSubPage: activeSubPageProp }) => {
                 )}
                 <form onSubmit={handleUATSubmit}>
                   <div className="form-group">
-                    <label htmlFor="uatId">Identifiant de l'UAT</label>
-                    <input
-                      type="text"
-                      id="uatId"
-                      value={
-                        editingUAT
-                          ? editingUAT.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
-                  <div className="form-group">
                     <label htmlFor="dateDebutUAT">
                       Date début UAT <span className="required">*</span>
                     </label>
@@ -1338,19 +1312,6 @@ const RecetteLivraison = ({ activeSubPage: activeSubPageProp }) => {
                   </div>
                 )}
                 <form onSubmit={handleLivraisonSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="livraisonId">Identifiant de la livraison</label>
-                    <input
-                      type="text"
-                      id="livraisonId"
-                      value={
-                        editingLivraison
-                          ? editingLivraison.id
-                          : "Généré automatiquement"
-                      }
-                      disabled
-                    />
-                  </div>
                   <div className="form-group">
                     <label htmlFor="numeroVersion">
                       Numéro de version <span className="required">*</span>
