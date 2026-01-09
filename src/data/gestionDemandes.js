@@ -21,23 +21,41 @@ const getDemandeRequirements = (typeProjet) => {
   };
 };
 
-// Charger les demandes depuis localStorage ou le fichier JSON initial
+// Détecter si les données stockées correspondent aux seeds du fichier JSON
+const estJeuDeDonneesInitial = (demandesStockees) => {
+  const seeds = donneesInitiales.demandes || [];
+  if (
+    !Array.isArray(demandesStockees) ||
+    seeds.length !== demandesStockees.length
+  )
+    return false;
+  return seeds.every((seed) =>
+    demandesStockees.some(
+      (d) =>
+        d.id === seed.id &&
+        d.nomProjet === seed.nomProjet &&
+        d.typeProjet === seed.typeProjet
+    )
+  );
+};
+
+// Charger les demandes depuis localStorage (pas de pré-saisie par défaut)
 const chargerDemandes = () => {
   const donneesStockees = localStorage.getItem(CLE_STORAGE);
 
   if (donneesStockees) {
-    // Vérifier si le tableau n'est pas vide
     const demandesStockees = JSON.parse(donneesStockees);
     if (demandesStockees && demandesStockees.length > 0) {
-      // Utiliser les données de localStorage si elles ne sont pas vides
+      // Si ce sont les seeds, on renvoie une liste vide pour partir de zéro
+      if (estJeuDeDonneesInitial(demandesStockees)) {
+        return [];
+      }
       return demandesStockees;
     }
   }
 
-  // Sinon, utiliser les données initiales du fichier JSON
-  const demandesInitiales = donneesInitiales.demandes || [];
-  sauvegarderDemandes(demandesInitiales);
-  return demandesInitiales;
+  // Aucune donnée persistée : on commence vide
+  return [];
 };
 
 // Sauvegarder les demandes dans localStorage
@@ -54,77 +72,88 @@ const creerDemande = ({
   nomProjet,
   descriptionPerimetre,
   perimetre,
+  isDraft = false,
+  ...rest
 }) => {
   const demandes = chargerDemandes();
 
   const { requiresDescriptionPerimetre, requiresPerimetre } =
     getDemandeRequirements(typeProjet);
 
-  // Vérifier que tous les champs obligatoires sont remplis
-  if (!dateReception) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
+  if (!isDraft) {
+    // Vérifier que tous les champs obligatoires sont remplis
+    if (!dateReception) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    if (!societesDemandeurs || societesDemandeurs.length === 0) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    if (!interlocuteur) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    if (!typeProjet) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    if (!nomProjet) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    if (requiresDescriptionPerimetre && !descriptionPerimetre) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    if (requiresPerimetre && !perimetre) {
+      return {
+        succes: false,
+        message: "Tous les champs obligatoires doivent être remplis",
+      };
+    }
+
+    // Vérifier que les sociétés existent
+    const societes = chargerSocietes();
+    const societesIds = Array.isArray(societesDemandeurs)
+      ? societesDemandeurs
+      : [societesDemandeurs];
+    const toutesSocietesExistantes = societesIds.every((id) =>
+      societes.some((s) => s.id === parseInt(id))
+    );
+
+    if (!toutesSocietesExistantes) {
+      return {
+        succes: false,
+        message: "Une ou plusieurs sociétés sélectionnées n'existent pas",
+      };
+    }
   }
 
-  if (!societesDemandeurs || societesDemandeurs.length === 0) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
-  }
-
-  if (!interlocuteur) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
-  }
-
-  if (!typeProjet) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
-  }
-
-  if (!nomProjet) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
-  }
-
-  if (requiresDescriptionPerimetre && !descriptionPerimetre) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
-  }
-
-  if (requiresPerimetre && !perimetre) {
-    return {
-      succes: false,
-      message: "Tous les champs obligatoires doivent être remplis",
-    };
-  }
-
-  // Vérifier que les sociétés existent
-  const societes = chargerSocietes();
-  const societesIds = Array.isArray(societesDemandeurs)
-    ? societesDemandeurs
-    : [societesDemandeurs];
-  const toutesSocietesExistantes = societesIds.every((id) =>
-    societes.some((s) => s.id === parseInt(id))
-  );
-
-  if (!toutesSocietesExistantes) {
-    return {
-      succes: false,
-      message: "Une ou plusieurs sociétés sélectionnées n'existent pas",
-    };
-  }
+  const societesIds =
+    Array.isArray(societesDemandeurs) && societesDemandeurs.length > 0
+      ? societesDemandeurs
+      : societesDemandeurs
+      ? [societesDemandeurs]
+      : [];
 
   // Générer un nouvel ID
   const nouvelId =
@@ -138,13 +167,15 @@ const creerDemande = ({
     dateEnregistrement: dateEnregistrement,
     dateReception: dateReception,
     societesDemandeurs: societesIds.map((id) => parseInt(id)),
-    interlocuteur: interlocuteur.trim(),
-    typeProjet: typeProjet.trim(),
-    nomProjet: nomProjet.trim(),
+    interlocuteur: interlocuteur ? interlocuteur.trim() : "",
+    typeProjet: typeProjet ? typeProjet.trim() : "",
+    nomProjet: nomProjet ? nomProjet.trim() : "",
     descriptionPerimetre: descriptionPerimetre
       ? String(descriptionPerimetre).trim()
       : "",
     perimetre: perimetre ? String(perimetre) : "",
+    isDraft: !!isDraft,
+    ...rest,
   };
 
   demandes.push(nouvelleDemande);
@@ -178,6 +209,8 @@ const mettreAJourDemande = (
     dateElaborationPlanningDEV,
     dateValidationPlanningDEV,
     statutSoumission,
+    isDraft = false,
+    ...rest
   }
 ) => {
   const demandes = chargerDemandes();
@@ -188,48 +221,50 @@ const mettreAJourDemande = (
   }
 
   // Vérifier que tous les champs obligatoires sont remplis (seulement si on met à jour les champs de base)
-  if (
-    dateReception !== undefined &&
-    societesDemandeurs !== undefined &&
-    interlocuteur !== undefined &&
-    typeProjet !== undefined &&
-    nomProjet !== undefined &&
-    descriptionPerimetre !== undefined &&
-    perimetre !== undefined
-  ) {
-    const { requiresDescriptionPerimetre, requiresPerimetre } =
-      getDemandeRequirements(typeProjet);
-
+  if (!isDraft) {
     if (
-      !dateReception ||
-      !societesDemandeurs ||
-      societesDemandeurs.length === 0 ||
-      !interlocuteur ||
-      !typeProjet ||
-      !nomProjet ||
-      (requiresDescriptionPerimetre && !descriptionPerimetre) ||
-      (requiresPerimetre && !perimetre)
+      dateReception !== undefined &&
+      societesDemandeurs !== undefined &&
+      interlocuteur !== undefined &&
+      typeProjet !== undefined &&
+      nomProjet !== undefined &&
+      descriptionPerimetre !== undefined &&
+      perimetre !== undefined
     ) {
-      return {
-        succes: false,
-        message: "Tous les champs obligatoires doivent être remplis",
-      };
-    }
+      const { requiresDescriptionPerimetre, requiresPerimetre } =
+        getDemandeRequirements(typeProjet);
 
-    // Vérifier que les sociétés existent
-    const societes = chargerSocietes();
-    const societesIds = Array.isArray(societesDemandeurs)
-      ? societesDemandeurs
-      : [societesDemandeurs];
-    const toutesSocietesExistantes = societesIds.every((id) =>
-      societes.some((s) => s.id === parseInt(id))
-    );
+      if (
+        !dateReception ||
+        !societesDemandeurs ||
+        societesDemandeurs.length === 0 ||
+        !interlocuteur ||
+        !typeProjet ||
+        !nomProjet ||
+        (requiresDescriptionPerimetre && !descriptionPerimetre) ||
+        (requiresPerimetre && !perimetre)
+      ) {
+        return {
+          succes: false,
+          message: "Tous les champs obligatoires doivent être remplis",
+        };
+      }
 
-    if (!toutesSocietesExistantes) {
-      return {
-        succes: false,
-        message: "Une ou plusieurs sociétés sélectionnées n'existent pas",
-      };
+      // Vérifier que les sociétés existent
+      const societes = chargerSocietes();
+      const societesIds = Array.isArray(societesDemandeurs)
+        ? societesDemandeurs
+        : [societesDemandeurs];
+      const toutesSocietesExistantes = societesIds.every((id) =>
+        societes.some((s) => s.id === parseInt(id))
+      );
+
+      if (!toutesSocietesExistantes) {
+        return {
+          succes: false,
+          message: "Une ou plusieurs sociétés sélectionnées n'existent pas",
+        };
+      }
     }
   }
 
@@ -265,6 +300,8 @@ const mettreAJourDemande = (
       dateValidationPlanningDEV,
     }),
     ...(statutSoumission !== undefined && { statutSoumission }),
+    ...(isDraft !== undefined && { isDraft }),
+    ...(rest || {}),
   };
 
   sauvegarderDemandes(demandes);
